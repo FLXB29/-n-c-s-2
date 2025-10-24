@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventHub - Navigation Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 3rem;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: #48bb78;
+            color: white;
+            border-radius: 2rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+            border-radius: 1rem;
+            text-decoration: none;
+            color: white;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-card:hover::before {
+            opacity: 1;
+        }
+
+        .nav-card.disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .nav-card.disabled:hover {
+            transform: none;
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-desc {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .card-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .info-section {
+            background: #f7fafc;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-section h3 {
+            color: #2d3748;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .info-list {
+            list-style: none;
+        }
+
+        .info-list li {
+            padding: 0.5rem 0;
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-list li::before {
+            content: '✅';
+            margin-right: 0.75rem;
+        }
+
+        .footer {
+            text-align: center;
+            color: #718096;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .nav-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🎫</div>
+            <h1>EventHub</h1>
+            <p class="subtitle">Hệ thống Quản lý & Bán vé Sự kiện</p>
+            <div class="status">✨ Phase 1 Complete</div>
+        </div>
+
+        <div class="info-section">
+            <h3>📋 Tính năng đã hoàn thành</h3>
+            <ul class="info-list">
+                <li>Trang chủ với banner slideshow</li>
+                <li>Danh sách sự kiện với bộ lọc đa tiêu chí</li>
+                <li>Chi tiết sự kiện với chọn chỗ ngồi</li>
+                <li>Responsive design toàn bộ trang</li>
+                <li>Mobile-friendly navigation</li>
+            </ul>
+        </div>
+
+        <div class="nav-grid">
+            <a href="index.html" class="nav-card">
+                <span class="card-badge">✅ Done</span>
+                <div class="card-icon">🏠</div>
+                <div class="card-title">Trang chủ</div>
+                <div class="card-desc">Banner slideshow, sự kiện nổi bật, danh mục</div>
+            </a>
+
+            <a href="events.html" class="nav-card">
+                <span class="card-badge">✅ Done</span>
+                <div class="card-icon">📋</div>
+                <div class="card-title">Danh sách sự kiện</div>
+                <div class="card-desc">Bộ lọc, sắp xếp, grid/list view</div>
+            </a>
+
+            <a href="event-detail.html" class="nav-card">
+                <span class="card-badge">✅ Done</span>
+                <div class="card-icon">🎭</div>
+                <div class="card-title">Chi tiết sự kiện</div>
+                <div class="card-desc">Thông tin đầy đủ, chọn ghế ngồi</div>
+            </a>
+
+            <a href="#" class="nav-card disabled">
+                <span class="card-badge">🔄 Coming</span>
+                <div class="card-icon">🔐</div>
+                <div class="card-title">Đăng nhập</div>
+                <div class="card-desc">Phase 2 - Đang phát triển</div>
+            </a>
+
+            <a href="#" class="nav-card disabled">
+                <span class="card-badge">🔄 Coming</span>
+                <div class="card-icon">👤</div>
+                <div class="card-title">User Dashboard</div>
+                <div class="card-desc">Phase 2 - Vé của tôi, lịch sử</div>
+            </a>
+
+            <a href="#" class="nav-card disabled">
+                <span class="card-badge">🔄 Coming</span>
+                <div class="card-icon">🎪</div>
+                <div class="card-title">Organizer Panel</div>
+                <div class="card-desc">Phase 3 - Quản lý sự kiện</div>
+            </a>
+
+            <a href="#" class="nav-card disabled">
+                <span class="card-badge">🔄 Coming</span>
+                <div class="card-icon">⚙️</div>
+                <div class="card-title">Admin Dashboard</div>
+                <div class="card-desc">Phase 4 - Quản trị hệ thống</div>
+            </a>
+        </div>
+
+        <div class="info-section">
+            <h3>🎨 Highlights</h3>
+            <ul class="info-list">
+                <li>Banner slider với auto-play và touch support</li>
+                <li>Filter sidebar với mobile overlay</li>
+                <li>Seat selection modal tương tác</li>
+                <li>Responsive từ mobile đến desktop</li>
+                <li>Modern UI với gradient và animations</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p><strong>EventHub v1.0</strong> - Phase 1 Complete</p>
+            <p>14/10/2025</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách sự kiện - EventHub</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/events.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="nav-brand">
+                    <i class="fas fa-ticket-alt"></i>
+                    <span>EventHub</span>
+                </div>
+                
+                <div class="nav-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Tìm kiếm sự kiện..." id="searchInput">
+                </div>
+                
+                <div class="nav-menu">
+                    <a href="index.html" class="nav-link">Trang chủ</a>
+                    <a href="events.html" class="nav-link active">Sự kiện</a>
+                    <div class="nav-dropdown">
+                        <a href="#" class="nav-link">Danh mục <i class="fas fa-chevron-down"></i></a>
+                        <div class="dropdown-menu">
+                            <a href="events.html?category=music">🎵 Âm nhạc</a>
+                            <a href="events.html?category=sports">⚽ Thể thao</a>
+                            <a href="events.html?category=workshop">🛠️ Workshop</a>
+                            <a href="events.html?category=conference">💼 Hội thảo</a>
+                            <a href="events.html?category=festival">🎉 Lễ hội</a>
+                        </div>
+                    </div>
+                    <a href="login.html" class="btn btn-outline">Đăng nhập</a>
+                    <a href="register.html" class="btn btn-primary">Đăng ký</a>
+                </div>
+                
+                <div class="nav-mobile-toggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Khám phá sự kiện</h1>
+            <p>Tìm kiếm và đặt vé cho các sự kiện tuyệt vời</p>
+        </div>
+    </section>
+
+    <!-- Events Listing Section -->
+    <section class="events-listing">
+        <div class="container">
+            <div class="listing-wrapper">
+                <!-- Sidebar Filters -->
+                <aside class="filters-sidebar">
+                    <div class="filter-header">
+                        <h3>Bộ lọc</h3>
+                        <button class="btn-reset" onclick="resetFilters()">Đặt lại</button>
+                    </div>
+                    
+                    <!-- Category Filter -->
+                    <div class="filter-group">
+                        <h4>Danh mục</h4>
+                        <div class="filter-options">
+                            <label class="filter-option">
+                                <input type="checkbox" name="category" value="music">
+                                <span>🎵 Âm nhạc</span>
+                                <span class="count">(125)</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" name="category" value="sports">
+                                <span>⚽ Thể thao</span>
+                                <span class="count">(86)</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" name="category" value="workshop">
+                                <span>🛠️ Workshop</span>
+                                <span class="count">(64)</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" name="category" value="conference">
+                                <span>💼 Hội thảo</span>
+                                <span class="count">(92)</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" name="category" value="festival">
+                                <span>🎉 Lễ hội</span>
+                                <span class="count">(48)</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" name="category" value="art">
+                                <span>🎨 Nghệ thuật</span>
+                                <span class="count">(71)</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Location Filter -->
+                    <div class="filter-group">
+                        <h4>Địa điểm</h4>
+                        <div class="filter-options">
+                            <label class="filter-option">
+                                <input type="checkbox" name="location" value="hanoi">
+                                <span>Hà Nội</span>
+                                <span class="count">(156)</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" name="location" value="hcm">
+                                <span>TP. Hồ Chí Minh</span>
+                                <span class="count">(198)</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" name="location" value="danang">
+                                <span>Đà Nẵng</span>
+                                <span class="count">(87)</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" name="location" value="other">
+                                <span>Tỉnh thành khác</span>
+                                <span class="count">(45)</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Date Filter -->
+                    <div class="filter-group">
+                        <h4>Thời gian</h4>
+                        <div class="filter-options">
+                            <label class="filter-option">
+                                <input type="radio" name="date" value="today">
+                                <span>Hôm nay</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="date" value="tomorrow">
+                                <span>Ngày mai</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="date" value="this-week">
+                                <span>Tuần này</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="date" value="this-month">
+                                <span>Tháng này</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="radio" name="date" value="custom">
+                                <span>Tùy chỉnh</span>
+                            </label>
+                        </div>
+                        <div class="date-range" id="customDateRange" style="display: none;">
+                            <input type="date" class="form-control" placeholder="Từ ngày">
+                            <input type="date" class="form-control" placeholder="Đến ngày">
+                        </div>
+                    </div>
+                    
+                    <!-- Price Filter -->
+                    <div class="filter-group">
+                        <h4>Khoảng giá</h4>
+                        <div class="price-range">
+                            <input type="range" min="0" max="5000000" step="100000" value="0" id="priceRange">
+                            <div class="price-values">
+                                <span id="priceMin">0 VNĐ</span>
+                                <span id="priceMax">5.000.000 VNĐ</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary btn-full" onclick="applyFilters()">Áp dụng</button>
+                </aside>
+
+                <!-- Main Content -->
+                <div class="events-content">
+                    <!-- Sort & View Options -->
+                    <div class="content-header">
+                        <div class="results-info">
+                            <h3>Tìm thấy <span id="resultCount">486</span> sự kiện</h3>
+                        </div>
+                        <div class="view-options">
+                            <select class="form-control" id="sortBy">
+                                <option value="featured">Nổi bật</option>
+                                <option value="date-asc">Ngày: Sớm nhất</option>
+                                <option value="date-desc">Ngày: Muộn nhất</option>
+                                <option value="price-asc">Giá: Thấp đến cao</option>
+                                <option value="price-desc">Giá: Cao đến thấp</option>
+                                <option value="name">Tên A-Z</option>
+                            </select>
+                            <div class="view-toggle">
+                                <button class="view-btn active" data-view="grid"><i class="fas fa-th"></i></button>
+                                <button class="view-btn" data-view="list"><i class="fas fa-list"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Events Grid -->
+                    <div class="events-grid" id="eventsGrid">
+                        <!-- Event Cards will be dynamically loaded here -->
+                        <!-- Hardcoded examples below -->
+                        
+                        <div class="event-card">
+                            <div class="event-image">
+                                <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=500" alt="Event">
+                                <span class="event-badge hot">🔥 Hot</span>
+                            </div>
+                            <div class="event-content">
+                                <div class="event-category">Âm nhạc</div>
+                                <h3 class="event-title">Concert Acoustic - Những Bản Tình Ca</h3>
+                                <div class="event-info">
+                                    <span><i class="fas fa-calendar"></i> 28/10/2025</span>
+                                    <span><i class="fas fa-map-marker-alt"></i> Nhà hát Lớn Hà Nội</span>
+                                </div>
+                                <div class="event-footer">
+                                    <div class="event-price">
+                                        <span class="price-label">Từ</span>
+                                        <span class="price-value">300.000 VNĐ</span>
+                                    </div>
+                                    <a href="event-detail.html?id=1" class="btn btn-small btn-primary">Xem chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="event-card">
+                            <div class="event-image">
+                                <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=500" alt="Event">
+                                <span class="event-badge new">✨ Mới</span>
+                            </div>
+                            <div class="event-content">
+                                <div class="event-category">Thể thao</div>
+                                <h3 class="event-title">Giải Chạy Marathon Quốc Tế</h3>
+                                <div class="event-info">
+                                    <span><i class="fas fa-calendar"></i> 05/11/2025</span>
+                                    <span><i class="fas fa-map-marker-alt"></i> Công viên Thống Nhất</span>
+                                </div>
+                                <div class="event-footer">
+                                    <div class="event-price">
+                                        <span class="price-label">Từ</span>
+                                        <span class="price-value">250.000 VNĐ</span>
+                                    </div>
+                                    <a href="event-detail.html?id=2" class="btn btn-small btn-primary">Xem chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="event-card">
+                            <div class="event-image">
+                                <img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=500" alt="Event">
+                            </div>
+                            <div class="event-content">
+                                <div class="event-category">Workshop</div>
+                                <h3 class="event-title">Workshop Nhiếp Ảnh Chuyên Nghiệp</h3>
+                                <div class="event-info">
+                                    <span><i class="fas fa-calendar"></i> 10/11/2025</span>
+                                    <span><i class="fas fa-map-marker-alt"></i> Studio ABC, TP.HCM</span>
+                                </div>
+                                <div class="event-footer">
+                                    <div class="event-price">
+                                        <span class="price-label">Từ</span>
+                                        <span class="price-value">800.000 VNĐ</span>
+                                    </div>
+                                    <a href="event-detail.html?id=3" class="btn btn-small btn-primary">Xem chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="event-card">
+                            <div class="event-image">
+                                <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=500" alt="Event">
+                            </div>
+                            <div class="event-content">
+                                <div class="event-category">Hội thảo</div>
+                                <h3 class="event-title">Tech Summit - Digital Transformation 2025</h3>
+                                <div class="event-info">
+                                    <span><i class="fas fa-calendar"></i> 18/11/2025</span>
+                                    <span><i class="fas fa-map-marker-alt"></i> Diamond Plaza, TP.HCM</span>
+                                </div>
+                                <div class="event-footer">
+                                    <div class="event-price">
+                                        <span class="price-label">Từ</span>
+                                        <span class="price-value">1.200.000 VNĐ</span>
+                                    </div>
+                                    <a href="event-detail.html?id=4" class="btn btn-small btn-primary">Xem chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="event-card">
+                            <div class="event-image">
+                                <img src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=500" alt="Event">
+                                <span class="event-badge hot">🔥 Hot</span>
+                            </div>
+                            <div class="event-content">
+                                <div class="event-category">Lễ hội</div>
+                                <h3 class="event-title">Food Festival - Lễ Hội Ẩm Thực 2025</h3>
+                                <div class="event-info">
+                                    <span><i class="fas fa-calendar"></i> 22/11/2025</span>
+                                    <span><i class="fas fa-map-marker-alt"></i> Công viên 23/9, TP.HCM</span>
+                                </div>
+                                <div class="event-footer">
+                                    <div class="event-price">
+                                        <span class="price-label">Từ</span>
+                                        <span class="price-value">150.000 VNĐ</span>
+                                    </div>
+                                    <a href="event-detail.html?id=5" class="btn btn-small btn-primary">Xem chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="event-card">
+                            <div class="event-image">
+                                <img src="https://images.unsplash.com/photo-1506157786151-b8491531f063?w=500" alt="Event">
+                            </div>
+                            <div class="event-content">
+                                <div class="event-category">Âm nhạc</div>
+                                <h3 class="event-title">Đêm Nhạc Jazz & Blues</h3>
+                                <div class="event-info">
+                                    <span><i class="fas fa-calendar"></i> 30/11/2025</span>
+                                    <span><i class="fas fa-map-marker-alt"></i> The Jazz Club, Hà Nội</span>
+                                </div>
+                                <div class="event-footer">
+                                    <div class="event-price">
+                                        <span class="price-label">Từ</span>
+                                        <span class="price-value">400.000 VNĐ</span>
+                                    </div>
+                                    <a href="event-detail.html?id=6" class="btn btn-small btn-primary">Xem chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="event-card">
+                            <div class="event-image">
+                                <img src="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=500" alt="Event">
+                            </div>
+                            <div class="event-content">
+                                <div class="event-category">Nghệ thuật</div>
+                                <h3 class="event-title">Triển Lãm Tranh Sơn Dầu Đương Đại</h3>
+                                <div class="event-info">
+                                    <span><i class="fas fa-calendar"></i> 02/12/2025</span>
+                                    <span><i class="fas fa-map-marker-alt"></i> Bảo tàng Mỹ thuật Việt Nam</span>
+                                </div>
+                                <div class="event-footer">
+                                    <div class="event-price">
+                                        <span class="price-label">Từ</span>
+                                        <span class="price-value">100.000 VNĐ</span>
+                                    </div>
+                                    <a href="event-detail.html?id=7" class="btn btn-small btn-primary">Xem chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="event-card">
+                            <div class="event-image">
+                                <img src="https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=500" alt="Event">
+                                <span class="event-badge new">✨ Mới</span>
+                            </div>
+                            <div class="event-content">
+                                <div class="event-category">Workshop</div>
+                                <h3 class="event-title">Khóa Học Làm Bánh Ngọt Pháp</h3>
+                                <div class="event-info">
+                                    <span><i class="fas fa-calendar"></i> 08/12/2025</span>
+                                    <span><i class="fas fa-map-marker-alt"></i> Cooking Studio, TP.HCM</span>
+                                </div>
+                                <div class="event-footer">
+                                    <div class="event-price">
+                                        <span class="price-label">Từ</span>
+                                        <span class="price-value">950.000 VNĐ</span>
+                                    </div>
+                                    <a href="event-detail.html?id=8" class="btn btn-small btn-primary">Xem chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="event-card">
+                            <div class="event-image">
+                                <img src="https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=500" alt="Event">
+                            </div>
+                            <div class="event-content">
+                                <div class="event-category">Hội thảo</div>
+                                <h3 class="event-title">Startup Pitch Competition 2025</h3>
+                                <div class="event-info">
+                                    <span><i class="fas fa-calendar"></i> 12/12/2025</span>
+                                    <span><i class="fas fa-map-marker-alt"></i> Innovation Hub, Hà Nội</span>
+                                </div>
+                                <div class="event-footer">
+                                    <div class="event-price">
+                                        <span class="price-label">Từ</span>
+                                        <span class="price-value">500.000 VNĐ</span>
+                                    </div>
+                                    <a href="event-detail.html?id=9" class="btn btn-small btn-primary">Xem chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination">
+                        <a href="#" class="disabled"><i class="fas fa-chevron-left"></i></a>
+                        <span class="active">1</span>
+                        <a href="#">2</a>
+                        <a href="#">3</a>
+                        <a href="#">4</a>
+                        <a href="#">5</a>
+                        <span>...</span>
+                        <a href="#">10</a>
+                        <a href="#"><i class="fas fa-chevron-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-brand">
+                        <i class="fas fa-ticket-alt"></i>
+                        <span>EventHub</span>
+                    </div>
+                    <p>Nền tảng quản lý và bán vé sự kiện hàng đầu Việt Nam</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Về chúng tôi</h4>
+                    <ul>
+                        <li><a href="#">Giới thiệu</a></li>
+                        <li><a href="#">Liên hệ</a></li>
+                        <li><a href="#">Tuyển dụng</a></li>
+                        <li><a href="#">Tin tức</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Hỗ trợ</h4>
+                    <ul>
+                        <li><a href="#">Trung tâm trợ giúp</a></li>
+                        <li><a href="#">Hướng dẫn mua vé</a></li>
+                        <li><a href="#">Chính sách hoàn tiền</a></li>
+                        <li><a href="#">Câu hỏi thường gặp</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Dành cho nhà tổ chức</h4>
+                    <ul>
+                        <li><a href="#">Tạo sự kiện</a></li>
+                        <li><a href="#">Quản lý sự kiện</a></li>
+                        <li><a href="#">Báo cáo & Phân tích</a></li>
+                        <li><a href="#">Hướng dẫn sử dụng</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Liên hệ</h4>
+                    <ul>
+                        <li><i class="fas fa-phone"></i> 1900-xxxx</li>
+                        <li><i class="fas fa-envelope"></i> support@eventhub.vn</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Hà Nội, Việt Nam</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 EventHub. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="#">Điều khoản sử dụng</a>
+                    <a href="#">Chính sách bảo mật</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/events.js"></script>
+</body>
+</html>

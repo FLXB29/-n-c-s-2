@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "title": "Tech Conference 2024",
+    "organizer": "Trần Thị B",
+    "status": "approved",
+    "date": "2024-04-15",
+    "attendees": 250,
+    "revenue": 15000000
+  },
+  {
+    "id": 2,
+    "title": "Music Festival",
+    "organizer": "Nguyễn Văn E",
+    "status": "pending",
+    "date": "2024-05-20",
+    "attendees": 0,
+    "revenue": 0
+  },
+  {
+    "id": 3,
+    "title": "Art Exhibition",
+    "organizer": "Lê Thị F",
+    "status": "rejected",
+    "date": "2024-04-30",
+    "attendees": 0,
+    "revenue": 0
+  },
+  {
+    "id": 4,
+    "title": "Food Fair",
+    "organizer": "Phạm Văn G",
+    "status": "approved",
+    "date": "2024-06-10",
+    "attendees": 180,
+    "revenue": 8500000
+  }
+]

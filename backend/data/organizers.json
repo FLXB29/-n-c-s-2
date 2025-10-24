@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "name": "Trần Thị B",
+    "company": "Tech Events Co.",
+    "events": 12,
+    "revenue": 45000000,
+    "rating": 4.8,
+    "status": "verified"
+  },
+  {
+    "id": 2,
+    "name": "Nguyễn Văn E",
+    "company": "Music Productions",
+    "events": 8,
+    "revenue": 32000000,
+    "rating": 4.5,
+    "status": "pending"
+  },
+  {
+    "id": 3,
+    "name": "Lê Thị F",
+    "company": "Art Gallery",
+    "events": 5,
+    "revenue": 18000000,
+    "rating": 4.2,
+    "status": "verified"
+  },
+  {
+    "id": 4,
+    "name": "Phạm Văn G",
+    "company": "Food & Events",
+    "events": 15,
+    "revenue": 67000000,
+    "rating": 4.9,
+    "status": "verified"
+  }
+]

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết sự kiện - EventHub</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/event-detail.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="nav-brand">
+                    <i class="fas fa-ticket-alt"></i>
+                    <span>EventHub</span>
+                </div>
+                
+                <div class="nav-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Tìm kiếm sự kiện...">
+                </div>
+                
+                <div class="nav-menu">
+                    <a href="index.html" class="nav-link">Trang chủ</a>
+                    <a href="events.html" class="nav-link">Sự kiện</a>
+                    <div class="nav-dropdown">
+                        <a href="#" class="nav-link">Danh mục <i class="fas fa-chevron-down"></i></a>
+                        <div class="dropdown-menu">
+                            <a href="events.html?category=music">🎵 Âm nhạc</a>
+                            <a href="events.html?category=sports">⚽ Thể thao</a>
+                            <a href="events.html?category=workshop">🛠️ Workshop</a>
+                            <a href="events.html?category=conference">💼 Hội thảo</a>
+                            <a href="events.html?category=festival">🎉 Lễ hội</a>
+                        </div>
+                    </div>
+                    <a href="login.html" class="btn btn-outline">Đăng nhập</a>
+                    <a href="register.html" class="btn btn-primary">Đăng ký</a>
+                </div>
+                
+                <div class="nav-mobile-toggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Event Detail Section -->
+    <section class="event-detail">
+        <div class="container">
+            <div class="detail-wrapper">
+                <!-- Left Column -->
+                <div class="detail-main">
+                    <!-- Event Cover Image -->
+                    <div class="event-cover">
+                        <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1200" alt="Concert Acoustic">
+                        <div class="cover-overlay">
+                            <span class="event-badge hot">🔥 Hot Event</span>
+                        </div>
+                    </div>
+
+                    <!-- Event Title & Info -->
+                    <div class="event-header">
+                        <div class="event-category-tag">🎵 Âm nhạc</div>
+                        <h1 class="event-title">Concert Acoustic - Những Bản Tình Ca Bất Hủ</h1>
+                        
+                        <div class="event-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-calendar-alt"></i>
+                                <div>
+                                    <strong>Thời gian</strong>
+                                    <p>Thứ 7, 28/10/2025 - 19:30</p>
+                                </div>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div>
+                                    <strong>Địa điểm</strong>
+                                    <p>Nhà hát Lớn Hà Nội</p>
+                                </div>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-users"></i>
+                                <div>
+                                    <strong>Sức chứa</strong>
+                                    <p>800 chỗ</p>
+                                </div>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-ticket-alt"></i>
+                                <div>
+                                    <strong>Còn lại</strong>
+                                    <p class="seats-left">234 vé</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Event Description -->
+                    <div class="event-section">
+                        <h2 class="section-title">Giới thiệu sự kiện</h2>
+                        <div class="event-description">
+                            <p>Hãy cùng chúng tôi trải nghiệm một đêm nhạc acoustic đầy cảm xúc với những bản tình ca bất hủ của các nhạc sĩ Việt Nam. Một buổi hòa nhạc không chỉ đơn thuần là âm nhạc, mà còn là hành trình khơi gợi những ký ức đẹp đẽ nhất trong lòng mỗi người.</p>
+                            
+                            <h3>Điểm nhấn chương trình:</h3>
+                            <ul>
+                                <li>🎤 Biểu diễn trực tiếp từ các ca sĩ hàng đầu Việt Nam</li>
+                                <li>🎸 Dàn nhạc acoustic chuyên nghiệp với hơn 20 nghệ sĩ</li>
+                                <li>🎵 Playlist gồm 30+ bản tình ca bất hủ qua các thời kỳ</li>
+                                <li>✨ Không gian ấm cúng, âm thanh đỉnh cao</li>
+                                <li>📸 Cơ hội gặp gỡ và chụp ảnh cùng nghệ sĩ</li>
+                            </ul>
+
+                            <h3>Lineup nghệ sĩ:</h3>
+                            <p>Mỹ Tâm, Hà Anh Tuấn, Đức Phúc, Hoàng Dũng, và nhiều nghệ sĩ đặc biệt khác sẽ được công bố...</p>
+
+                            <h3>Lưu ý quan trọng:</h3>
+                            <ul>
+                                <li>⏰ Vui lòng có mặt trước 30 phút để làm thủ tục check-in</li>
+                                <li>👔 Dress code: Smart casual</li>
+                                <li>🚫 Không mang đồ ăn, thức uống từ bên ngoài vào</li>
+                                <li>📵 Không quay phim, chụp ảnh có flash trong suốt buổi biểu diễn</li>
+                                <li>🎫 Vé đã mua không được hoàn lại trong mọi trường hợp</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Location Map -->
+                    <div class="event-section">
+                        <h2 class="section-title">Địa điểm tổ chức</h2>
+                        <div class="event-map">
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.0967433487647!2d105.85311931533405!3d21.02373869316477!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ab8629e5a635%3A0x7cbf2c42d4e8a428!2sOpera%20House!5e0!3m2!1sen!2s!4v1634567890123!5m2!1sen!2s" 
+                                    width="100%" 
+                                    height="400" 
+                                    style="border:0; border-radius: 0.75rem;" 
+                                    allowfullscreen="" 
+                                    loading="lazy"></iframe>
+                            <div class="map-info">
+                                <h4>Nhà hát Lớn Hà Nội</h4>
+                                <p>📍 Số 1 Tràng Tiền, Hoàn Kiếm, Hà Nội</p>
+                                <p>☎️ Hotline: (024) 3933 0113</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Organizer Info -->
+                    <div class="event-section">
+                        <h2 class="section-title">Thông tin nhà tổ chức</h2>
+                        <div class="organizer-card">
+                            <div class="organizer-avatar">
+                                <img src="https://ui-avatars.com/api/?name=Music+Production&size=80&background=667eea&color=fff" alt="Organizer">
+                            </div>
+                            <div class="organizer-info">
+                                <h4>Music Production Vietnam</h4>
+                                <p>⭐ 4.8/5 (523 đánh giá)</p>
+                                <p>📊 Đã tổ chức 156 sự kiện</p>
+                                <p>📧 Email: contact@musicpro.vn</p>
+                            </div>
+                            <a href="#" class="btn btn-outline">Xem trang</a>
+                        </div>
+                    </div>
+
+                    <!-- Comments Section -->
+                    <div class="event-section">
+                        <h2 class="section-title">Bình luận & Đánh giá</h2>
+                        <div class="comments-section">
+                            <div class="comment-form">
+                                <textarea class="form-control" placeholder="Viết bình luận của bạn..." rows="3"></textarea>
+                                <button class="btn btn-primary">Gửi bình luận</button>
+                            </div>
+                            
+                            <div class="comments-list">
+                                <div class="comment-item">
+                                    <div class="comment-avatar">
+                                        <img src="https://ui-avatars.com/api/?name=Nguyen+Van+A&size=50" alt="User">
+                                    </div>
+                                    <div class="comment-content">
+                                        <div class="comment-header">
+                                            <h5>Nguyễn Văn A</h5>
+                                            <span class="comment-time">2 giờ trước</span>
+                                        </div>
+                                        <p>Chương trình rất hay, mình đã tham gia năm ngoái và năm nay sẽ tiếp tục ủng hộ! 🎵</p>
+                                        <div class="comment-actions">
+                                            <button><i class="fas fa-thumbs-up"></i> Thích (12)</button>
+                                            <button><i class="fas fa-reply"></i> Trả lời</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="comment-item">
+                                    <div class="comment-avatar">
+                                        <img src="https://ui-avatars.com/api/?name=Tran+Thi+B&size=50" alt="User">
+                                    </div>
+                                    <div class="comment-content">
+                                        <div class="comment-header">
+                                            <h5>Trần Thị B</h5>
+                                            <span class="comment-time">5 giờ trước</span>
+                                        </div>
+                                        <p>Không gian rất đẹp, âm thanh cũng tuyệt vời. Recommend cho mọi người!</p>
+                                        <div class="comment-actions">
+                                            <button><i class="fas fa-thumbs-up"></i> Thích (8)</button>
+                                            <button><i class="fas fa-reply"></i> Trả lời</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-outline btn-full">Xem thêm bình luận</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Booking Card -->
+                <aside class="booking-sidebar">
+                    <div class="booking-card">
+                        <div class="price-section">
+                            <span class="price-label">Giá vé từ</span>
+                            <span class="price-value">300.000 VNĐ</span>
+                        </div>
+
+                        <div class="ticket-types">
+                            <h4>Chọn loại vé</h4>
+                            
+                            <label class="ticket-option">
+                                <input type="radio" name="ticket-type" value="regular" data-price="300000">
+                                <div class="ticket-details">
+                                    <div class="ticket-name">
+                                        <strong>Vé Thường</strong>
+                                        <span class="ticket-stock">Còn 156 vé</span>
+                                    </div>
+                                    <div class="ticket-price">300.000 VNĐ</div>
+                                </div>
+                            </label>
+
+                            <label class="ticket-option">
+                                <input type="radio" name="ticket-type" value="vip" data-price="500000">
+                                <div class="ticket-details">
+                                    <div class="ticket-name">
+                                        <strong>Vé VIP</strong>
+                                        <span class="ticket-stock">Còn 78 vé</span>
+                                    </div>
+                                    <div class="ticket-price">500.000 VNĐ</div>
+                                </div>
+                            </label>
+
+                            <label class="ticket-option">
+                                <input type="radio" name="ticket-type" value="svip" data-price="800000">
+                                <div class="ticket-details">
+                                    <div class="ticket-name">
+                                        <strong>Vé SVIP</strong>
+                                        <span class="ticket-stock">Chỉ còn 15 vé</span>
+                                    </div>
+                                    <div class="ticket-price">800.000 VNĐ</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="quantity-section">
+                            <h4>Số lượng</h4>
+                            <div class="quantity-control">
+                                <button class="qty-btn" onclick="decreaseQuantity()">-</button>
+                                <input type="number" id="ticketQuantity" value="1" min="1" max="10" readonly>
+                                <button class="qty-btn" onclick="increaseQuantity()">+</button>
+                            </div>
+                        </div>
+
+                        <div class="total-section">
+                            <div class="total-row">
+                                <span>Tổng cộng:</span>
+                                <strong id="totalPrice">0 VNĐ</strong>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary btn-full btn-large" onclick="openModal('seatSelectionModal')">
+                            <i class="fas fa-chair"></i> Chọn chỗ ngồi
+                        </button>
+                        
+                        <button class="btn btn-outline btn-full">
+                            <i class="fas fa-shopping-cart"></i> Mua ngay
+                        </button>
+
+                        <div class="booking-features">
+                            <div class="feature-item">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Thanh toán an toàn</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-mobile-alt"></i>
+                                <span>Vé điện tử</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-headset"></i>
+                                <span>Hỗ trợ 24/7</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Share Section -->
+                    <div class="share-section">
+                        <h4>Chia sẻ sự kiện</h4>
+                        <div class="share-buttons">
+                            <button class="share-btn facebook"><i class="fab fa-facebook-f"></i></button>
+                            <button class="share-btn twitter"><i class="fab fa-twitter"></i></button>
+                            <button class="share-btn instagram"><i class="fab fa-instagram"></i></button>
+                            <button class="share-btn link"><i class="fas fa-link"></i></button>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seat Selection Modal -->
+    <div id="seatSelectionModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 class="modal-title">Chọn chỗ ngồi</h3>
+                <button class="modal-close" onclick="closeModal('seatSelectionModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="seat-selection-wrapper">
+                    <div class="stage">
+                        <i class="fas fa-music"></i> SÂN KHẤU
+                    </div>
+                    
+                    <div class="seat-legend">
+                        <div class="legend-item">
+                            <div class="seat-demo available"></div>
+                            <span>Còn trống</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="seat-demo selected"></div>
+                            <span>Đang chọn</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="seat-demo sold"></div>
+                            <span>Đã bán</span>
+                        </div>
+                    </div>
+
+                    <div class="seats-container" id="seatsContainer">
+                        <!-- Seats will be dynamically generated by JavaScript -->
+                    </div>
+
+                    <div class="selected-seats-info">
+                        <div>
+                            <strong>Ghế đã chọn:</strong>
+                            <span id="selectedSeatsDisplay">Chưa chọn ghế nào</span>
+                        </div>
+                        <div>
+                            <strong>Tổng tiền:</strong>
+                            <span id="modalTotalPrice">0 VNĐ</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('seatSelectionModal')">Hủy</button>
+                <button class="btn btn-primary" onclick="confirmSeats()">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-brand">
+                        <i class="fas fa-ticket-alt"></i>
+                        <span>EventHub</span>
+                    </div>
+                    <p>Nền tảng quản lý và bán vé sự kiện hàng đầu Việt Nam</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Về chúng tôi</h4>
+                    <ul>
+                        <li><a href="#">Giới thiệu</a></li>
+                        <li><a href="#">Liên hệ</a></li>
+                        <li><a href="#">Tuyển dụng</a></li>
+                        <li><a href="#">Tin tức</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Hỗ trợ</h4>
+                    <ul>
+                        <li><a href="#">Trung tâm trợ giúp</a></li>
+                        <li><a href="#">Hướng dẫn mua vé</a></li>
+                        <li><a href="#">Chính sách hoàn tiền</a></li>
+                        <li><a href="#">Câu hỏi thường gặp</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Dành cho nhà tổ chức</h4>
+                    <ul>
+                        <li><a href="#">Tạo sự kiện</a></li>
+                        <li><a href="#">Quản lý sự kiện</a></li>
+                        <li><a href="#">Báo cáo & Phân tích</a></li>
+                        <li><a href="#">Hướng dẫn sử dụng</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Liên hệ</h4>
+                    <ul>
+                        <li><i class="fas fa-phone"></i> 1900-xxxx</li>
+                        <li><i class="fas fa-envelope"></i> support@eventhub.vn</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Hà Nội, Việt Nam</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 EventHub. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="#">Điều khoản sử dụng</a>
+                    <a href="#">Chính sách bảo mật</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/seat-selection.js"></script>
+</body>
+</html>

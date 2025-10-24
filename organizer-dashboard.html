@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organizer Dashboard - EventHub</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Organizer-specific styles */
+        .organizer-stats .stat-card {
+            cursor: pointer;
+        }
+        
+        .revenue-chart {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 24px;
+        }
+        
+        .chart-placeholder {
+            height: 300px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .event-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .action-card {
+            background: white;
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .action-card:hover {
+            border-color: var(--primary-color);
+            background: rgba(102, 126, 234, 0.05);
+            transform: translateY(-4px);
+        }
+        
+        .action-card i {
+            font-size: 48px;
+            color: var(--primary-color);
+            margin-bottom: 16px;
+            transition: transform 0.3s ease;
+        }
+        
+        .action-card:hover i {
+            transform: scale(1.1);
+        }
+        
+        .action-card h3 {
+            font-size: 18px;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+        
+        .action-card p {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+        
+        .event-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .event-status.published {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success-color);
+        }
+        
+        .event-status.draft {
+            background: rgba(156, 163, 175, 0.1);
+            color: #6b7280;
+        }
+        
+        .event-status.ended {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .quick-actions .btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+        
+        .attendee-avatar-group {
+            display: flex;
+            align-items: center;
+        }
+        
+        .attendee-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid white;
+            margin-left: -10px;
+        }
+        
+        .attendee-avatar:first-child {
+            margin-left: 0;
+        }
+        
+        .attendee-more {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: -10px;
+            border: 2px solid white;
+        }
+    </style>
+</head>
+<body class="dashboard-body">
+    <!-- Top Navigation -->
+    <nav class="dashboard-nav">
+        <div class="dashboard-nav-left">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a href="index.html" class="nav-logo">
+                <i class="fas fa-calendar-alt"></i>
+                EventHub
+            </a>
+            <span class="badge badge-warning" style="margin-left: 12px;">Organizer</span>
+        </div>
+        <div class="dashboard-nav-right">
+            <button class="nav-icon-btn" title="Thông báo">
+                <i class="fas fa-bell"></i>
+                <span class="badge-dot"></span>
+            </button>
+            <div class="user-menu">
+                <button class="user-menu-btn">
+                    <img src="https://i.pravatar.cc/40?img=8" alt="Organizer" class="user-avatar">
+                    <span class="user-name">Công ty ABC Events</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="user-dropdown">
+                    <a href="#profile"><i class="fas fa-user"></i> Hồ sơ công ty</a>
+                    <a href="#settings"><i class="fas fa-cog"></i> Cài đặt</a>
+                    <a href="user-dashboard.html"><i class="fas fa-exchange-alt"></i> Chuyển sang User</a>
+                    <hr>
+                    <a href="index.html" class="logout"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="dashboard-sidebar" id="dashboardSidebar">
+            <div class="sidebar-menu">
+                <a href="#overview" class="menu-item active" data-section="overview">
+                    <i class="fas fa-th-large"></i>
+                    <span>Tổng quan</span>
+                </a>
+                <a href="#events" class="menu-item" data-section="events">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Sự kiện của tôi</span>
+                    <span class="badge badge-primary">8</span>
+                </a>
+                <a href="#create" class="menu-item" data-section="create">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Tạo sự kiện mới</span>
+                </a>
+                <a href="#attendees" class="menu-item" data-section="attendees">
+                    <i class="fas fa-users"></i>
+                    <span>Người tham dự</span>
+                </a>
+                <a href="#revenue" class="menu-item" data-section="revenue">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Doanh thu</span>
+                </a>
+                <a href="#reports" class="menu-item" data-section="reports">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Báo cáo</span>
+                </a>
+                <a href="#settings" class="menu-item" data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Cài đặt</span>
+                </a>
+            </div>
+            <div class="sidebar-footer">
+                <a href="index.html" class="btn-outline btn-block">
+                    <i class="fas fa-home"></i>
+                    Về trang chủ
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Overview Section -->
+            <section class="dashboard-section active" id="overview-section">
+                <div class="section-header">
+                    <h1>Tổng quan Organizer</h1>
+                    <p>Xin chào, Công ty ABC Events! Quản lý sự kiện của bạn tại đây.</p>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid organizer-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value">24</div>
+                            <div class="stat-label">Sự kiện đã tạo</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-ticket-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value">1,245</div>
+                            <div class="stat-label">Vé đã bán</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon purple">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value">124.5M</div>
+                            <div class="stat-label">Tổng doanh thu</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value">4.8</div>
+                            <div class="stat-label">Đánh giá TB</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Revenue Chart -->
+                <div class="revenue-chart">
+                    <h2 style="margin-bottom: 20px;">Biểu đồ doanh thu 6 tháng</h2>
+                    <div class="chart-placeholder">
+                        <i class="fas fa-chart-area" style="margin-right: 12px; font-size: 24px;"></i>
+                        Biểu đồ sẽ được tích hợp (Chart.js)
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <h2 style="margin-bottom: 20px;">Thao tác nhanh</h2>
+                <div class="event-actions-grid">
+                    <div class="action-card" onclick="document.querySelector('[data-section=create]').click()">
+                        <i class="fas fa-plus-circle"></i>
+                        <h3>Tạo sự kiện mới</h3>
+                        <p>Tạo và quản lý sự kiện của bạn</p>
+                    </div>
+                    <div class="action-card" onclick="alert('Tính năng đang phát triển')">
+                        <i class="fas fa-qrcode"></i>
+                        <h3>Quét vé</h3>
+                        <p>Check-in người tham dự</p>
+                    </div>
+                    <div class="action-card" onclick="document.querySelector('[data-section=reports]').click()">
+                        <i class="fas fa-file-download"></i>
+                        <h3>Xuất báo cáo</h3>
+                        <p>Tải báo cáo chi tiết</p>
+                    </div>
+                </div>
+
+                <!-- Recent Events -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h2>Sự kiện gần đây</h2>
+                        <a href="#events" class="link" onclick="document.querySelector('[data-section=events]').click()">Xem tất cả <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Sự kiện</th>
+                                    <th>Ngày</th>
+                                    <th>Vé bán</th>
+                                    <th>Doanh thu</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Đại nhạc hội Rock Việt 2024</strong></td>
+                                    <td>15/03/2024</td>
+                                    <td>450/500</td>
+                                    <td><strong>45.000.000đ</strong></td>
+                                    <td><span class="event-status published"><i class="fas fa-check-circle"></i> Đang bán</span></td>
+                                    <td>
+                                        <div class="quick-actions">
+                                            <button class="btn-primary btn-sm" title="Chỉnh sửa">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn-outline btn-sm" title="Xem chi tiết">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Hội chợ Công nghệ 2024</strong></td>
+                                    <td>20/03/2024</td>
+                                    <td>200/300</td>
+                                    <td><strong>20.000.000đ</strong></td>
+                                    <td><span class="event-status published"><i class="fas fa-check-circle"></i> Đang bán</span></td>
+                                    <td>
+                                        <div class="quick-actions">
+                                            <button class="btn-primary btn-sm" title="Chỉnh sửa">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn-outline btn-sm" title="Xem chi tiết">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Workshop Thiết kế UI/UX</strong></td>
+                                    <td>05/02/2024</td>
+                                    <td>50/50</td>
+                                    <td><strong>10.000.000đ</strong></td>
+                                    <td><span class="event-status ended"><i class="fas fa-times-circle"></i> Đã kết thúc</span></td>
+                                    <td>
+                                        <div class="quick-actions">
+                                            <button class="btn-outline btn-sm" title="Xem báo cáo">
+                                                <i class="fas fa-chart-bar"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Events Management Section -->
+            <section class="dashboard-section" id="events-section">
+                <div class="section-header">
+                    <h1>Quản lý sự kiện</h1>
+                    <button class="btn-primary" onclick="document.querySelector('[data-section=create]').click()">
+                        <i class="fas fa-plus"></i> Tạo sự kiện mới
+                    </button>
+                </div>
+
+                <!-- Event Filters -->
+                <div class="ticket-filters">
+                    <button class="filter-btn active" data-filter="all">Tất cả (8)</button>
+                    <button class="filter-btn" data-filter="published">Đang bán (5)</button>
+                    <button class="filter-btn" data-filter="draft">Nháp (2)</button>
+                    <button class="filter-btn" data-filter="ended">Đã kết thúc (1)</button>
+                </div>
+
+                <!-- Events Grid -->
+                <div class="tickets-list">
+                    <!-- Event Card 1 -->
+                    <div class="ticket-card published">
+                        <div class="ticket-header">
+                            <div class="event-status published">
+                                <i class="fas fa-check-circle"></i> Đang bán vé
+                            </div>
+                            <div class="ticket-date">15/03/2024</div>
+                        </div>
+                        <div class="ticket-content">
+                            <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&h=200&fit=crop" alt="Event">
+                            <div class="ticket-info">
+                                <h3>Đại nhạc hội Rock Việt 2024</h3>
+                                <div class="ticket-details">
+                                    <div class="detail-item">
+                                        <i class="fas fa-calendar"></i>
+                                        <span>Thứ 7, 15/03/2024 - 19:00</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span>Sân vận động Mỹ Đình, Hà Nội</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="fas fa-ticket-alt"></i>
+                                        <span>450/500 vé đã bán (90%)</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="fas fa-users"></i>
+                                        <div class="attendee-avatar-group">
+                                            <img src="https://i.pravatar.cc/32?img=1" alt="" class="attendee-avatar">
+                                            <img src="https://i.pravatar.cc/32?img=2" alt="" class="attendee-avatar">
+                                            <img src="https://i.pravatar.cc/32?img=3" alt="" class="attendee-avatar">
+                                            <div class="attendee-more">+447</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ticket-footer">
+                            <div class="ticket-price">
+                                <span class="price-label">Doanh thu:</span>
+                                <span class="price-value">45.000.000đ</span>
+                            </div>
+                            <div class="ticket-actions">
+                                <button class="btn-primary">
+                                    <i class="fas fa-edit"></i> Chỉnh sửa
+                                </button>
+                                <button class="btn-outline">
+                                    <i class="fas fa-chart-bar"></i> Thống kê
+                                </button>
+                                <button class="btn-outline">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Event Card 2 - Draft -->
+                    <div class="ticket-card draft">
+                        <div class="ticket-header">
+                            <div class="event-status draft">
+                                <i class="fas fa-file-alt"></i> Bản nháp
+                            </div>
+                            <div class="ticket-date">25/03/2024</div>
+                        </div>
+                        <div class="ticket-content">
+                            <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=300&h=200&fit=crop" alt="Event">
+                            <div class="ticket-info">
+                                <h3>Festival Âm nhạc Mùa hè</h3>
+                                <div class="ticket-details">
+                                    <div class="detail-item">
+                                        <i class="fas fa-calendar"></i>
+                                        <span>Chủ nhật, 25/03/2024 - 18:00</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span>Công viên Thống Nhất, TP.HCM</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <i class="fas fa-exclamation-triangle" style="color: var(--warning-color);"></i>
+                                        <span>Chưa xuất bản - Hoàn tất thông tin để đăng</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ticket-footer">
+                            <div class="ticket-price">
+                                <span class="price-label">Trạng thái:</span>
+                                <span style="color: var(--warning-color); font-weight: 600;">Chưa hoàn thành</span>
+                            </div>
+                            <div class="ticket-actions">
+                                <button class="btn-primary">
+                                    <i class="fas fa-edit"></i> Tiếp tục chỉnh sửa
+                                </button>
+                                <button class="btn-outline">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Create Event Section -->
+            <section class="dashboard-section" id="create-section">
+                <div class="section-header">
+                    <h1>Tạo sự kiện mới</h1>
+                    <p>Điền thông tin để tạo sự kiện của bạn</p>
+                </div>
+
+                <div class="dashboard-card">
+                    <form class="profile-form" id="createEventForm">
+                        <h3 style="margin-bottom: 20px;">Thông tin cơ bản</h3>
+                        
+                        <div class="form-group">
+                            <label>Tên sự kiện *</label>
+                            <input type="text" placeholder="VD: Đại nhạc hội Rock Việt 2024" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Danh mục *</label>
+                                <select required>
+                                    <option value="">Chọn danh mục</option>
+                                    <option>Âm nhạc</option>
+                                    <option>Thể thao</option>
+                                    <option>Nghệ thuật</option>
+                                    <option>Công nghệ</option>
+                                    <option>Giáo dục</option>
+                                    <option>Ẩm thực</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Loại sự kiện *</label>
+                                <select required>
+                                    <option value="">Chọn loại</option>
+                                    <option>Hòa nhạc</option>
+                                    <option>Hội thảo</option>
+                                    <option>Workshop</option>
+                                    <option>Triển lãm</option>
+                                    <option>Thi đấu</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Mô tả ngắn *</label>
+                            <textarea rows="3" placeholder="Mô tả ngắn về sự kiện của bạn..." required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Mô tả chi tiết</label>
+                            <textarea rows="6" placeholder="Thông tin chi tiết về sự kiện, chương trình, diễn giả..."></textarea>
+                        </div>
+
+                        <hr style="margin: 30px 0;">
+                        <h3 style="margin-bottom: 20px;">Thời gian & Địa điểm</h3>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Ngày bắt đầu *</label>
+                                <input type="datetime-local" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Ngày kết thúc *</label>
+                                <input type="datetime-local" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Địa điểm *</label>
+                            <input type="text" placeholder="VD: Sân vận động Mỹ Đình, Hà Nội" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Địa chỉ chi tiết</label>
+                            <textarea rows="2" placeholder="Số nhà, đường, quận/huyện, thành phố..."></textarea>
+                        </div>
+
+                        <hr style="margin: 30px 0;">
+                        <h3 style="margin-bottom: 20px;">Hình ảnh & Media</h3>
+
+                        <div class="form-group">
+                            <label>Ảnh bìa sự kiện *</label>
+                            <input type="file" accept="image/*">
+                            <small class="form-hint">Kích thước đề xuất: 1920x1080px, tối đa 5MB</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ảnh phụ (tối đa 5 ảnh)</label>
+                            <input type="file" accept="image/*" multiple>
+                        </div>
+
+                        <hr style="margin: 30px 0;">
+                        <h3 style="margin-bottom: 20px;">Vé & Giá</h3>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Loại vé 1 - Tên *</label>
+                                <input type="text" placeholder="VD: VIP">
+                            </div>
+                            <div class="form-group">
+                                <label>Giá *</label>
+                                <input type="number" placeholder="500000" min="0">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Số lượng *</label>
+                                <input type="number" placeholder="100" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label>Mô tả loại vé</label>
+                                <input type="text" placeholder="Khu vực A, hàng đầu">
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn-outline" style="margin-bottom: 20px;">
+                            <i class="fas fa-plus"></i> Thêm loại vé
+                        </button>
+
+                        <hr style="margin: 30px 0;">
+                        <h3 style="margin-bottom: 20px;">Cài đặt bổ sung</h3>
+
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox">
+                                <span>Sử dụng sơ đồ chỗ ngồi</span>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" checked>
+                                <span>Cho phép bình luận</span>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox">
+                                <span>Yêu cầu xác nhận thông tin người mua</span>
+                            </label>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-check"></i> Xuất bản sự kiện
+                            </button>
+                            <button type="button" class="btn-outline">
+                                <i class="fas fa-save"></i> Lưu nháp
+                            </button>
+                            <button type="button" class="btn-outline">
+                                <i class="fas fa-eye"></i> Xem trước
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Attendees Section -->
+            <section class="dashboard-section" id="attendees-section">
+                <div class="section-header">
+                    <h1>Quản lý người tham dự</h1>
+                    <p>Danh sách người đã mua vé các sự kiện của bạn</p>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="form-group" style="max-width: 400px; margin-bottom: 20px;">
+                        <input type="text" placeholder="Tìm kiếm theo tên, email, số điện thoại...">
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Người tham dự</th>
+                                    <th>Sự kiện</th>
+                                    <th>Loại vé</th>
+                                    <th>Số lượng</th>
+                                    <th>Ngày mua</th>
+                                    <th>Check-in</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <img src="https://i.pravatar.cc/40?img=1" alt="" style="width: 40px; height: 40px; border-radius: 50%;">
+                                            <div>
+                                                <strong>Nguyễn Văn A</strong><br>
+                                                <small>nguyenvana@email.com</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>Đại nhạc hội Rock Việt</td>
+                                    <td>VIP</td>
+                                    <td>2 vé</td>
+                                    <td>12/02/2024</td>
+                                    <td><span class="badge badge-secondary">Chưa check-in</span></td>
+                                    <td>
+                                        <button class="btn-icon" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <img src="https://i.pravatar.cc/40?img=5" alt="" style="width: 40px; height: 40px; border-radius: 50%;">
+                                            <div>
+                                                <strong>Trần Thị B</strong><br>
+                                                <small>tranthib@email.com</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>Workshop UI/UX</td>
+                                    <td>Standard</td>
+                                    <td>1 vé</td>
+                                    <td>03/02/2024</td>
+                                    <td><span class="badge badge-success">Đã check-in</span></td>
+                                    <td>
+                                        <button class="btn-icon" title="Xem chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-pagination">
+                        <button class="btn-outline btn-sm" disabled>
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span>Trang 1 / 15</span>
+                        <button class="btn-outline btn-sm">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Revenue Section -->
+            <section class="dashboard-section" id="revenue-section">
+                <div class="section-header">
+                    <h1>Doanh thu & Thống kê</h1>
+                    <p>Báo cáo tài chính chi tiết</p>
+                </div>
+
+                <!-- Revenue Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon green">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value">124.5M</div>
+                            <div class="stat-label">Tổng doanh thu</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value">45.2M</div>
+                            <div class="stat-label">Tháng này</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon purple">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value">+24%</div>
+                            <div class="stat-label">So với tháng trước</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value">95.8K</div>
+                            <div class="stat-label">Giá vé trung bình</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Revenue by Event -->
+                <div class="dashboard-card">
+                    <h3 style="margin-bottom: 20px;">Doanh thu theo sự kiện</h3>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Sự kiện</th>
+                                    <th>Vé bán</th>
+                                    <th>Doanh thu</th>
+                                    <th>Phí nền tảng (10%)</th>
+                                    <th>Thực nhận</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Đại nhạc hội Rock Việt</strong></td>
+                                    <td>450</td>
+                                    <td>45.000.000đ</td>
+                                    <td style="color: var(--danger-color);">-4.500.000đ</td>
+                                    <td><strong style="color: var(--success-color);">40.500.000đ</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Hội chợ Công nghệ</strong></td>
+                                    <td>200</td>
+                                    <td>20.000.000đ</td>
+                                    <td style="color: var(--danger-color);">-2.000.000đ</td>
+                                    <td><strong style="color: var(--success-color);">18.000.000đ</strong></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Workshop UI/UX</strong></td>
+                                    <td>50</td>
+                                    <td>10.000.000đ</td>
+                                    <td style="color: var(--danger-color);">-1.000.000đ</td>
+                                    <td><strong style="color: var(--success-color);">9.000.000đ</strong></td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr style="background: var(--light-bg); font-weight: 700;">
+                                    <td>TỔNG CỘNG</td>
+                                    <td>700</td>
+                                    <td>75.000.000đ</td>
+                                    <td style="color: var(--danger-color);">-7.500.000đ</td>
+                                    <td><strong style="color: var(--success-color); font-size: 18px;">67.500.000đ</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section class="dashboard-section" id="reports-section">
+                <div class="section-header">
+                    <h1>Báo cáo</h1>
+                    <p>Xuất báo cáo chi tiết về sự kiện</p>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3 style="margin-bottom: 20px;">Các loại báo cáo</h3>
+                    <div class="event-actions-grid">
+                        <div class="action-card">
+                            <i class="fas fa-file-excel" style="color: #10b981;"></i>
+                            <h3>Báo cáo bán vé</h3>
+                            <p>Excel - Danh sách vé đã bán</p>
+                            <button class="btn-primary btn-sm" style="margin-top: 12px;">
+                                <i class="fas fa-download"></i> Tải xuống
+                            </button>
+                        </div>
+                        <div class="action-card">
+                            <i class="fas fa-file-pdf" style="color: #ef4444;"></i>
+                            <h3>Báo cáo doanh thu</h3>
+                            <p>PDF - Thống kê tài chính</p>
+                            <button class="btn-primary btn-sm" style="margin-top: 12px;">
+                                <i class="fas fa-download"></i> Tải xuống
+                            </button>
+                        </div>
+                        <div class="action-card">
+                            <i class="fas fa-file-csv" style="color: #f59e0b;"></i>
+                            <h3>Danh sách người tham dự</h3>
+                            <p>CSV - Export toàn bộ</p>
+                            <button class="btn-primary btn-sm" style="margin-top: 12px;">
+                                <i class="fas fa-download"></i> Tải xuống
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section class="dashboard-section" id="settings-section">
+                <div class="section-header">
+                    <h1>Cài đặt Organizer</h1>
+                    <p>Quản lý thông tin công ty và tùy chọn</p>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3 style="margin-bottom: 20px;">Thông tin công ty</h3>
+                    <form class="profile-form">
+                        <div class="form-group">
+                            <label>Tên công ty/Tổ chức *</label>
+                            <input type="text" value="Công ty ABC Events" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Email liên hệ *</label>
+                                <input type="email" value="contact@abcevents.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Số điện thoại *</label>
+                                <input type="tel" value="0123456789" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Địa chỉ văn phòng</label>
+                            <textarea rows="2">123 Nguyễn Huệ, Quận 1, TP.HCM</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Giới thiệu công ty</label>
+                            <textarea rows="4">ABC Events là đơn vị tổ chức sự kiện hàng đầu Việt Nam...</textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-save"></i> Lưu thay đổi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3 style="margin-bottom: 20px;">Thông tin thanh toán</h3>
+                    <div class="settings-group">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <strong>Số tài khoản ngân hàng</strong>
+                                <p>Tài khoản nhận tiền từ bán vé</p>
+                            </div>
+                            <button class="btn-outline">Cập nhật</button>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <strong>Thông tin thuế</strong>
+                                <p>Mã số thuế và thông tin doanh nghiệp</p>
+                            </div>
+                            <button class="btn-outline">Cập nhật</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/main.js"></script>
+    <script>
+        // Dashboard JavaScript (same as user dashboard)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar toggle
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('dashboardSidebar');
+            
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                });
+            }
+
+            // Menu navigation
+            const menuItems = document.querySelectorAll('.menu-item');
+            const sections = document.querySelectorAll('.dashboard-section');
+            
+            menuItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    menuItems.forEach(m => m.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    const sectionId = item.dataset.section + '-section';
+                    sections.forEach(section => {
+                        section.classList.remove('active');
+                        if (section.id === sectionId) {
+                            section.classList.add('active');
+                        }
+                    });
+                    
+                    if (window.innerWidth <= 992) {
+                        sidebar.classList.remove('active');
+                    }
+                });
+            });
+
+            // User menu dropdown
+            const userMenuBtn = document.querySelector('.user-menu-btn');
+            const userDropdown = document.querySelector('.user-dropdown');
+            
+            if (userMenuBtn) {
+                userMenuBtn.addEventListener('click', () => {
+                    userDropdown.classList.toggle('active');
+                });
+                
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.user-menu')) {
+                        userDropdown.classList.remove('active');
+                    }
+                });
+            }
+
+            // Event filters
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const eventCards = document.querySelectorAll('.ticket-card');
+            
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const filter = btn.dataset.filter;
+                    
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    eventCards.forEach(card => {
+                        if (filter === 'all') {
+                            card.style.display = 'block';
+                        } else {
+                            card.style.display = card.classList.contains(filter) ? 'block' : 'none';
+                        }
+                    });
+                });
+            });
+
+            // Create event form submission
+            const createEventForm = document.getElementById('createEventForm');
+            if (createEventForm) {
+                createEventForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    showAlert('Đang tạo sự kiện...', 'info');
+                    
+                    setTimeout(() => {
+                        showAlert('Tạo sự kiện thành công!', 'success');
+                        createEventForm.reset();
+                        
+                        // Switch to events section
+                        setTimeout(() => {
+                            document.querySelector('[data-section="events"]').click();
+                        }, 1500);
+                    }, 2000);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

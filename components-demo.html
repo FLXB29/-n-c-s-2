@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Components Demo - EventHub</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .demo-section {
+            padding: 3rem 0;
+            border-bottom: 2px solid var(--border-color);
+        }
+        .demo-section:last-child {
+            border-bottom: none;
+        }
+        .demo-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: var(--primary-color);
+        }
+        .demo-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .component-box {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" style="padding: 3rem 0;">
+        <h1 style="text-align: center; margin-bottom: 3rem;">🎨 Components Demo</h1>
+
+        <!-- Buttons -->
+        <div class="demo-section">
+            <h2 class="demo-title">Buttons</h2>
+            <div class="component-box">
+                <div class="demo-row">
+                    <button class="btn btn-primary">Primary Button</button>
+                    <button class="btn btn-outline">Outline Button</button>
+                    <button class="btn btn-primary" disabled>Disabled Button</button>
+                </div>
+                <div class="demo-row">
+                    <button class="btn btn-small btn-primary">Small Button</button>
+                    <button class="btn btn-primary">Regular Button</button>
+                    <button class="btn btn-large btn-primary">Large Button</button>
+                </div>
+                <div class="demo-row">
+                    <button class="btn btn-primary btn-full">Full Width Button</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Badges -->
+        <div class="demo-section">
+            <h2 class="demo-title">Badges</h2>
+            <div class="component-box">
+                <div class="demo-row">
+                    <span class="badge badge-primary">Primary</span>
+                    <span class="badge badge-success">Success</span>
+                    <span class="badge badge-warning">Warning</span>
+                    <span class="badge badge-danger">Danger</span>
+                    <span class="badge badge-info">Info</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerts -->
+        <div class="demo-section">
+            <h2 class="demo-title">Alerts</h2>
+            <div class="component-box">
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Thao tác thành công!</span>
+                </div>
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Đã xảy ra lỗi. Vui lòng thử lại!</span>
+                </div>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Cảnh báo: Bạn chưa hoàn thành thông tin.</span>
+                </div>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Thông tin: Sự kiện sẽ bắt đầu sau 2 giờ nữa.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Forms -->
+        <div class="demo-section">
+            <h2 class="demo-title">Form Controls</h2>
+            <div class="component-box">
+                <div class="form-group">
+                    <label class="form-label">Text Input</label>
+                    <input type="text" class="form-control" placeholder="Nhập văn bản...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" placeholder="email@example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" placeholder="••••••••">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Select</label>
+                    <select class="form-control form-select">
+                        <option>Chọn một tùy chọn</option>
+                        <option>Tùy chọn 1</option>
+                        <option>Tùy chọn 2</option>
+                        <option>Tùy chọn 3</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Textarea</label>
+                    <textarea class="form-control" placeholder="Nhập nội dung..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" class="form-checkbox">
+                        Tôi đồng ý với điều khoản sử dụng
+                    </label>
+                </div>
+                <button class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+
+        <!-- Cards -->
+        <div class="demo-section">
+            <h2 class="demo-title">Cards</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400" alt="Card" class="card-image">
+                    <div class="card-content">
+                        <h3 class="card-title">Card Title</h3>
+                        <p class="card-text">This is a simple card component with an image, title, text, and button.</p>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-primary btn-small">Action</button>
+                    </div>
+                </div>
+
+                <div class="event-card">
+                    <div class="event-image">
+                        <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=400" alt="Event">
+                        <span class="event-badge hot">🔥 Hot</span>
+                    </div>
+                    <div class="event-content">
+                        <div class="event-category">Âm nhạc</div>
+                        <h3 class="event-title">Event Card Example</h3>
+                        <div class="event-info">
+                            <span><i class="fas fa-calendar"></i> 28/10/2025</span>
+                            <span><i class="fas fa-map-marker-alt"></i> Hà Nội</span>
+                        </div>
+                        <div class="event-footer">
+                            <div class="event-price">
+                                <span class="price-label">Từ</span>
+                                <span class="price-value">300.000 VNĐ</span>
+                            </div>
+                            <button class="btn btn-small btn-primary">Xem chi tiết</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="demo-section">
+            <h2 class="demo-title">Pagination</h2>
+            <div class="component-box">
+                <div class="pagination">
+                    <a href="#" class="disabled"><i class="fas fa-chevron-left"></i></a>
+                    <span class="active">1</span>
+                    <a href="#">2</a>
+                    <a href="#">3</a>
+                    <a href="#">4</a>
+                    <a href="#">5</a>
+                    <span>...</span>
+                    <a href="#">10</a>
+                    <a href="#"><i class="fas fa-chevron-right"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="demo-section">
+            <h2 class="demo-title">Loading Spinner</h2>
+            <div class="component-box">
+                <div style="display: flex; gap: 2rem; align-items: center;">
+                    <div class="spinner"></div>
+                    <div class="spinner spinner-small"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Demo Button -->
+        <div class="demo-section">
+            <h2 class="demo-title">Modal</h2>
+            <div class="component-box">
+                <button class="btn btn-primary" onclick="openModal('demoModal')">Open Modal</button>
+            </div>
+        </div>
+
+        <!-- Color Palette -->
+        <div class="demo-section">
+            <h2 class="demo-title">Color Palette</h2>
+            <div class="component-box">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                    <div style="text-align: center;">
+                        <div style="height: 100px; background: var(--primary-color); border-radius: 0.5rem; margin-bottom: 0.5rem;"></div>
+                        <strong>Primary</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary);">#667eea</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="height: 100px; background: var(--secondary-color); border-radius: 0.5rem; margin-bottom: 0.5rem;"></div>
+                        <strong>Secondary</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary);">#764ba2</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="height: 100px; background: var(--accent-color); border-radius: 0.5rem; margin-bottom: 0.5rem;"></div>
+                        <strong>Accent</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary);">#f5576c</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="height: 100px; background: var(--text-primary); border-radius: 0.5rem; margin-bottom: 0.5rem;"></div>
+                        <strong>Text Primary</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary);">#1a202c</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: var(--bg-secondary); border-radius: 1rem;">
+            <h3>🎉 All Components Ready!</h3>
+            <p style="color: var(--text-secondary); margin: 1rem 0;">Use these components throughout your application</p>
+            <a href="navigation.html" class="btn btn-primary">← Back to Navigation</a>
+        </div>
+    </div>
+
+    <!-- Demo Modal -->
+    <div id="demoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Demo Modal</h3>
+                <button class="modal-close" onclick="closeModal('demoModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>This is a demo modal. You can put any content here!</p>
+                <p>Click outside the modal or press ESC to close.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('demoModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="closeModal('demoModal')">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
