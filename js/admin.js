@@ -10,7 +10,6 @@ class AdminDashboard {
     init() {
         this.setupEventListeners();
         this.loadMockData();
-        this.loadFromAPI();
         this.updateStats();
         this.setupCharts();
         this.loadSystemMetrics();
@@ -414,25 +413,6 @@ class AdminDashboard {
         alert(`Chỉnh sửa ${type} với ID: ${id}`);
     }
 
-    async loadFromAPI() {
-        const base = (window.CONFIG && window.CONFIG.apiBase) ? window.CONFIG.apiBase : null;
-        if (!base) return;
-        try {
-            const [users, events, organizers] = await Promise.all([
-                fetch(`${base}/users`).then(r => r.json()),
-                fetch(`${base}/events`).then(r => r.json()),
-                fetch(`${base}/organizers`).then(r => r.json()),
-            ]);
-            this.users = Array.isArray(users) ? users : this.users;
-            this.events = Array.isArray(events) ? events : this.events;
-            this.organizers = Array.isArray(organizers) ? organizers : this.organizers;
-            this.renderTables();
-            this.updateStats();
-        } catch (err) {
-            console.warn('API load failed, using mock data', err);
-        }
-    }
-
     deleteItem(id, type) {
         if (confirm(`Bạn có chắc chắn muốn xóa ${type} này?`)) {
             // Remove from appropriate array
@@ -440,14 +420,10 @@ class AdminDashboard {
                 case 'user':
                     this.users = this.users.filter(u => u.id != id);
                     this.renderUsersTable();
-                    // Call API
-                    this.apiDelete('users', id);
                     break;
                 case 'event':
                     this.events = this.events.filter(e => e.id != id);
                     this.renderEventsTable();
-                    // Call API
-                    this.apiDelete('events', id);
                     break;
             }
             this.updateStats();
@@ -460,7 +436,6 @@ class AdminDashboard {
             user.status = 'inactive';
             this.renderUsersTable();
             this.updateStats();
-            this.apiPatch('users', id, { status: 'inactive' });
         }
     }
 
@@ -470,7 +445,6 @@ class AdminDashboard {
             user.status = 'active';
             this.renderUsersTable();
             this.updateStats();
-            this.apiPatch('users', id, { status: 'active' });
         }
     }
 
@@ -480,7 +454,6 @@ class AdminDashboard {
             event.status = 'approved';
             this.renderEventsTable();
             this.updateStats();
-            this.apiPatch('events', id, { status: 'approved' });
         }
     }
 
@@ -490,7 +463,6 @@ class AdminDashboard {
             event.status = 'rejected';
             this.renderEventsTable();
             this.updateStats();
-            this.apiPatch('events', id, { status: 'rejected' });
         }
     }
 
@@ -561,27 +533,3 @@ document.addEventListener('DOMContentLoaded', () => {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = AdminDashboard;
 }
-
-    async apiPatch(resource, id, payload) {
-        try {
-            const base = window.CONFIG && window.CONFIG.apiBase;
-            if (!base) return;
-            await fetch(`${base}/${resource}/${id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-        } catch (err) {
-            console.warn('API PATCH failed', err);
-        }
-    }
-
-    async apiDelete(resource, id) {
-        try {
-            const base = window.CONFIG && window.CONFIG.apiBase;
-            if (!base) return;
-            await fetch(`${base}/${resource}/${id}`, { method: 'DELETE' });
-        } catch (err) {
-            console.warn('API DELETE failed', err);
-        }
-    }
