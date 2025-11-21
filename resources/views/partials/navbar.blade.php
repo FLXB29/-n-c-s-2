@@ -1,4 +1,3 @@
-// resources/views/partials/navbar.blade.php
 <nav class="navbar">
     <div class="container">
         <div class="nav-wrapper">

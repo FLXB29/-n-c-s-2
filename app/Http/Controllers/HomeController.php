@@ -18,6 +18,7 @@ class HomeController extends Controller
             ->get();
             
         $categories = Category::active()
+            ->withCount('events')
             ->ordered()
             ->get();
             

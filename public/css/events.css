@@ -325,3 +325,98 @@
 .filters-overlay.active {
     display: block;
 }
+/* --- CSS CHO NÚT LỌC NỔI (FLOATING BUTTON) --- */
+        
+        .mobile-filter-trigger {
+            display: none; /* Ẩn trên máy tính */
+            
+            /* 👇 QUAN TRỌNG: Cố định vị trí */
+            position: fixed; 
+            bottom: 30px;    /* Cách đáy màn hình 30px */
+            right: 20px;     /* Cách phải màn hình 20px */
+            z-index: 990;    /* Nổi lên trên các thành phần khác */
+            
+            /* Tạo hình tròn */
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            
+            /* Màu sắc & Đổ bóng */
+            background: #6c5ce7; /* Màu tím chủ đạo (hoặc màu xanh như ảnh) */
+            color: #fff;
+            border: none;
+            box-shadow: 0 4px 20px rgba(108, 92, 231, 0.4);
+            
+            /* Căn giữa icon */
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .mobile-filter-trigger:active {
+            transform: scale(0.9); /* Hiệu ứng thu nhỏ khi bấm */
+        }
+
+        /* --- CSS RESPONSIVE --- */
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 24px;
+        }
+
+        @media (max-width: 991px) {
+            .mobile-filter-trigger {
+                display: flex; /* Hiện nút trên mobile */
+            }
+
+            /* Sidebar trượt (Off-canvas) */
+            .filters-sidebar {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                width: 280px;
+                height: 100vh;
+                background: #fff;
+                z-index: 1000;
+                padding: 20px;
+                overflow-y: auto;
+                transition: left 0.3s ease;
+                box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+            }
+
+            .filters-sidebar.active {
+                left: 0;
+            }
+
+            .sidebar-close-btn {
+                display: block !important;
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                background: none;
+                border: none;
+                font-size: 20px;
+                color: #666;
+                cursor: pointer;
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                z-index: 999;
+            }
+            .sidebar-overlay.active {
+                display: block;
+            }
+        }
+        
+        .sidebar-close-btn {
+            display: none;
+        }

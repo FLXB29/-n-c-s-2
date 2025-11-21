@@ -27,20 +27,35 @@ class EventController extends Controller
         
         // City filter
         if ($request->filled('city')) {
-            $query->where('venue_city', $request->city);
+            $query->where('venue_city','like','%'.$request->city.'%');
         }
         
         // Date filter
-        if ($request->filled('date_range')) {
-            switch ($request->date_range) {
+        if ($request->filled('start_date') || $request->filled('end_date')) {
+            
+            if ($request->filled('start_date')) {
+                $query->whereDate('start_datetime', '>=', $request->start_date);
+            }
+            
+            if ($request->filled('end_date')) {
+                $query->whereDate('start_datetime', '<=', $request->end_date);
+            }
+            
+        } elseif ($request->filled('date')) {
+            // Nếu không nhập ngày tùy chỉnh thì mới xét đến các nút chọn nhanh
+            switch ($request->date) {
                 case 'today':
                     $query->whereDate('start_datetime', today());
+                    break;
+                case 'tomorrow':
+                    $query->whereDate('start_datetime', today()->addDay());
                     break;
                 case 'this_week':
                     $query->whereBetween('start_datetime', [now()->startOfWeek(), now()->endOfWeek()]);
                     break;
                 case 'this_month':
-                    $query->whereMonth('start_datetime', now()->month);
+                    $query->whereMonth('start_datetime', now()->month)
+                          ->whereYear('start_datetime', now()->year);
                     break;
             }
         }
