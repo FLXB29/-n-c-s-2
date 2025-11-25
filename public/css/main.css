@@ -487,6 +487,163 @@ section {
     color: #fff;
 }
 
+/* ===== USER DROPDOWN (LOGGED IN) ===== */
+.user-dropdown {
+    position: relative;
+    margin-left: 15px;
+}
+
+.user-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    border: 1px solid #eee;
+    padding: 6px 15px 6px 6px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.user-toggle:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-color: var(--primary-light);
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-color);
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-toggle i {
+    font-size: 0.8rem;
+    color: #999;
+    transition: transform 0.3s ease;
+}
+
+.user-dropdown:hover .user-toggle i {
+    transform: rotate(180deg);
+}
+
+/* User Menu Dropdown */
+.user-menu {
+    position: absolute;
+    top: 120%; /* Cách nút một chút */
+    right: 0;
+    background: white;
+    width: 240px;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+    padding: 10px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+    z-index: 1100;
+    list-style: none;
+}
+
+/* Mũi tên nhỏ chỉ lên trên */
+.user-menu::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 20px;
+    width: 12px;
+    height: 12px;
+    background: white;
+    transform: rotate(45deg);
+    box-shadow: -2px -2px 5px rgba(0,0,0,0.03);
+}
+
+.user-dropdown:hover .user-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.user-menu li {
+    margin-bottom: 2px;
+}
+
+.user-menu li a, 
+.user-menu li button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 15px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+    background: transparent;
+    border: none;
+    text-align: left;
+    font-family: inherit;
+}
+
+.user-menu li a:hover,
+.user-menu li button:hover {
+    background: #f8f9fa;
+    color: var(--primary-color);
+    transform: translateX(5px);
+}
+
+.user-menu li a i,
+.user-menu li button i {
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+    color: #a0aec0;
+    transition: color 0.2s;
+}
+
+.user-menu li a:hover i,
+.user-menu li button:hover i {
+    color: var(--primary-color);
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: #edf2f7;
+    margin: 8px 0;
+    border: none;
+}
+
+/* Logout Button Specifics */
+.logout-btn {
+    color: #e53e3e !important; /* Màu đỏ cho nút đăng xuất */
+}
+
+.logout-btn:hover {
+    background: #fff5f5 !important;
+    color: #c53030 !important;
+}
+
+.logout-btn i {
+    color: #fc8181 !important;
+}
+
+.logout-btn:hover i {
+    color: #c53030 !important;
+}
+
 /* ===== UTILITY CLASSES ===== */
 .text-center {
     text-align: center;

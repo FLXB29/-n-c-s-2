@@ -68,7 +68,7 @@
                 @else
                     <div class="user-dropdown">
                         <button class="user-toggle" id="userToggle">
-                            <img src="{{ auth()->user()->avatar ?? asset('images/default-avatar.png') }}" 
+                            <img src="{{ auth()->user()->avatar ? asset(auth()->user()->avatar) : asset('images/default-avatar.png') }}" 
                                  alt="Avatar" class="user-avatar">
                             <span class="user-name">{{ auth()->user()->full_name }}</span>
                             <i class="fas fa-chevron-down"></i>

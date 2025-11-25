@@ -1,340 +1,185 @@
-// ===== SEAT SELECTION JAVASCRIPT =====
+// ===== SEAT SELECTION JAVASCRIPT (REAL DATABASE VERSION) =====
 
 let selectedSeats = [];
 let selectedTicketType = null;
 let ticketQuantity = 1;
-let ticketPrice = 0;
 
 document.addEventListener('DOMContentLoaded', function() {
     initSeatSelection();
-    initTicketSelection();
-    initQuantityControl();
+    // Các hàm init khác giữ nguyên nếu cần
 });
 
-// ===== TICKET TYPE SELECTION =====
-function initTicketSelection() {
-    const ticketOptions = document.querySelectorAll('input[name="ticket-type"]');
-    
-    ticketOptions.forEach(option => {
-        option.addEventListener('change', function() {
-            selectedTicketType = this.value;
-            ticketPrice = parseInt(this.dataset.price);
-            updateTotal();
-        });
-    });
-}
-
-// ===== QUANTITY CONTROL =====
-function initQuantityControl() {
-    const quantityInput = document.getElementById('ticketQuantity');
-    
-    if (quantityInput) {
-        quantityInput.addEventListener('change', function() {
-            ticketQuantity = parseInt(this.value) || 1;
-            updateTotal();
-        });
-    }
-}
-
-function increaseQuantity() {
-    const input = document.getElementById('ticketQuantity');
-    let value = parseInt(input.value) || 1;
-    if (value < parseInt(input.max)) {
-        value++;
-        input.value = value;
-        ticketQuantity = value;
-        updateTotal();
-    }
-}
-
-function decreaseQuantity() {
-    const input = document.getElementById('ticketQuantity');
-    let value = parseInt(input.value) || 1;
-    if (value > parseInt(input.min)) {
-        value--;
-        input.value = value;
-        ticketQuantity = value;
-        updateTotal();
-    }
-}
-
-function updateTotal() {
-    const totalElement = document.getElementById('totalPrice');
-    const total = ticketPrice * ticketQuantity;
-    
-    if (totalElement) {
-        totalElement.textContent = formatCurrency(total);
-    }
-}
-
-// ===== SEAT SELECTION =====
-function initSeatSelection() {
-    generateSeats();
-}
-
-function generateSeats() {
+// ===== 1. KHỞI TẠO SƠ ĐỒ GHẾ TỪ API =====
+async function initSeatSelection() {
     const container = document.getElementById('seatsContainer');
     if (!container) return;
-    
-    // Generate 10 rows (A-J) with 20 seats each
-    const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-    const seatsPerRow = 20;
-    
-    // Randomly mark some seats as sold (for demo)
-    const soldSeats = generateRandomSoldSeats(rows.length, seatsPerRow);
-    
-    rows.forEach(row => {
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'seat-row';
-        
-        // Row label
-        const label = document.createElement('div');
-        label.className = 'row-label';
-        label.textContent = row;
-        rowDiv.appendChild(label);
-        
-        // Create seats
-        for (let i = 1; i <= seatsPerRow; i++) {
-            const seat = document.createElement('div');
-            const seatId = `${row}${i}`;
-            seat.className = 'seat';
-            seat.dataset.seatId = seatId;
-            seat.textContent = i;
-            
-            // Mark as sold if in soldSeats array
-            if (soldSeats.includes(seatId)) {
-                seat.classList.add('sold');
-            } else {
-                seat.addEventListener('click', function() {
-                    toggleSeat(this);
-                });
-            }
-            
-            rowDiv.appendChild(seat);
+
+    container.innerHTML = '<div class="loading-spinner">Đang tải sơ đồ ghế...</div>';
+
+    try {
+        // Gọi API mà chúng ta đã khai báo trong Controller
+        const response = await fetch(window.eventConfig.apiSeatsUrl);
+        const seatsByRow = await response.json();
+
+        container.innerHTML = ''; // Xóa loading
+
+        if (Object.keys(seatsByRow).length === 0) {
+            container.innerHTML = '<p>Chưa có sơ đồ ghế cho sự kiện này.</p>';
+            return;
         }
-        
-        container.appendChild(rowDiv);
-    });
+
+        // Duyệt qua từng hàng ghế (A, B, C...) từ Database
+        for (const [rowNumber, seats] of Object.entries(seatsByRow)) {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'seat-row';
+            
+            // Nhãn hàng ghế
+            const label = document.createElement('div');
+            label.className = 'row-label';
+            label.textContent = rowNumber;
+            label.style.fontWeight = 'bold';
+            label.style.marginRight = '10px';
+            rowDiv.appendChild(label);
+            
+            // Tạo từng ghế
+            seats.forEach(seat => {
+                const seatDiv = document.createElement('div');
+                const seatId = `${seat.row_number}${seat.seat_number}`;
+                
+                // Class cơ bản
+                seatDiv.className = `seat seat-type-${seat.ticket_type_id}`;
+                seatDiv.textContent = seat.seat_number;
+                
+                // Lưu dữ liệu vào dataset để dùng sau này
+                seatDiv.dataset.id = seatId;
+                seatDiv.dataset.dbId = seat.id;
+                seatDiv.dataset.typeId = seat.ticket_type_id;
+                
+                // Lấy giá tiền từ biến global ticketTypes
+                const typeInfo = window.eventConfig.ticketTypes.find(t => t.id == seat.ticket_type_id);
+                seatDiv.dataset.price = typeInfo ? typeInfo.price : 0;
+
+                // Xử lý trạng thái ghế
+                if (seat.status === 'sold' || seat.status === 'blocked') {
+                    seatDiv.classList.add('sold');
+                    seatDiv.title = 'Đã bán';
+                } else if (seat.status === 'reserved') {
+                    seatDiv.classList.add('sold'); // Coi như đã bán
+                    seatDiv.title = 'Đang giữ chỗ';
+                } else {
+                    // Chỉ gắn sự kiện click nếu ghế còn trống
+                    seatDiv.onclick = () => toggleSeat(seatDiv);
+                }
+
+                rowDiv.appendChild(seatDiv);
+            });
+            
+            container.appendChild(rowDiv);
+        }
+
+    } catch (error) {
+        console.error('Lỗi tải ghế:', error);
+        container.innerHTML = '<p style="color:red">Không thể tải dữ liệu ghế.</p>';
+    }
 }
 
-function generateRandomSoldSeats(rows, seatsPerRow) {
-    const soldSeats = [];
-    const rowLabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-    const numberOfSoldSeats = Math.floor(Math.random() * 50) + 30; // 30-80 sold seats
-    
-    for (let i = 0; i < numberOfSoldSeats; i++) {
-        const randomRow = rowLabels[Math.floor(Math.random() * rows)];
-        const randomSeat = Math.floor(Math.random() * seatsPerRow) + 1;
-        const seatId = `${randomRow}${randomSeat}`;
-        
-        if (!soldSeats.includes(seatId)) {
-            soldSeats.push(seatId);
+// ===== 2. XỬ LÝ CHỌN GHẾ =====
+function toggleSeat(seatElement) {
+    const seatId = seatElement.dataset.id;
+    const typeId = seatElement.dataset.typeId;
+    const price = parseInt(seatElement.dataset.price);
+
+    // Kiểm tra: Nếu đã chọn ghế rồi thì ghế tiếp theo phải cùng loại vé
+    if (selectedSeats.length > 0) {
+        if (selectedSeats[0].typeId != typeId) {
+            alert('Vui lòng chỉ chọn ghế cùng hạng vé trong một lần đặt!');
+            return;
         }
     }
-    
-    return soldSeats;
-}
 
-function toggleSeat(seatElement) {
-    const seatId = seatElement.dataset.seatId;
-    
-    // Check if seat is already selected
-    const index = selectedSeats.indexOf(seatId);
-    
-    if (index > -1) {
-        // Deselect seat
-        selectedSeats.splice(index, 1);
+    // Kiểm tra xem ghế đã chọn chưa
+    const existingIndex = selectedSeats.findIndex(s => s.id === seatId);
+
+    if (existingIndex > -1) {
+        // Bỏ chọn
+        selectedSeats.splice(existingIndex, 1);
         seatElement.classList.remove('selected');
     } else {
-        // Check if max seats reached (e.g., 10 seats max)
+        // Chọn mới
         if (selectedSeats.length >= 10) {
-            showAlert('Bạn chỉ có thể chọn tối đa 10 ghế', 'warning');
+            alert('Bạn chỉ có thể chọn tối đa 10 ghế');
             return;
         }
         
-        // Select seat
-        selectedSeats.push(seatId);
+        selectedSeats.push({
+            id: seatId,
+            dbId: seatElement.dataset.dbId,
+            typeId: typeId,
+            price: price
+        });
         seatElement.classList.add('selected');
     }
     
-    updateSelectedSeatsDisplay();
+    updateModalInfo();
 }
 
-function updateSelectedSeatsDisplay() {
+// ===== 3. CẬP NHẬT THÔNG TIN TRONG MODAL =====
+function updateModalInfo() {
     const displayElement = document.getElementById('selectedSeatsDisplay');
     const modalTotalElement = document.getElementById('modalTotalPrice');
     
-    if (displayElement) {
-        if (selectedSeats.length === 0) {
-            displayElement.textContent = 'Chưa chọn ghế nào';
-            displayElement.style.color = 'var(--text-light)';
-        } else {
-            displayElement.textContent = selectedSeats.join(', ');
-            displayElement.style.color = 'var(--primary-color)';
-        }
-    }
-    
-    // Update modal total price
-    if (modalTotalElement && ticketPrice > 0) {
-        const total = ticketPrice * selectedSeats.length;
-        modalTotalElement.textContent = formatCurrency(total);
+    if (selectedSeats.length === 0) {
+        displayElement.textContent = 'Chưa chọn ghế nào';
+        modalTotalElement.textContent = '0 VNĐ';
+    } else {
+        // Hiển thị danh sách ghế (A1, A2...)
+        const seatLabels = selectedSeats.map(s => s.id).join(', ');
+        displayElement.textContent = seatLabels;
+        displayElement.style.color = '#6c5ce7';
+        displayElement.style.fontWeight = 'bold';
+
+        // Tính tổng tiền
+        const total = selectedSeats.reduce((sum, s) => sum + s.price, 0);
+        modalTotalElement.textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total);
     }
 }
 
-function confirmSeats() {
+// ===== 4. XÁC NHẬN CHỌN GHẾ (ĐẨY RA FORM NGOÀI) =====
+// Hàm này cần được gán vào nút "Xác nhận" trong Modal HTML: onclick="confirmSeats()"
+window.confirmSeats = function() {
     if (selectedSeats.length === 0) {
-        showAlert('Vui lòng chọn ít nhất một ghế', 'warning');
+        alert('Vui lòng chọn ít nhất một ghế');
         return;
     }
     
-    if (!selectedTicketType) {
-        showAlert('Vui lòng chọn loại vé', 'warning');
-        closeModal('seatSelectionModal');
-        return;
+    const typeId = selectedSeats[0].typeId;
+    const quantity = selectedSeats.length;
+
+    // 1. Tự động chọn Radio button loại vé tương ứng ở bên ngoài
+    const radio = document.querySelector(`input[name="ticket_type_id"][value="${typeId}"]`);
+    if (radio) {
+        radio.checked = true;
+        // Kích hoạt sự kiện change để cập nhật giá bên ngoài nếu cần
+        radio.dispatchEvent(new Event('change')); 
     }
-    
-    // Update quantity to match selected seats
+
+    // 2. Cập nhật số lượng
     const quantityInput = document.getElementById('ticketQuantity');
     if (quantityInput) {
-        quantityInput.value = selectedSeats.length;
-        ticketQuantity = selectedSeats.length;
+        quantityInput.value = quantity;
     }
     
-    updateTotal();
+    // 3. Gọi hàm cập nhật tổng tiền bên ngoài (hàm này nằm trong show.blade.php)
+    if (typeof window.updateTotal === 'function') {
+        window.updateTotal();
+    }
     
-    showAlert(`Đã chọn ${selectedSeats.length} ghế: ${selectedSeats.join(', ')}`, 'success');
+    // 4. Đóng modal
     closeModal('seatSelectionModal');
-    
-    // Here you would normally save the selected seats to proceed with checkout
-    console.log('Selected seats:', selectedSeats);
-    console.log('Ticket type:', selectedTicketType);
-    console.log('Total price:', ticketPrice * selectedSeats.length);
-}
-
-// Reset seat selection when modal closes
-function resetSeatSelection() {
-    selectedSeats = [];
-    const seats = document.querySelectorAll('.seat.selected');
-    seats.forEach(seat => seat.classList.remove('selected'));
-    updateSelectedSeatsDisplay();
-}
-
-// Override closeModal to reset selection
-const originalCloseModal = window.closeModal;
-window.closeModal = function(modalId) {
-    if (modalId === 'seatSelectionModal') {
-        // Don't reset if user confirmed
-        // resetSeatSelection();
-    }
-    originalCloseModal(modalId);
 };
 
-// ===== SCROLL TO BOOKING =====
-function scrollToBooking() {
-    const bookingCard = document.querySelector('.booking-card');
-    if (bookingCard) {
-        bookingCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+// Helper: Đóng modal
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+    document.body.style.overflow = 'auto';
 }
-
-// ===== SHARE FUNCTIONALITY =====
-document.querySelectorAll('.share-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const eventUrl = window.location.href;
-        const eventTitle = document.querySelector('.event-title').textContent;
-        
-        if (this.classList.contains('facebook')) {
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(eventUrl)}`, '_blank');
-        } else if (this.classList.contains('twitter')) {
-            window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(eventUrl)}&text=${encodeURIComponent(eventTitle)}`, '_blank');
-        } else if (this.classList.contains('link')) {
-            // Copy link to clipboard
-            navigator.clipboard.writeText(eventUrl).then(() => {
-                showAlert('Đã sao chép link!', 'success');
-            }).catch(() => {
-                showAlert('Không thể sao chép link', 'error');
-            });
-        } else if (this.classList.contains('instagram')) {
-            showAlert('Instagram không hỗ trợ chia sẻ trực tiếp', 'info');
-        }
-    });
-});
-
-// ===== COMMENT ACTIONS =====
-document.querySelectorAll('.comment-actions button').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const action = this.textContent.trim();
-        if (action.includes('Thích')) {
-            // Toggle like
-            const currentText = this.innerHTML;
-            if (currentText.includes('Thích')) {
-                const count = parseInt(currentText.match(/\d+/)[0]);
-                this.innerHTML = currentText.replace(/\d+/, count + 1);
-                this.style.color = 'var(--primary-color)';
-            }
-        } else if (action.includes('Trả lời')) {
-            showAlert('Chức năng trả lời đang được phát triển', 'info');
-        }
-    });
-});
-
-// ===== COMMENT FORM =====
-const commentForm = document.querySelector('.comment-form');
-if (commentForm) {
-    const textarea = commentForm.querySelector('textarea');
-    const submitBtn = commentForm.querySelector('button');
-    
-    submitBtn.addEventListener('click', function() {
-        const comment = textarea.value.trim();
-        
-        if (comment) {
-            // Here you would normally send the comment to the server
-            showAlert('Bình luận của bạn đã được gửi!', 'success');
-            textarea.value = '';
-            
-            // Simulate adding comment to list
-            console.log('New comment:', comment);
-        } else {
-            showAlert('Vui lòng nhập nội dung bình luận', 'warning');
-        }
-    });
-}
-
-// ===== LOAD MORE COMMENTS =====
-const loadMoreBtn = document.querySelector('.comments-section .btn-outline.btn-full');
-if (loadMoreBtn) {
-    loadMoreBtn.addEventListener('click', function() {
-        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tải...';
-        
-        // Simulate loading
-        setTimeout(() => {
-            this.textContent = 'Xem thêm bình luận';
-            showAlert('Đã tải thêm bình luận', 'success');
-        }, 1000);
-    });
-}
-
-// ===== STICKY BOOKING CARD ON SCROLL (Mobile) =====
-window.addEventListener('scroll', function() {
-    if (window.innerWidth <= 768) {
-        const bookingCard = document.querySelector('.booking-card');
-        if (bookingCard && window.scrollY > 500) {
-            bookingCard.style.position = 'fixed';
-            bookingCard.style.bottom = '0';
-            bookingCard.style.left = '0';
-            bookingCard.style.right = '0';
-            bookingCard.style.zIndex = '100';
-            bookingCard.style.borderRadius = '1rem 1rem 0 0';
-            bookingCard.style.maxHeight = '60vh';
-            bookingCard.style.overflowY = 'auto';
-        } else if (bookingCard) {
-            bookingCard.style.position = 'static';
-        }
-    }
-});
-
-// Export functions
-window.increaseQuantity = increaseQuantity;
-window.decreaseQuantity = decreaseQuantity;
-window.confirmSeats = confirmSeats;
-window.scrollToBooking = scrollToBooking;

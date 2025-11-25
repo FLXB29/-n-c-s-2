@@ -133,6 +133,8 @@
                 
                 <form action="{{ route('events.index') }}" method="GET" id="filterForm">
                      <!-- ... Nội dung form giữ nguyên ... -->
+                    <input type="hidden" id="hiddenSort" name="sort" value="{{request('sort','upcoming')}}">
+
                      @if(request('search'))
                         <input type="hidden" name="search" value="{{ request('search') }}">
                     @endif
@@ -223,8 +225,8 @@
                         <h3>Tìm thấy <span id="resultCount">{{ $events->total() }}</span> sự kiện</h3>
                     </div>
                     <div class="view-options">
-                        <select class="form-control" name="sort" onchange="document.getElementById('filterForm').submit()">
-                            <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Mới nhất</option>
+                    <select class="form-control" 
+                                onchange="document.getElementById('hiddenSort').value = this.value; document.getElementById('filterForm').submit();">                            <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Mới nhất</option>
                             <option value="upcoming" {{ request('sort') == 'upcoming' ? 'selected' : '' }}>Sắp diễn ra</option>
                             <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Giá: Thấp đến cao</option>
                             <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Giá: Cao đến thấp</option>

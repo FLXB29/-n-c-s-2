@@ -677,3 +677,13 @@
     color: var(--primary-color);
     font-weight: 600;
 }
+
+/* Dimmed state for seats of different ticket types */
+.seat.dimmed {
+    opacity: 0.2;
+    cursor: not-allowed;
+    pointer-events: none;
+    filter: grayscale(100%);
+    border-color: #ddd;
+}
+

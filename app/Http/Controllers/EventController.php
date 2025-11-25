@@ -6,6 +6,8 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class EventController extends Controller
 {
@@ -69,9 +71,34 @@ class EventController extends Controller
         }
         
         // Sort
-        $sortBy = $request->get('sort', 'start_datetime');
-        $sortDirection = $request->get('direction', 'asc');
-        $query->orderBy($sortBy, $sortDirection);
+        $sortColumn = 'start_datetime';
+        $sortDirection = 'asc';
+
+        if ($request->filled('sort')){
+            switch ($request->sort){
+                case 'newest':
+                    $sortColumn = 'created_at';
+                    $sortDirection = 'desc';
+                    break;
+                case 'price_asc':
+                    $sortColumn = 'min_price';
+                    $sortDirection = 'asc';
+                    break;
+                case 'price_desc' :;
+                    $sortColumn = 'min_price';
+                    $sortDirection = 'desc';
+                    break;
+                case 'upcoming':
+                default:
+                    $sortColumn ="start_datetime";
+                    $sortDirection = 'asc';
+                    break;
+            }
+        }
+        $query->orderBy($sortColumn, $sortDirection);
+        // $sortBy = $request->get('sort', 'start_datetime');
+        // $sortDirection = $request->get('direction', 'asc');
+        // $query->orderBy($sortBy, $sortDirection);
         
         $events = $query->paginate(12);
         $categories = Category::active()->ordered()->get();
@@ -95,5 +122,52 @@ class EventController extends Controller
             ->get();
             
         return view('events.show', compact('event', 'relatedEvents'));
+    }
+
+    public function create()
+    {
+        $categories = Category::active()->get();
+        return view('organizer.events.create', compact('categories'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'description' => 'required|string',
+            'start_datetime' => 'required|date|after:now',
+            'end_datetime' => 'required|date|after:start_datetime',
+            'venue_name' => 'required|string|max:255',
+            'venue_address' => 'required|string|max:255',
+            'venue_city' => 'required|string|max:100',
+            'banner_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'min_price' => 'required|numeric|min:0',
+            'max_price' => 'required|numeric|gte:min_price',
+        ]);
+
+        $data = $request->all();
+        $data['slug'] = Str::slug($request->title) . '-' . Str::random(5);
+        $data['organizer_id'] = Auth::id();
+        $data['status'] = 'published'; 
+
+        if ($request->hasFile('banner_image')) {
+            $path = $request->file('banner_image')->store('events', 'public');
+            $data['banner_image'] = 'storage/' . $path;
+        }
+
+        Event::create($data);
+
+        return redirect()->route('organizer.dashboard')->with('success', 'Tạo sự kiện thành công!');
+    }
+
+    public function getSeats(Event $event){
+        $seats = $event->seats()
+        ->orderBy('row_number')
+        ->orderByRaw('CAST(seat_number AS UNSIGNED)')
+        ->get()
+        ->groupBy('row_number');
+    return response()->json($seats);
+
     }
 }

@@ -1,340 +1,216 @@
-// ===== SEAT SELECTION JAVASCRIPT =====
+// ===== SEAT SELECTION JAVASCRIPT (REAL DATABASE VERSION) =====
 
 let selectedSeats = [];
 let selectedTicketType = null;
 let ticketQuantity = 1;
-let ticketPrice = 0;
 
 document.addEventListener('DOMContentLoaded', function() {
     initSeatSelection();
-    initTicketSelection();
-    initQuantityControl();
+    
+    // L?ng nghe s? ki?n thay d?i Radio Button bÍn ngo‡i
+    const radios = document.querySelectorAll('input[name="ticket_type_id"]');
+    radios.forEach(r => {
+        r.addEventListener('change', function() {
+            // N?u chua ch?n gh? n‡o thÏ c?p nh?t giao di?n theo Radio v?a ch?n
+            if (selectedSeats.length === 0) {
+                updateSeatVisuals();
+            }
+        });
+    });
 });
 
-// ===== TICKET TYPE SELECTION =====
-function initTicketSelection() {
-    const ticketOptions = document.querySelectorAll('input[name="ticket-type"]');
-    
-    ticketOptions.forEach(option => {
-        option.addEventListener('change', function() {
-            selectedTicketType = this.value;
-            ticketPrice = parseInt(this.dataset.price);
-            updateTotal();
-        });
-    });
-}
-
-// ===== QUANTITY CONTROL =====
-function initQuantityControl() {
-    const quantityInput = document.getElementById('ticketQuantity');
-    
-    if (quantityInput) {
-        quantityInput.addEventListener('change', function() {
-            ticketQuantity = parseInt(this.value) || 1;
-            updateTotal();
-        });
-    }
-}
-
-function increaseQuantity() {
-    const input = document.getElementById('ticketQuantity');
-    let value = parseInt(input.value) || 1;
-    if (value < parseInt(input.max)) {
-        value++;
-        input.value = value;
-        ticketQuantity = value;
-        updateTotal();
-    }
-}
-
-function decreaseQuantity() {
-    const input = document.getElementById('ticketQuantity');
-    let value = parseInt(input.value) || 1;
-    if (value > parseInt(input.min)) {
-        value--;
-        input.value = value;
-        ticketQuantity = value;
-        updateTotal();
-    }
-}
-
-function updateTotal() {
-    const totalElement = document.getElementById('totalPrice');
-    const total = ticketPrice * ticketQuantity;
-    
-    if (totalElement) {
-        totalElement.textContent = formatCurrency(total);
-    }
-}
-
-// ===== SEAT SELECTION =====
-function initSeatSelection() {
-    generateSeats();
-}
-
-function generateSeats() {
+// ===== 1. KH?I T?O SO –? GH? T? API =====
+async function initSeatSelection() {
     const container = document.getElementById('seatsContainer');
     if (!container) return;
-    
-    // Generate 10 rows (A-J) with 20 seats each
-    const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-    const seatsPerRow = 20;
-    
-    // Randomly mark some seats as sold (for demo)
-    const soldSeats = generateRandomSoldSeats(rows.length, seatsPerRow);
-    
-    rows.forEach(row => {
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'seat-row';
-        
-        // Row label
-        const label = document.createElement('div');
-        label.className = 'row-label';
-        label.textContent = row;
-        rowDiv.appendChild(label);
-        
-        // Create seats
-        for (let i = 1; i <= seatsPerRow; i++) {
-            const seat = document.createElement('div');
-            const seatId = `${row}${i}`;
-            seat.className = 'seat';
-            seat.dataset.seatId = seatId;
-            seat.textContent = i;
+
+    container.innerHTML = '<div class="loading-spinner">–ang t?i so d? gh?...</div>';
+
+    try {
+        const response = await fetch(window.eventConfig.apiSeatsUrl);
+        const seatsByRow = await response.json();
+
+        container.innerHTML = ''; 
+
+        if (Object.keys(seatsByRow).length === 0) {
+            container.innerHTML = '<p>Chua cÛ so d? gh? cho s? ki?n n‡y.</p>';
+            return;
+        }
+
+        for (const [rowNumber, seats] of Object.entries(seatsByRow)) {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'seat-row';
             
-            // Mark as sold if in soldSeats array
-            if (soldSeats.includes(seatId)) {
-                seat.classList.add('sold');
-            } else {
-                seat.addEventListener('click', function() {
-                    toggleSeat(this);
-                });
-            }
+            const label = document.createElement('div');
+            label.className = 'row-label';
+            label.textContent = rowNumber;
+            label.style.fontWeight = 'bold';
+            label.style.marginRight = '10px';
+            rowDiv.appendChild(label);
             
-            rowDiv.appendChild(seat);
+            seats.forEach(seat => {
+                const seatDiv = document.createElement('div');
+                const seatId = `${seat.row_number}${seat.seat_number}`;
+                
+                seatDiv.className = `seat seat-type-${seat.ticket_type_id}`;
+                seatDiv.textContent = seat.seat_number;
+                
+                seatDiv.dataset.id = seatId;
+                seatDiv.dataset.dbId = seat.id;
+                seatDiv.dataset.typeId = seat.ticket_type_id;
+                
+                const typeInfo = window.eventConfig.ticketTypes.find(t => t.id == seat.ticket_type_id);
+                seatDiv.dataset.price = typeInfo ? typeInfo.price : 0;
+                seatDiv.dataset.typeName = typeInfo ? typeInfo.name : '';
+
+                if (seat.status === 'sold' || seat.status === 'blocked') {
+                    seatDiv.classList.add('sold');
+                    seatDiv.title = '–„ b·n';
+                } else if (seat.status === 'reserved') {
+                    seatDiv.classList.add('sold');
+                    seatDiv.title = '–ang gi? ch?';
+                } else {
+                    seatDiv.onclick = () => toggleSeat(seatDiv);
+                }
+
+                rowDiv.appendChild(seatDiv);
+            });
+            
+            container.appendChild(rowDiv);
         }
         
-        container.appendChild(rowDiv);
-    });
+        // C?p nh?t giao di?n l?n d?u (theo Radio m?c d?nh)
+        updateSeatVisuals();
+
+    } catch (error) {
+        console.error('L?i t?i gh?:', error);
+        container.innerHTML = '<p style="color:red">KhÙng th? t?i d? li?u gh?.</p>';
+    }
 }
 
-function generateRandomSoldSeats(rows, seatsPerRow) {
-    const soldSeats = [];
-    const rowLabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-    const numberOfSoldSeats = Math.floor(Math.random() * 50) + 30; // 30-80 sold seats
-    
-    for (let i = 0; i < numberOfSoldSeats; i++) {
-        const randomRow = rowLabels[Math.floor(Math.random() * rows)];
-        const randomSeat = Math.floor(Math.random() * seatsPerRow) + 1;
-        const seatId = `${randomRow}${randomSeat}`;
-        
-        if (!soldSeats.includes(seatId)) {
-            soldSeats.push(seatId);
+// ===== 2. X? L› CH?N GH? =====
+function toggleSeat(seatElement) {
+    const seatId = seatElement.dataset.id;
+    const typeId = String(seatElement.dataset.typeId);
+    const typeName = seatElement.dataset.typeName;
+    const price = parseInt(seatElement.dataset.price);
+
+    // Ki?m tra logic c˘ng lo?i vÈ (D? phÚng, d˘ UI d„ ch?n)
+    if (selectedSeats.length > 0) {
+        const firstSeatType = String(selectedSeats[0].typeId);
+        if (firstSeatType !== typeId) {
+            alert(`B?n dang ch?n gh? thu?c lo?i vÈ "${typeName}".\nVui lÚng ch? ch?n gh? c˘ng lo?i vÈ trong m?t l?n d?t!`);
+            return;
         }
     }
-    
-    return soldSeats;
-}
 
-function toggleSeat(seatElement) {
-    const seatId = seatElement.dataset.seatId;
-    
-    // Check if seat is already selected
-    const index = selectedSeats.indexOf(seatId);
-    
-    if (index > -1) {
-        // Deselect seat
-        selectedSeats.splice(index, 1);
+    const existingIndex = selectedSeats.findIndex(s => s.id === seatId);
+
+    if (existingIndex > -1) {
+        // B? ch?n
+        selectedSeats.splice(existingIndex, 1);
         seatElement.classList.remove('selected');
+        seatElement.style.backgroundColor = ''; 
+        seatElement.style.color = '';
     } else {
-        // Check if max seats reached (e.g., 10 seats max)
+        // Ch?n m?i
         if (selectedSeats.length >= 10) {
-            showAlert('B·∫°n ch·ªâ c√≥ th·ªÉ ch·ªçn t·ªëi ƒëa 10 gh·∫ø', 'warning');
+            alert('B?n ch? cÛ th? ch?n t?i da 10 gh?');
             return;
         }
         
-        // Select seat
-        selectedSeats.push(seatId);
+        selectedSeats.push({
+            id: seatId,
+            dbId: seatElement.dataset.dbId,
+            typeId: typeId,
+            price: price
+        });
         seatElement.classList.add('selected');
+        seatElement.style.backgroundColor = '#6c5ce7';
+        seatElement.style.color = '#fff';
     }
     
-    updateSelectedSeatsDisplay();
+    updateModalInfo();
+    updateSeatVisuals(); // C?p nh?t l?i tr?ng th·i m?/rı
 }
 
-function updateSelectedSeatsDisplay() {
+// ===== 3. C?P NH?T GIAO DI?N (L¿M M? GH? KH¡C LO?I) =====
+function updateSeatVisuals() {
+    let activeTypeId = null;
+
+    // Uu tiÍn 1: Lo?i vÈ c?a gh? dang ch?n
+    if (selectedSeats.length > 0) {
+        activeTypeId = String(selectedSeats[0].typeId);
+    } 
+    // Uu tiÍn 2: Lo?i vÈ dang ch?n ? Radio Button bÍn ngo‡i
+    else {
+        const checkedRadio = document.querySelector('input[name="ticket_type_id"]:checked');
+        if (checkedRadio) {
+            activeTypeId = String(checkedRadio.value);
+        }
+    }
+
+    const allSeats = document.querySelectorAll('.seat');
+    allSeats.forEach(seat => {
+        // B? qua gh? d„ b·n
+        if (seat.classList.contains('sold')) return;
+
+        const seatTypeId = String(seat.dataset.typeId);
+
+        if (activeTypeId && seatTypeId !== activeTypeId) {
+            seat.classList.add('dimmed');
+        } else {
+            seat.classList.remove('dimmed');
+        }
+    });
+}
+
+// ===== 4. C?P NH?T TH‘NG TIN TRONG MODAL =====
+function updateModalInfo() {
     const displayElement = document.getElementById('selectedSeatsDisplay');
     const modalTotalElement = document.getElementById('modalTotalPrice');
     
-    if (displayElement) {
-        if (selectedSeats.length === 0) {
-            displayElement.textContent = 'Ch∆∞a ch·ªçn gh·∫ø n√†o';
-            displayElement.style.color = 'var(--text-light)';
-        } else {
-            displayElement.textContent = selectedSeats.join(', ');
-            displayElement.style.color = 'var(--primary-color)';
-        }
-    }
-    
-    // Update modal total price
-    if (modalTotalElement && ticketPrice > 0) {
-        const total = ticketPrice * selectedSeats.length;
-        modalTotalElement.textContent = formatCurrency(total);
+    if (selectedSeats.length === 0) {
+        displayElement.textContent = 'Chua ch?n gh? n‡o';
+        modalTotalElement.textContent = '0 VN–';
+    } else {
+        const seatLabels = selectedSeats.map(s => s.id).join(', ');
+        displayElement.textContent = seatLabels;
+        
+        const total = selectedSeats.reduce((sum, s) => sum + s.price, 0);
+        modalTotalElement.textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total);
     }
 }
 
-function confirmSeats() {
+// ===== 5. X¡C NH?N CH?N GH? =====
+window.confirmSeats = function() {
     if (selectedSeats.length === 0) {
-        showAlert('Vui l√≤ng ch·ªçn √≠t nh·∫•t m·ªôt gh·∫ø', 'warning');
+        alert('Vui lÚng ch?n Ìt nh?t m?t gh?');
         return;
     }
     
-    if (!selectedTicketType) {
-        showAlert('Vui l√≤ng ch·ªçn lo·∫°i v√©', 'warning');
-        closeModal('seatSelectionModal');
-        return;
+    const typeId = selectedSeats[0].typeId;
+    const quantity = selectedSeats.length;
+
+    const radio = document.querySelector(`input[name="ticket_type_id"][value="${typeId}"]`);
+    if (radio) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change')); 
     }
-    
-    // Update quantity to match selected seats
+
     const quantityInput = document.getElementById('ticketQuantity');
     if (quantityInput) {
-        quantityInput.value = selectedSeats.length;
-        ticketQuantity = selectedSeats.length;
+        quantityInput.value = quantity;
     }
     
-    updateTotal();
+    if (typeof window.updateTotal === 'function') {
+        window.updateTotal();
+    }
     
-    showAlert(`ƒê√£ ch·ªçn ${selectedSeats.length} gh·∫ø: ${selectedSeats.join(', ')}`, 'success');
     closeModal('seatSelectionModal');
-    
-    // Here you would normally save the selected seats to proceed with checkout
-    console.log('Selected seats:', selectedSeats);
-    console.log('Ticket type:', selectedTicketType);
-    console.log('Total price:', ticketPrice * selectedSeats.length);
-}
-
-// Reset seat selection when modal closes
-function resetSeatSelection() {
-    selectedSeats = [];
-    const seats = document.querySelectorAll('.seat.selected');
-    seats.forEach(seat => seat.classList.remove('selected'));
-    updateSelectedSeatsDisplay();
-}
-
-// Override closeModal to reset selection
-const originalCloseModal = window.closeModal;
-window.closeModal = function(modalId) {
-    if (modalId === 'seatSelectionModal') {
-        // Don't reset if user confirmed
-        // resetSeatSelection();
-    }
-    originalCloseModal(modalId);
 };
 
-// ===== SCROLL TO BOOKING =====
-function scrollToBooking() {
-    const bookingCard = document.querySelector('.booking-card');
-    if (bookingCard) {
-        bookingCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+    document.body.style.overflow = 'auto';
 }
-
-// ===== SHARE FUNCTIONALITY =====
-document.querySelectorAll('.share-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const eventUrl = window.location.href;
-        const eventTitle = document.querySelector('.event-title').textContent;
-        
-        if (this.classList.contains('facebook')) {
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(eventUrl)}`, '_blank');
-        } else if (this.classList.contains('twitter')) {
-            window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(eventUrl)}&text=${encodeURIComponent(eventTitle)}`, '_blank');
-        } else if (this.classList.contains('link')) {
-            // Copy link to clipboard
-            navigator.clipboard.writeText(eventUrl).then(() => {
-                showAlert('ƒê√£ sao ch√©p link!', 'success');
-            }).catch(() => {
-                showAlert('Kh√¥ng th·ªÉ sao ch√©p link', 'error');
-            });
-        } else if (this.classList.contains('instagram')) {
-            showAlert('Instagram kh√¥ng h·ªó tr·ª£ chia s·∫ª tr·ª±c ti·∫øp', 'info');
-        }
-    });
-});
-
-// ===== COMMENT ACTIONS =====
-document.querySelectorAll('.comment-actions button').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const action = this.textContent.trim();
-        if (action.includes('Th√≠ch')) {
-            // Toggle like
-            const currentText = this.innerHTML;
-            if (currentText.includes('Th√≠ch')) {
-                const count = parseInt(currentText.match(/\d+/)[0]);
-                this.innerHTML = currentText.replace(/\d+/, count + 1);
-                this.style.color = 'var(--primary-color)';
-            }
-        } else if (action.includes('Tr·∫£ l·ªùi')) {
-            showAlert('Ch·ª©c nƒÉng tr·∫£ l·ªùi ƒëang ƒë∆∞·ª£c ph√°t tri·ªÉn', 'info');
-        }
-    });
-});
-
-// ===== COMMENT FORM =====
-const commentForm = document.querySelector('.comment-form');
-if (commentForm) {
-    const textarea = commentForm.querySelector('textarea');
-    const submitBtn = commentForm.querySelector('button');
-    
-    submitBtn.addEventListener('click', function() {
-        const comment = textarea.value.trim();
-        
-        if (comment) {
-            // Here you would normally send the comment to the server
-            showAlert('B√¨nh lu·∫≠n c·ªßa b·∫°n ƒë√£ ƒë∆∞·ª£c g·ª≠i!', 'success');
-            textarea.value = '';
-            
-            // Simulate adding comment to list
-            console.log('New comment:', comment);
-        } else {
-            showAlert('Vui l√≤ng nh·∫≠p n·ªôi dung b√¨nh lu·∫≠n', 'warning');
-        }
-    });
-}
-
-// ===== LOAD MORE COMMENTS =====
-const loadMoreBtn = document.querySelector('.comments-section .btn-outline.btn-full');
-if (loadMoreBtn) {
-    loadMoreBtn.addEventListener('click', function() {
-        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ƒêang t·∫£i...';
-        
-        // Simulate loading
-        setTimeout(() => {
-            this.textContent = 'Xem th√™m b√¨nh lu·∫≠n';
-            showAlert('ƒê√£ t·∫£i th√™m b√¨nh lu·∫≠n', 'success');
-        }, 1000);
-    });
-}
-
-// ===== STICKY BOOKING CARD ON SCROLL (Mobile) =====
-window.addEventListener('scroll', function() {
-    if (window.innerWidth <= 768) {
-        const bookingCard = document.querySelector('.booking-card');
-        if (bookingCard && window.scrollY > 500) {
-            bookingCard.style.position = 'fixed';
-            bookingCard.style.bottom = '0';
-            bookingCard.style.left = '0';
-            bookingCard.style.right = '0';
-            bookingCard.style.zIndex = '100';
-            bookingCard.style.borderRadius = '1rem 1rem 0 0';
-            bookingCard.style.maxHeight = '60vh';
-            bookingCard.style.overflowY = 'auto';
-        } else if (bookingCard) {
-            bookingCard.style.position = 'static';
-        }
-    }
-});
-
-// Export functions
-window.increaseQuantity = increaseQuantity;
-window.decreaseQuantity = decreaseQuantity;
-window.confirmSeats = confirmSeats;
-window.scrollToBooking = scrollToBooking;
