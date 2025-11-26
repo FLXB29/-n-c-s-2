@@ -15,6 +15,10 @@
                 <i class="fas fa-user" style="width: 24px;"></i>
                 <span>Hồ sơ cá nhân</span>
             </a>
+            <a href="#tickets" class="menu-item" onclick="showSection('tickets')" style="display: flex; align-items: center; padding: 12px 24px; color: #64748b; text-decoration: none; transition: all 0.3s;">
+                <i class="fas fa-ticket-alt" style="width: 24px;"></i>
+                <span>Vé của tôi</span>
+            </a>
             <a href="#password" class="menu-item" onclick="showSection('password')" style="display: flex; align-items: center; padding: 12px 24px; color: #64748b; text-decoration: none; transition: all 0.3s;">
                 <i class="fas fa-key" style="width: 24px;"></i>
                 <span>Đổi mật khẩu</span>
@@ -68,6 +72,101 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Organizer Request Section -->
+            @if($user->role === 'user')
+                <div class="mt-4" style="margin-top: 30px; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h3 style="font-size: 18px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Trở thành Nhà tổ chức sự kiện</h3>
+                            <p style="color: #64748b; margin: 0;">Đăng ký để tạo và quản lý các sự kiện của riêng bạn trên EventHub.</p>
+                        </div>
+                        
+                        @if($user->organizer_request_status === 'pending')
+                            <button disabled class="btn btn-warning" style="background: #f59e0b; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: not-allowed; opacity: 0.8;">
+                                <i class="fas fa-clock"></i> Đang chờ duyệt
+                            </button>
+                        @elseif($user->organizer_request_status === 'rejected')
+                            <div>
+                                <span class="text-danger d-block mb-2">Yêu cầu trước đó đã bị từ chối.</span>
+                                <form action="{{ route('user.requestOrganizer') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-primary" style="background: #4f46e5; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">
+                                        <i class="fas fa-paper-plane"></i> Gửi lại yêu cầu
+                                    </button>
+                                </form>
+                            </div>
+                        @else
+                            <form action="{{ route('user.requestOrganizer') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-primary" style="background: #4f46e5; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; transition: background 0.3s;">
+                                    <i class="fas fa-arrow-up"></i> Nâng cấp tài khoản
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+            @endif
+        </section>
+
+        <!-- Tickets Section -->
+        <section id="tickets-section" class="dashboard-section" style="display: none;">
+            <div class="section-header" style="margin-bottom: 30px;">
+                <h1 style="font-size: 24px; color: #1e293b; margin-bottom: 10px;">Vé của tôi</h1>
+                <p style="color: #64748b;">Danh sách các vé bạn đã mua.</p>
+            </div>
+
+            <div class="tickets-list">
+                @if(isset($orders) && $orders->count() > 0)
+                    @foreach($orders as $order)
+                        <div class="ticket-card" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div>
+                                    <h3 style="font-size: 18px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">
+                                        {{ $order->event->title ?? 'Sự kiện không tồn tại' }}
+                                    </h3>
+                                    <p style="color: #64748b; margin-bottom: 5px;">
+                                        <i class="fas fa-calendar"></i> {{ $order->event->start_time ? \Carbon\Carbon::parse($order->event->start_time)->format('d/m/Y H:i') : 'N/A' }}
+                                    </p>
+                                    <p style="color: #64748b;">
+                                        <i class="fas fa-map-marker-alt"></i> {{ $order->event->venue_name ?? 'N/A' }}
+                                    </p>
+                                </div>
+                                <div style="text-align: right;">
+                                    @if($order->status == 'pending')
+                                        <span class="badge bg-warning text-dark" style="padding: 5px 10px; border-radius: 20px; font-size: 12px;">CHỜ THANH TOÁN</span>
+                                        <p style="font-weight: bold; color: #4f46e5; margin-top: 10px;">{{ number_format($order->final_amount) }} VNĐ</p>
+                                        <a href="{{ route('orders.payment', $order->id) }}" class="btn btn-sm btn-primary mt-2">Thanh toán ngay</a>
+                                    @else
+                                        <span class="badge bg-success" style="padding: 5px 10px; border-radius: 20px; font-size: 12px;">{{ strtoupper($order->status) }}</span>
+                                        <p style="font-weight: bold; color: #4f46e5; margin-top: 10px;">{{ number_format($order->final_amount) }} VNĐ</p>
+                                    @endif
+                                </div>
+                            </div>
+                            <hr style="border-top: 1px solid #e2e8f0; margin: 15px 0;">
+                            <div class="ticket-items">
+                                <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 10px;">Chi tiết vé:</h4>
+                                <ul style="list-style: none; padding: 0;">
+                                    @foreach($order->tickets as $ticket)
+                                        <li style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px;">
+                                            <span>
+                                                <i class="fas fa-ticket-alt"></i> {{ $ticket->ticketType->name ?? 'Vé' }}
+                                                <small class="text-muted">({{ $ticket->ticket_code }})</small>
+                                            </span>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    @endforeach
+                @else
+                    <div class="empty-state" style="text-align: center; padding: 40px;">
+                        <img src="https://via.placeholder.com/150?text=No+Tickets" alt="No Tickets" style="margin-bottom: 20px; opacity: 0.5;">
+                        <p style="color: #64748b;">Bạn chưa mua vé nào.</p>
+                        <a href="{{ route('events.index') }}" class="btn btn-primary" style="margin-top: 10px;">Khám phá sự kiện</a>
+                    </div>
+                @endif
+            </div>
         </section>
 
         <!-- Profile Section -->
@@ -85,7 +184,7 @@
                              alt="Avatar" 
                              style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid #f1f5f9;">
                         
-                        <form action="{{ route('user.updateAvatar') }}" method="POST" enctype="multipart/form-data" id="avatar-form">
+                        <form action="{{ route('user.avatar.update') }}" method="POST" enctype="multipart/form-data" id="avatar-form">
                             @csrf
                             <label for="avatar-input" style="position: absolute; bottom: 0; right: 0; background: #4f46e5; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                                 <i class="fas fa-camera" style="font-size: 14px;"></i>
@@ -103,7 +202,7 @@
                 </div>
 
                 <!-- Profile Form -->
-                <form action="{{ route('user.updateProfile') }}" method="POST">
+                <form action="{{ route('user.profile.update') }}" method="POST">
                     @csrf
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                         <div class="form-group">
@@ -157,7 +256,7 @@
             </div>
 
             <div class="dashboard-card" style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); max-width: 600px;">
-                <form action="{{ route('dashboard.update-password') }}" method="POST" class="dashboard-form">
+                <form action="{{ route('user.password.change') }}" method="POST" class="dashboard-form">
                     @csrf
                     
                     <!-- Mật khẩu hiện tại -->
@@ -251,7 +350,7 @@
         btn.disabled = true;
         btn.innerText = 'Đang gửi...';
 
-        fetch('{{ route("dashboard.send-otp") }}', {
+        fetch('{{ route("user.sendOtp") }}', {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',

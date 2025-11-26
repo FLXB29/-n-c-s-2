@@ -74,7 +74,7 @@
                             <i class="fas fa-chevron-down"></i>
                         </button>
                         <ul class="user-menu" id="userMenu">
-                            <li><a href="{{ route('dashboard.user') }}">
+                            <li><a href="{{ route('user.dashboard') }}">
                                 <i class="fas fa-tachometer-alt"></i> Dashboard
                             </a></li>
                             @if(auth()->user()->isOrganizer())

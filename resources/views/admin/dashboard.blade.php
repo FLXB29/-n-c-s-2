@@ -35,28 +35,34 @@
     <aside class="admin-sidebar" id="sidebar">
         <div class="sidebar-content">
             <ul class="sidebar-menu">
-                <li class="menu-item active" data-section="overview">
-                    <a href="#" onclick="showSection('overview')">
+                <li class="menu-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <a href="{{ route('admin.dashboard') }}">
                         <i class="fas fa-tachometer-alt"></i>
                         <span>Tổng quan</span>
                     </a>
                 </li>
-                <li class="menu-item" data-section="users">
-                    <a href="#" onclick="showSection('users')">
-                        <i class="fas fa-users"></i>
-                        <span>Quản lý Users</span>
-                    </a>
-                </li>
-                <li class="menu-item" data-section="events">
-                    <a href="#" onclick="showSection('events')">
+                <li class="menu-item {{ request()->routeIs('admin.events.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.events.index') }}">
                         <i class="fas fa-calendar-check"></i>
                         <span>Quản lý Events</span>
+                        @if($stats['pending_events'] > 0)
+                            <span class="badge bg-danger rounded-pill ms-auto">{{ $stats['pending_events'] }}</span>
+                        @endif
                     </a>
                 </li>
-                <li class="menu-item" data-section="organizers">
-                    <a href="#" onclick="showSection('organizers')">
-                        <i class="fas fa-user-tie"></i>
-                        <span>Organizers</span>
+                <li class="menu-item {{ request()->routeIs('admin.requests.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.requests.index') }}">
+                        <i class="fas fa-user-clock"></i>
+                        <span>Yêu cầu Organizer</span>
+                        @if($stats['organizer_requests'] > 0)
+                            <span class="badge bg-danger fw-bold rounded-pill ms-auto" style="background-color: #dc3545 !important; color: white !important;">{{ $stats['organizer_requests'] }}</span>
+                        @endif
+                    </a>
+                </li>
+                <li class="menu-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.users.index') }}">
+                        <i class="fas fa-users"></i>
+                        <span>Quản lý Users</span>
                     </a>
                 </li>
             </ul>
@@ -81,7 +87,6 @@
                     <div class="stat-content">
                         <h3>{{ number_format($stats['total_users']) }}</h3>
                         <p>Tổng Users</p>
-                        <span class="stat-change positive">+{{ $stats['new_users_this_month'] }} tháng này</span>
                     </div>
                 </div>
                 
@@ -91,210 +96,91 @@
                     </div>
                     <div class="stat-content">
                         <h3>{{ number_format($stats['total_events']) }}</h3>
-                        <p>Events đang hoạt động</p>
+                        <p>Tổng Events</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon pending">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ number_format($stats['pending_events']) }}</h3>
+                        <p>Events chờ duyệt</p>
                     </div>
                 </div>
                 
                 <div class="stat-card">
-                    <div class="stat-icon revenue">
-                        <i class="fas fa-user-tie"></i>
+                    <div class="stat-icon requests">
+                        <i class="fas fa-user-plus"></i>
                     </div>
                     <div class="stat-content">
-                        <h3>{{ number_format($stats['total_organizers']) }}</h3>
-                        <p>Organizers</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon tickets">
-                        <i class="fas fa-ticket-alt"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3>--</h3>
-                        <p>Vé đã bán</p>
+                        <h3>{{ number_format($stats['organizer_requests']) }}</h3>
+                        <p>Yêu cầu Organizer</p>
                     </div>
                 </div>
             </div>
-        </section>
 
-        <!-- Users Management Section -->
-        <section id="users-section" class="dashboard-section">
-            <div class="section-header">
-                <h1>Quản lý Users</h1>
-                <p>Quản lý tất cả người dùng trên platform</p>
-            </div>
-
-            <!-- Users Table -->
-            <div class="admin-card table-card">
-                <div class="card-header">
-                    <h3>Danh sách Users</h3>
-                </div>
-                <div class="table-container">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Người dùng</th>
-                                <th>Email / SĐT</th>
-                                <th>Vai trò</th>
-                                <th>Trạng thái</th>
-                                <th style="text-align: right;">Hành động</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($users as $user)
-                            <tr>
-                                <td>
-                                    <div style="display: flex; align-items: center; gap: 10px;">
-                                        <img src="{{ $user->avatar ? asset($user->avatar) : asset('images/default-avatar.png') }}" 
-                                             alt="Avatar" 
-                                             style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+            <div class="row mt-4">
+                <!-- Pending Events Preview -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Sự kiện chờ duyệt mới nhất</h5>
+                            <a href="{{ route('admin.events.index', ['status' => 'pending']) }}" class="btn btn-sm btn-outline-primary">Xem tất cả</a>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="list-group list-group-flush">
+                                @forelse($pendingEvents as $event)
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
                                         <div>
-                                            <div style="font-weight: 600;">{{ $user->full_name }}</div>
-                                            <div style="font-size: 0.8rem; color: #888;">ID: {{ $user->id }}</div>
+                                            <h6 class="mb-0">{{ $event->title }}</h6>
+                                            <small class="text-muted">Bởi: {{ $event->organizer->name }} - {{ $event->created_at->diffForHumans() }}</small>
                                         </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div>{{ $user->email }}</div>
-                                    <div style="font-size: 0.8rem; color: #888;">{{ $user->phone }}</div>
-                                </td>
-                                <td>
-                                    @if($user->role === 'organizer')
-                                        <span class="badge badge-organizer">Organizer</span>
-                                    @else
-                                        <span class="badge badge-user">User</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($user->status === 'active')
-                                        <span class="badge badge-active">Hoạt động</span>
-                                    @else
-                                        <span class="badge badge-blocked">Đã chặn</span>
-                                    @endif
-                                </td>
-                                <td style="text-align: right;">
-                                    <div style="display: flex; justify-content: flex-end; gap: 5px;">
-                                        {{-- Nút đổi quyền --}}
-                                        <form action="{{ route('admin.toggleRole', $user->id) }}" method="POST" style="display:inline;">
+                                        <form action="{{ route('admin.events.approve', $event->id) }}" method="POST">
                                             @csrf
                                             @method('PATCH')
-                                            @if($user->role === 'user')
-                                                <button type="submit" class="btn-action btn-promote" title="Cấp quyền Organizer">
-                                                    <i class="fas fa-arrow-up"></i> <span>Cấp quyền</span>
-                                                </button>
-                                            @else
-                                                <button type="submit" class="btn-action btn-demote" title="Hủy quyền Organizer">
-                                                    <i class="fas fa-arrow-down"></i> <span>Hủy quyền</span>
-                                                </button>
-                                            @endif
+                                            <button class="btn btn-sm btn-success"><i class="fas fa-check"></i></button>
                                         </form>
+                                    </div>
+                                @empty
+                                    <div class="p-3 text-center text-muted">Không có sự kiện nào chờ duyệt.</div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                                        {{-- Nút chặn/bỏ chặn --}}
-                                        <form action="{{ route('admin.toggleStatus', $user->id) }}" method="POST" style="display:inline;">
+                <!-- Organizer Requests Preview -->
+                <div class="col-md-6">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Yêu cầu nâng cấp mới nhất</h5>
+                            <a href="{{ route('admin.requests.index') }}" class="btn btn-sm btn-outline-primary">Xem tất cả</a>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="list-group list-group-flush">
+                                @forelse($latestRequests as $req)
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-0">{{ $req->name }}</h6>
+                                            <small class="text-muted">{{ $req->email }}</small>
+                                        </div>
+                                        <form action="{{ route('admin.requests.approve', $req->id) }}" method="POST">
                                             @csrf
                                             @method('PATCH')
-                                            @if($user->status === 'active')
-                                                <button type="submit" class="btn-action btn-block-user" title="Chặn người dùng" onclick="return confirm('Bạn có chắc muốn chặn người dùng này?')">
-                                                    <i class="fas fa-ban"></i> <span>Chặn</span>
-                                                </button>
-                                            @else
-                                                <button type="submit" class="btn-action btn-unblock" title="Bỏ chặn">
-                                                    <i class="fas fa-check"></i> <span>Bỏ chặn</span>
-                                                </button>
-                                            @endif
+                                            <button class="btn btn-sm btn-primary">Duyệt</button>
                                         </form>
                                     </div>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                                @empty
+                                    <div class="p-3 text-center text-muted">Không có yêu cầu nào.</div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
-
-        <!-- Events Management Section -->
-        <section id="events-section" class="dashboard-section">
-            <div class="section-header">
-                <h1>Quản lý Events</h1>
-                <p>Danh sách sự kiện mới nhất</p>
-            </div>
-            
-            <div class="admin-card table-card">
-                <div class="table-container">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Tên sự kiện</th>
-                                <th>Organizer</th>
-                                <th>Thời gian</th>
-                                <th>Địa điểm</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($events as $event)
-                            <tr>
-                                <td>{{ $event->title }}</td>
-                                <td>{{ $event->organizer->full_name ?? 'N/A' }}</td>
-                                <td>{{ \Carbon\Carbon::parse($event->start_time)->format('d/m/Y H:i') }}</td>
-                                <td>
-                                    {{ $event->venue_name ? $event->venue_name . ', ' : '' }}
-                                    {{ $event->venue_address ? $event->venue_address . ', ' : '' }}
-                                    {{ $event->venue_city }}
-                                    {{ $event->venue_country ? ', ' . $event->venue_country : '' }}
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- Organizers Section -->
-        <section id="organizers-section" class="dashboard-section">
-            <div class="section-header">
-                <h1>Quản lý Organizers</h1>
-                <p>Danh sách nhà tổ chức</p>
-            </div>
-            <div class="admin-card">
-                <p>Tính năng đang phát triển...</p>
-            </div>
-        </section>
-
     </main>
-
-    <!-- JavaScript -->
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('active');
-        }
-
-        function showSection(sectionName) {
-            // Hide all sections
-            const sections = document.querySelectorAll('.dashboard-section');
-            sections.forEach(section => {
-                section.classList.remove('active');
-            });
-
-            // Show selected section
-            const targetSection = document.getElementById(sectionName + '-section');
-            if (targetSection) {
-                targetSection.classList.add('active');
-            }
-
-            // Update sidebar active state
-            const menuItems = document.querySelectorAll('.menu-item');
-            menuItems.forEach(item => {
-                item.classList.remove('active');
-            });
-
-            const activeMenuItem = document.querySelector(`[data-section="${sectionName}"]`);
-            if (activeMenuItem) {
-                activeMenuItem.classList.add('active');
-            }
-        }
-    </script>
 </body>
 </html>

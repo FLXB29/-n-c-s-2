@@ -15,7 +15,7 @@ class TicketType extends Model
         'description',  // Mô tả quyền lợi
         'price',        // Giá tiền
         'quantity',     // Tổng số lượng vé phát hành
-        'sold_count',   // Số lượng đã bán
+        'sold',         // Số lượng đã bán
         'is_active',    // Đang mở bán hay không
         'sort_order'    // Thứ tự hiển thị
     ];
@@ -40,12 +40,12 @@ class TicketType extends Model
     // Hàm kiểm tra xem còn vé không
     public function isAvailable()
     {
-        return $this->is_active && ($this->quantity > $this->sold_count);
+        return $this->is_active && ($this->quantity > $this->sold);
     }
     
     // Hàm lấy số vé còn lại
     public function getRemainingAttribute()
     {
-        return max(0, $this->quantity - $this->sold_count);
+        return max(0, $this->quantity - $this->sold);
     }
 }

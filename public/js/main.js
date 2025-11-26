@@ -55,7 +55,7 @@ function initMobileMenu() {
 // ===== BANNER SLIDER =====
 function initBannerSlider() {
     const slides = document.querySelectorAll('.banner-slide');
-    const dots = document.querySelectorAll('.dot');
+    const dots = document.querySelectorAll('.banner-dot');
     const prevBtn = document.querySelector('.banner-prev');
     const nextBtn = document.querySelector('.banner-next');
     

@@ -37,7 +37,7 @@
                             @foreach($events as $event)
                                 <tr>
                                     <td>
-                                        <img src="{{ asset($event->banner_image) }}" alt="{{ $event->title }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                                        <img src="{{ asset($event->featured_image) }}" alt="{{ $event->title }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
                                     </td>
                                     <td>{{ $event->title }}</td>
                                     <td>{{ \Carbon\Carbon::parse($event->start_datetime)->format('d/m/Y H:i') }}</td>
@@ -48,13 +48,13 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="{{ route('events.show', $event->slug) }}" class="btn btn-sm btn-info" target="_blank"><i class="fas fa-eye"></i></a>
-                                        {{-- <a href="{{ route('organizer.events.edit', $event->id) }}" class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></a> --}}
-                                        {{-- <form action="{{ route('organizer.events.destroy', $event->id) }}" method="POST" class="d-inline">
+                                        <a href="{{ route('events.show', $event->slug) }}" class="btn btn-sm btn-info" target="_blank" title="Xem chi tiết"><i class="fas fa-eye"></i></a>
+                                        <a href="{{ route('organizer.events.edit', $event->id) }}" class="btn btn-sm btn-warning" title="Chỉnh sửa"><i class="fas fa-edit"></i></a>
+                                        <form action="{{ route('organizer.events.destroy', $event->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa?')"><i class="fas fa-trash"></i></button>
-                                        </form> --}}
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa sự kiện này? Hành động này không thể hoàn tác.')" title="Xóa"><i class="fas fa-trash"></i></button>
+                                        </form>
                                     </td>
                                 </tr>
                             @endforeach

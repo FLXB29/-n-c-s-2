@@ -7,11 +7,11 @@ let ticketQuantity = 1;
 document.addEventListener('DOMContentLoaded', function() {
     initSeatSelection();
     
-    // L?ng nghe s? ki?n thay d?i Radio Button bên ngoài
+    // L?ng nghe s? ki?n thay d?i Radio Button bï¿½n ngoï¿½i
     const radios = document.querySelectorAll('input[name="ticket_type_id"]');
     radios.forEach(r => {
         r.addEventListener('change', function() {
-            // N?u chua ch?n gh? nào thì c?p nh?t giao di?n theo Radio v?a ch?n
+            // N?u chua ch?n gh? nï¿½o thï¿½ c?p nh?t giao di?n theo Radio v?a ch?n
             if (selectedSeats.length === 0) {
                 updateSeatVisuals();
             }
@@ -19,12 +19,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// ===== 1. KH?I T?O SO Ð? GH? T? API =====
+// ===== 1. KH?I T?O SO ï¿½? GH? T? API =====
 async function initSeatSelection() {
     const container = document.getElementById('seatsContainer');
     if (!container) return;
 
-    container.innerHTML = '<div class="loading-spinner">Ðang t?i so d? gh?...</div>';
+    container.innerHTML = '<div class="loading-spinner">ï¿½ang t?i so d? gh?...</div>';
 
     try {
         const response = await fetch(window.eventConfig.apiSeatsUrl);
@@ -33,7 +33,7 @@ async function initSeatSelection() {
         container.innerHTML = ''; 
 
         if (Object.keys(seatsByRow).length === 0) {
-            container.innerHTML = '<p>Chua có so d? gh? cho s? ki?n này.</p>';
+            container.innerHTML = '<p>Chua cï¿½ so d? gh? cho s? ki?n nï¿½y.</p>';
             return;
         }
 
@@ -65,10 +65,10 @@ async function initSeatSelection() {
 
                 if (seat.status === 'sold' || seat.status === 'blocked') {
                     seatDiv.classList.add('sold');
-                    seatDiv.title = 'Ðã bán';
+                    seatDiv.title = 'ï¿½ï¿½ bï¿½n';
                 } else if (seat.status === 'reserved') {
                     seatDiv.classList.add('sold');
-                    seatDiv.title = 'Ðang gi? ch?';
+                    seatDiv.title = 'ï¿½ang gi? ch?';
                 } else {
                     seatDiv.onclick = () => toggleSeat(seatDiv);
                 }
@@ -84,22 +84,22 @@ async function initSeatSelection() {
 
     } catch (error) {
         console.error('L?i t?i gh?:', error);
-        container.innerHTML = '<p style="color:red">Không th? t?i d? li?u gh?.</p>';
+        container.innerHTML = '<p style="color:red">Khï¿½ng th? t?i d? li?u gh?.</p>';
     }
 }
 
-// ===== 2. X? LÝ CH?N GH? =====
+// ===== 2. X? Lï¿½ CH?N GH? =====
 function toggleSeat(seatElement) {
     const seatId = seatElement.dataset.id;
     const typeId = String(seatElement.dataset.typeId);
     const typeName = seatElement.dataset.typeName;
     const price = parseInt(seatElement.dataset.price);
 
-    // Ki?m tra logic cùng lo?i vé (D? phòng, dù UI dã ch?n)
+    // Ki?m tra logic cï¿½ng lo?i vï¿½ (D? phï¿½ng, dï¿½ UI dï¿½ ch?n)
     if (selectedSeats.length > 0) {
         const firstSeatType = String(selectedSeats[0].typeId);
         if (firstSeatType !== typeId) {
-            alert(`B?n dang ch?n gh? thu?c lo?i vé "${typeName}".\nVui lòng ch? ch?n gh? cùng lo?i vé trong m?t l?n d?t!`);
+            alert(`B?n dang ch?n gh? thu?c lo?i vï¿½ "${typeName}".\nVui lï¿½ng ch? ch?n gh? cï¿½ng lo?i vï¿½ trong m?t l?n d?t!`);
             return;
         }
     }
@@ -115,7 +115,7 @@ function toggleSeat(seatElement) {
     } else {
         // Ch?n m?i
         if (selectedSeats.length >= 10) {
-            alert('B?n ch? có th? ch?n t?i da 10 gh?');
+            alert('B?n ch? cï¿½ th? ch?n t?i da 10 gh?');
             return;
         }
         
@@ -131,18 +131,18 @@ function toggleSeat(seatElement) {
     }
     
     updateModalInfo();
-    updateSeatVisuals(); // C?p nh?t l?i tr?ng thái m?/rõ
+    updateSeatVisuals(); // C?p nh?t l?i tr?ng thï¿½i m?/rï¿½
 }
 
-// ===== 3. C?P NH?T GIAO DI?N (LÀM M? GH? KHÁC LO?I) =====
+// ===== 3. C?P NH?T GIAO DI?N (Lï¿½M M? GH? KHï¿½C LO?I) =====
 function updateSeatVisuals() {
     let activeTypeId = null;
 
-    // Uu tiên 1: Lo?i vé c?a gh? dang ch?n
+    // Uu tiï¿½n 1: Lo?i vï¿½ c?a gh? dang ch?n
     if (selectedSeats.length > 0) {
         activeTypeId = String(selectedSeats[0].typeId);
     } 
-    // Uu tiên 2: Lo?i vé dang ch?n ? Radio Button bên ngoài
+    // Uu tiï¿½n 2: Lo?i vï¿½ dang ch?n ? Radio Button bï¿½n ngoï¿½i
     else {
         const checkedRadio = document.querySelector('input[name="ticket_type_id"]:checked');
         if (checkedRadio) {
@@ -152,7 +152,7 @@ function updateSeatVisuals() {
 
     const allSeats = document.querySelectorAll('.seat');
     allSeats.forEach(seat => {
-        // B? qua gh? dã bán
+        // B? qua gh? dï¿½ bï¿½n
         if (seat.classList.contains('sold')) return;
 
         const seatTypeId = String(seat.dataset.typeId);
@@ -165,14 +165,14 @@ function updateSeatVisuals() {
     });
 }
 
-// ===== 4. C?P NH?T THÔNG TIN TRONG MODAL =====
+// ===== 4. C?P NH?T THï¿½NG TIN TRONG MODAL =====
 function updateModalInfo() {
     const displayElement = document.getElementById('selectedSeatsDisplay');
     const modalTotalElement = document.getElementById('modalTotalPrice');
     
     if (selectedSeats.length === 0) {
-        displayElement.textContent = 'Chua ch?n gh? nào';
-        modalTotalElement.textContent = '0 VNÐ';
+        displayElement.textContent = 'Chua ch?n gh? nï¿½o';
+        modalTotalElement.textContent = '0 VNï¿½';
     } else {
         const seatLabels = selectedSeats.map(s => s.id).join(', ');
         displayElement.textContent = seatLabels;
@@ -182,10 +182,10 @@ function updateModalInfo() {
     }
 }
 
-// ===== 5. XÁC NH?N CH?N GH? =====
+// ===== 5. XÃC NHáº¬N CHá»ŒN GHáº¾ =====
 window.confirmSeats = function() {
     if (selectedSeats.length === 0) {
-        alert('Vui lòng ch?n ít nh?t m?t gh?');
+        alert('Vui lÃ²ng chá»n Ã­t nháº¥t má»™t gháº¿');
         return;
     }
     
@@ -201,6 +201,13 @@ window.confirmSeats = function() {
     const quantityInput = document.getElementById('ticketQuantity');
     if (quantityInput) {
         quantityInput.value = quantity;
+    }
+
+    // Update hidden input with selected seat IDs
+    const hiddenInput = document.getElementById('selectedSeatsInput');
+    if (hiddenInput) {
+        const seatDbIds = selectedSeats.map(s => s.dbId);
+        hiddenInput.value = JSON.stringify(seatDbIds);
     }
     
     if (typeof window.updateTotal === 'function') {

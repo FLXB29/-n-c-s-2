@@ -16,7 +16,8 @@ class UserDashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
-        return view('user.dashboard', compact('user'));
+        $orders = $user->orders()->with('event')->latest()->get();
+        return view('user.dashboard', compact('user', 'orders'));
     }
 
     public function updateProfile(Request $request)
@@ -115,5 +116,25 @@ class UserDashboardController extends Controller
         Cache::forget('otp_' . $user->id);
 
         return back()->with('success', 'Đổi mật khẩu thành công!');
+    }
+
+    public function requestOrganizer()
+    {
+        $user = Auth::user();
+        
+        if ($user->role === 'organizer') {
+            return back()->with('info', 'Bạn đã là Organizer rồi.');
+        }
+
+        if ($user->organizer_request_status === 'pending') {
+            return back()->with('info', 'Yêu cầu của bạn đang chờ duyệt.');
+        }
+
+        $user->update([
+            'organizer_request_status' => 'pending',
+            'organizer_request_at' => now(),
+        ]);
+
+        return back()->with('success', 'Đã gửi yêu cầu nâng cấp tài khoản. Vui lòng chờ Admin duyệt.');
     }
 }

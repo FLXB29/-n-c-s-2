@@ -8,7 +8,7 @@
     <div class="banner-slider">
         @foreach($featuredEvents->take(3) as $index => $event)
         <div class="banner-slide {{ $index === 0 ? 'active' : '' }}">
-            <div class="banner-image" style="background-image: url('{{ $event->featured_image }}')"></div>
+            <div class="banner-image" style="background-image: url('{{ Str::startsWith($event->featured_image, 'http') ? $event->featured_image : asset($event->featured_image) }}')"></div>
             <div class="banner-content">
                 <div class="container">
                     <span class="banner-category">{{ $event->category->name }}</span>
@@ -50,7 +50,7 @@
             @foreach($featuredEvents as $event)
             <div class="event-card">
                 <div class="event-image">
-                    <img src="{{ $event->featured_image }}" alt="{{ $event->title }}">
+                    <img src="{{ Str::startsWith($event->featured_image, 'http') ? $event->featured_image : asset($event->featured_image) }}" alt="{{ $event->title }}">
                     <div class="event-badge">{{ $event->category->name }}</div>
                     @if($event->is_featured)
                     <div class="featured-badge">

@@ -20,14 +20,16 @@ class User extends Authenticatable
     protected $fillable = [
         'full_name',
         'email',
-        'password',
+        'password_hash',
         'phone',
         'role',
         'status',
         'avatar',
         'date_of_birth',
         'gender',
-        'address'
+        'address',
+        'organizer_request_status',
+        'organizer_request_at',
     ];
 
     /**
@@ -64,5 +66,10 @@ class User extends Authenticatable
     public function isAdmin()
     {
         return $this->role === 'admin';
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
     }
 }

@@ -12,7 +12,7 @@ class HomeController extends Controller
     {
         $featuredEvents = Event::published()
             ->featured()
-            ->upcoming()
+            ->upcoming() // Tạm thời bỏ filter upcoming để hiển thị hết các event test
             ->with(['category', 'organizer'])
             ->limit(6)
             ->get();

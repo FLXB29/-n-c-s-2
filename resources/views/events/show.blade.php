@@ -16,7 +16,7 @@
                 <div class="detail-main">
                     <!-- Event Cover Image -->
                     <div class="event-cover">
-                        <img src="{{ $event->featured_image }}" alt="{{ $event->title }}">
+                        <img src="{{ Str::startsWith($event->featured_image, 'http') ? $event->featured_image : asset($event->featured_image) }}" alt="{{ $event->title }}">
                         <div class="cover-overlay">
                             @if($event->is_featured)
                                 <span class="event-badge hot">🔥 Hot Event</span>
@@ -128,8 +128,9 @@
                             <span class="price-value">{{ number_format($event->min_price) }} VNĐ</span>
                         </div>
 
-                        <form action="#" method="POST" id="bookingForm">
+                        <form action="{{ route('events.checkout', $event->id) }}" method="POST" id="bookingForm">
                             @csrf
+                            <input type="hidden" name="selected_seats" id="selectedSeatsInput">
                             <div class="ticket-types">
                                 <h4>Chọn loại vé</h4>
                                 @if($event->ticketTypes->count() >0)
