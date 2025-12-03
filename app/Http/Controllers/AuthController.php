@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
 
@@ -14,7 +15,7 @@ class AuthController extends Controller
     // ============================================
     // ĐĂNG KÝ THÔNG THƯỜNG
     // ============================================
-    
+
     public function showRegisterForm()
     {
         return view('auth.register');
@@ -51,7 +52,7 @@ class AuthController extends Controller
     // ============================================
     // ĐĂNG NHẬP THÔNG THƯỜNG
     // ============================================
-    
+
     public function showLoginForm()
     {
         return view('auth.login');
@@ -68,9 +69,9 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
-            
+
             $user = Auth::user();
-            
+
             // Kiểm tra tài khoản có bị khóa không
             if ($user->status !== 'active') {
                 Auth::logout();
@@ -78,7 +79,7 @@ class AuthController extends Controller
                     'email' => 'Tài khoản của bạn đã bị khóa.',
                 ]);
             }
-            
+
             return $this->redirectBasedOnRole($user, 'Đăng nhập thành công!');
         }
 
@@ -90,7 +91,7 @@ class AuthController extends Controller
     // ============================================
     // ĐĂNG NHẬP BẰNG GOOGLE
     // ============================================
-    
+
     public function redirectToGoogle()
     {
         return Socialite::driver('google')->redirect();
@@ -99,13 +100,14 @@ class AuthController extends Controller
     public function handleGoogleCallback()
     {
         try {
-            $googleUser = Socialite::driver('google')->user();
-            
+            // Sử dụng stateless() để tránh lỗi InvalidStateException
+            $googleUser = Socialite::driver('google')->stateless()->user();
+
             return $this->handleSocialLogin($googleUser, 'google');
-            
         } catch (\Exception $e) {
             // Log lỗi để debug
-            
+            Log::error('Google login error: ' . $e->getMessage());
+
             return redirect()->route('login')
                 ->with('error', 'Đăng nhập Google thất bại: ' . $e->getMessage());
         }
@@ -114,7 +116,7 @@ class AuthController extends Controller
     // ============================================
     // ĐĂNG NHẬP BẰNG FACEBOOK
     // ============================================
-    
+
     public function redirectToFacebook()
     {
         // Chỉ request scope public_profile (không cần email vì app chưa được review)
@@ -126,38 +128,43 @@ class AuthController extends Controller
     public function handleFacebookCallback()
     {
         try {
-            $facebookUser = Socialite::driver('facebook')->user();
-            
+            // Sử dụng stateless() để tránh lỗi InvalidStateException
+            $facebookUser = Socialite::driver('facebook')->stateless()->user();
+
             return $this->handleSocialLogin($facebookUser, 'facebook');
-            
         } catch (\Exception $e) {
+            Log::error('Facebook login error: ' . $e->getMessage());
             return redirect()->route('login')
-                ->with('error', 'Đăng nhập Facebook thất bại. Vui lòng thử lại.');
+                ->with('error', 'Đăng nhập Facebook thất bại: ' . $e->getMessage());
         }
     }
 
     // ============================================
     // XỬ LÝ SOCIAL LOGIN CHUNG
     // ============================================
-    
+
     protected function handleSocialLogin($socialUser, $provider)
     {
         $email = $socialUser->getEmail();
-        
+        $providerId = $socialUser->getId();
+
         // Nếu không có email (Facebook không cấp), tạo email giả từ provider ID
         if (!$email) {
-            $email = $provider . '_' . $socialUser->getId() . '@social.local';
+            $email = $provider . '_' . $providerId . '@social.local';
         }
-        
-        // Tìm user theo provider ID hoặc email
-        $user = User::where($provider . '_id', $socialUser->getId())
-                    ->orWhere('email', $email)
-                    ->first();
+
+        // Bước 1: Tìm user theo provider ID trước
+        $user = User::where($provider . '_id', $providerId)->first();
+
+        // Bước 2: Nếu không tìm thấy, tìm theo email
+        if (!$user) {
+            $user = User::where('email', $email)->first();
+        }
 
         if ($user) {
             // User đã tồn tại - cập nhật thông tin social
             $user->update([
-                $provider . '_id' => $socialUser->getId(),
+                $provider . '_id' => $providerId,
                 'avatar' => $user->avatar ?? $socialUser->getAvatar(),
             ]);
         } else {
@@ -167,7 +174,7 @@ class AuthController extends Controller
                 'email' => $email,
                 'phone' => null,
                 'password_hash' => Hash::make(Str::random(24)), // Random password
-                $provider . '_id' => $socialUser->getId(),
+                $provider . '_id' => $providerId,
                 'avatar' => $socialUser->getAvatar(),
                 'role' => 'user',
                 'status' => 'active',
@@ -189,23 +196,23 @@ class AuthController extends Controller
     // ============================================
     // ĐĂNG XUẤT
     // ============================================
-    
+
     public function logout(Request $request)
     {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        
+
         return redirect('/login')->with('success', 'Đăng xuất thành công!');
     }
 
     // ============================================
     // HELPER: REDIRECT THEO ROLE
     // ============================================
-    
+
     protected function redirectBasedOnRole($user, $message = null)
     {
-        $redirect = match($user->role) {
+        $redirect = match ($user->role) {
             'admin' => redirect()->route('admin.dashboard'),
             'organizer' => redirect()->route('organizer.dashboard'),
             default => redirect()->route('home'),

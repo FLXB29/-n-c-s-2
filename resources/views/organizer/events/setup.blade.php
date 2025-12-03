@@ -37,7 +37,6 @@
                 <div class="card-body">
                     <form action="{{ route('organizer.events.storeSetup', $event->id) }}" method="POST" id="setupForm">
                         @csrf
-                        
                         <!-- Phần 1: Loại vé -->
                         <h5 class="mb-3 border-bottom pb-2"><i class="fas fa-ticket-alt"></i> 1. Danh sách Loại vé</h5>
                         <div class="alert alert-info">
