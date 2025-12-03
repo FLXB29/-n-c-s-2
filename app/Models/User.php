@@ -74,4 +74,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Order::class);
     }
+
+    /**
+     * Kiểm tra xem user có phải tài khoản social không
+     */
+    public function isSocialAccount()
+    {
+        return !empty($this->google_id) || !empty($this->facebook_id);
+    }
 }

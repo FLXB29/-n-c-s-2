@@ -27,10 +27,12 @@
                 <i class="fas fa-ticket-alt" style="width: 24px;"></i>
                 <span>Vé của tôi</span>
             </a>
+            @if(!$user->isSocialAccount())
             <a href="#password" class="menu-item" onclick="showSection('password')" style="display: flex; align-items: center; padding: 12px 24px; color: #64748b; text-decoration: none; transition: all 0.3s;">
                 <i class="fas fa-key" style="width: 24px;"></i>
                 <span>Đổi mật khẩu</span>
             </a>
+            @endif
         </div>
     </aside>
 
@@ -257,6 +259,7 @@
         </section>
 
         <!-- Password Section -->
+        @if(!$user->isSocialAccount())
         <section id="password-section" class="dashboard-section" style="display: none;">
             <div class="section-header" style="margin-bottom: 30px;">
                 <h1 style="font-size: 24px; color: #1e293b; margin-bottom: 10px;">Đổi mật khẩu</h1>
@@ -310,6 +313,29 @@
                 </form>
             </div>
         </section>
+        @else
+        <section id="password-section" class="dashboard-section" style="display: none;">
+            <div class="section-header" style="margin-bottom: 30px;">
+                <h1 style="font-size: 24px; color: #1e293b; margin-bottom: 10px;">Đổi mật khẩu</h1>
+            </div>
+            <div class="dashboard-card" style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); max-width: 600px;">
+                <div class="alert alert-info" style="background: #e0f2fe; color: #0369a1; padding: 20px; border-radius: 8px; display: flex; align-items: center; gap: 15px;">
+                    <i class="fas fa-info-circle" style="font-size: 24px;"></i>
+                    <div>
+                        <p style="margin: 0; font-weight: 600; margin-bottom: 5px;">Tài khoản đăng nhập bằng
+                            @if($user->google_id)
+                                <i class="fab fa-google" style="color: #ea4335;"></i> Google
+                            @endif
+                            @if($user->facebook_id)
+                                <i class="fab fa-facebook" style="color: #1877f2;"></i> Facebook
+                            @endif
+                        </p>
+                        <p style="margin: 0; font-size: 14px;">Bạn không cần mật khẩu để đăng nhập. Tính năng đổi mật khẩu không khả dụng cho tài khoản này.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        @endif
     </main>
 </div>
 
