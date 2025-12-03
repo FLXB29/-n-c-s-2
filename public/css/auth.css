@@ -271,8 +271,56 @@
 /* Social Login Buttons */
 .social-login {
     display: flex;
+    flex-direction: column;
     gap: 15px;
-    margin-bottom: 30px;
+    margin-top: 25px;
+    margin-bottom: 20px;
+}
+
+.social-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.btn-social {
+    flex: 1;
+    padding: 12px 20px;
+    border: 2px solid var(--border-color);
+    background: white;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.btn-social i {
+    font-size: 18px;
+}
+
+.btn-google {
+    color: #DB4437;
+    border-color: #DB4437;
+}
+
+.btn-google:hover {
+    background: #DB4437;
+    color: white;
+}
+
+.btn-facebook {
+    color: #4267B2;
+    border-color: #4267B2;
+}
+
+.btn-facebook:hover {
+    background: #4267B2;
+    color: white;
 }
 
 .social-btn {

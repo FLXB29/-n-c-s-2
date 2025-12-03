@@ -30,6 +30,8 @@ class User extends Authenticatable
         'address',
         'organizer_request_status',
         'organizer_request_at',
+        'google_id',      // Social login Google
+        'facebook_id',    // Social login Facebook
     ];
 
     /**

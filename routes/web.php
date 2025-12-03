@@ -22,6 +22,14 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);//post là khi người dùng điền xong form đăng nhập thì sẽ gửi lên cho sv
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
+    
+    // Social Login - Google
+    Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
+    Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+    
+    // Social Login - Facebook
+    Route::get('/auth/facebook', [AuthController::class, 'redirectToFacebook'])->name('auth.facebook');
+    Route::get('/auth/facebook/callback', [AuthController::class, 'handleFacebookCallback']);
 });
 
 //yêu cầu phải đăng nhập thì mới có thể vào được các route này đó chính là vai trò của middleware có sẵn auth

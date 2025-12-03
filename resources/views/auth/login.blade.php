@@ -53,6 +53,26 @@
                 <i class="fas fa-arrow-right"></i>
             </button>
 
+            {{-- Social Login --}}
+            <div class="social-login">
+                <div class="divider">
+                    <span>Hoặc đăng nhập với</span>
+                </div>
+                
+                <div class="social-buttons">
+                    <a href="{{ route('auth.google') }}" class="btn-social btn-google">
+                        <i class="fab fa-google"></i>
+                        <span>Google</span>
+                    </a>
+                    {{-- Facebook tạm ẩn do cần business verification
+                    <a href="{{ route('auth.facebook') }}" class="btn-social btn-facebook">
+                        <i class="fab fa-facebook-f"></i>
+                        <span>Facebook</span>
+                    </a>
+                    --}}
+                </div>
+            </div>
+
             <div class="auth-footer">
                 <p>Chưa có tài khoản? <a href="{{ route('register') }}" class="link">Đăng ký ngay</a></p>
             </div>
