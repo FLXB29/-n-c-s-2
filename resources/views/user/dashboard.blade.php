@@ -3,9 +3,17 @@
 @section('title', 'Dashboard - Hồ sơ cá nhân')
 
 @section('content')
+<!-- Sidebar Toggle Button for Mobile -->
+<button class="user-sidebar-toggle" id="userSidebarToggle" onclick="toggleUserSidebar()">
+    <i class="fas fa-bars"></i>
+</button>
+
+<!-- Sidebar Overlay -->
+<div class="user-sidebar-overlay" id="userSidebarOverlay" onclick="toggleUserSidebar()"></div>
+
 <div class="dashboard-container" style="display: flex; min-height: calc(100vh - 80px); background: #f8fafc;">
     <!-- Sidebar -->
-    <aside class="dashboard-sidebar" style="width: 280px; background: white; border-right: 1px solid #e2e8f0; padding: 20px 0;">
+    <aside class="dashboard-sidebar" id="userDashboardSidebar" style="width: 280px; background: white; border-right: 1px solid #e2e8f0; padding: 20px 0;">
         <div class="sidebar-menu">
             <a href="#overview" class="menu-item active" onclick="showSection('overview')" style="display: flex; align-items: center; padding: 12px 24px; color: #64748b; text-decoration: none; transition: all 0.3s;">
                 <i class="fas fa-th-large" style="width: 24px;"></i>
@@ -312,6 +320,179 @@
         color: #4f46e5 !important;
         border-right: 3px solid #4f46e5;
     }
+    
+    /* User Sidebar Toggle Button */
+    .user-sidebar-toggle {
+        display: none;
+        position: fixed;
+        left: 20px;
+        bottom: 24px;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        color: white;
+        border: none;
+        cursor: pointer;
+        z-index: 1050;
+        box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .user-sidebar-toggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(79, 70, 229, 0.5);
+    }
+    
+    .user-sidebar-toggle.active i::before {
+        content: "\f00d";
+    }
+    
+    /* User Sidebar Overlay */
+    .user-sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .user-sidebar-overlay.active {
+        display: block;
+        opacity: 1;
+    }
+    
+    /* Responsive Styles */
+    @media (max-width: 992px) {
+        .user-sidebar-toggle {
+            display: flex !important;
+        }
+        
+        .dashboard-container {
+            flex-direction: column !important;
+        }
+        
+        .dashboard-sidebar {
+            position: fixed !important;
+            top: 70px !important;
+            left: 0 !important;
+            width: 280px !important;
+            height: calc(100vh - 70px) !important;
+            z-index: 1001 !important;
+            transform: translateX(-100%) !important;
+            transition: transform 0.3s ease !important;
+            overflow-y: auto !important;
+        }
+        
+        .dashboard-sidebar.active {
+            transform: translateX(0) !important;
+        }
+        
+        .dashboard-main {
+            padding: 20px 15px !important;
+            width: 100% !important;
+        }
+        
+        .stats-grid {
+            grid-template-columns: 1fr !important;
+        }
+        
+        .profile-header {
+            flex-direction: column !important;
+            text-align: center !important;
+            gap: 15px !important;
+        }
+        
+        .profile-header-info {
+            text-align: center !important;
+        }
+        
+        /* Profile form 2 columns -> 1 column */
+        .dashboard-card form > div[style*="grid-template-columns: 1fr 1fr"] {
+            grid-template-columns: 1fr !important;
+        }
+        
+        /* Ticket card responsive */
+        .ticket-card > div[style*="display: flex"][style*="justify-content: space-between"] {
+            flex-direction: column !important;
+            gap: 15px !important;
+        }
+        
+        .ticket-card > div > div:last-child {
+            text-align: left !important;
+        }
+        
+        /* Organizer request section */
+        .mt-4 > div[style*="display: flex"][style*="justify-content: space-between"] {
+            flex-direction: column !important;
+            gap: 15px !important;
+            align-items: flex-start !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .dashboard-main {
+            padding: 15px 10px !important;
+        }
+        
+        .section-header h1 {
+            font-size: 20px !important;
+        }
+        
+        .stat-card {
+            padding: 15px !important;
+        }
+        
+        .stat-icon {
+            width: 40px !important;
+            height: 40px !important;
+            font-size: 18px !important;
+        }
+        
+        .stat-info h3 {
+            font-size: 18px !important;
+        }
+        
+        .dashboard-card {
+            padding: 15px !important;
+        }
+        
+        .profile-avatar-wrapper img {
+            width: 80px !important;
+            height: 80px !important;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 8px !important;
+            font-size: 14px !important;
+        }
+        
+        .otp-input-group {
+            flex-direction: column !important;
+        }
+        
+        .otp-input-group button {
+            width: 100% !important;
+        }
+        
+        .user-sidebar-toggle {
+            left: 15px;
+            bottom: 15px;
+            width: 50px;
+            height: 50px;
+            font-size: 18px;
+        }
+    }
 </style>
 @endpush
 
@@ -340,7 +521,42 @@
         if (activeMenuItem) {
             activeMenuItem.classList.add('active');
         }
+        
+        // Close sidebar on mobile after selecting section
+        if (window.innerWidth <= 992) {
+            const sidebar = document.getElementById('userDashboardSidebar');
+            const overlay = document.getElementById('userSidebarOverlay');
+            const toggle = document.getElementById('userSidebarToggle');
+            
+            if (sidebar) sidebar.classList.remove('active');
+            if (overlay) overlay.classList.remove('active');
+            if (toggle) toggle.classList.remove('active');
+        }
     }
+    
+    // Toggle User Sidebar
+    function toggleUserSidebar() {
+        const sidebar = document.getElementById('userDashboardSidebar');
+        const overlay = document.getElementById('userSidebarOverlay');
+        const toggle = document.getElementById('userSidebarToggle');
+        
+        if (sidebar) sidebar.classList.toggle('active');
+        if (overlay) overlay.classList.toggle('active');
+        if (toggle) toggle.classList.toggle('active');
+    }
+    
+    // Close sidebar on window resize
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 992) {
+            const sidebar = document.getElementById('userDashboardSidebar');
+            const overlay = document.getElementById('userSidebarOverlay');
+            const toggle = document.getElementById('userSidebarToggle');
+            
+            if (sidebar) sidebar.classList.remove('active');
+            if (overlay) overlay.classList.remove('active');
+            if (toggle) toggle.classList.remove('active');
+        }
+    });
 
     document.getElementById('btnSendOtp').addEventListener('click', function() {
         const btn = this;

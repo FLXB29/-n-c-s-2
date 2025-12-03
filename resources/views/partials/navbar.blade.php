@@ -54,6 +54,43 @@
                         </ul>
                     </li>
                 </ul>
+                
+                <!-- Mobile Auth Links (shown only in mobile menu) -->
+                <div class="mobile-auth-links">
+                    @guest
+                        <a href="{{ route('login') }}" class="mobile-auth-btn">
+                            <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                        </a>
+                        <a href="{{ route('register') }}" class="mobile-auth-btn primary">
+                            <i class="fas fa-user-plus"></i> Đăng ký
+                        </a>
+                    @else
+                        <div class="mobile-user-info">
+                            <img src="{{ auth()->user()->avatar ? asset(auth()->user()->avatar) : asset('images/default-avatar.png') }}" 
+                                 alt="Avatar" class="mobile-user-avatar">
+                            <span>{{ auth()->user()->full_name }}</span>
+                        </div>
+                        <a href="{{ route('user.dashboard') }}" class="mobile-auth-btn">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        @if(auth()->user()->isOrganizer())
+                        <a href="{{ route('organizer.dashboard') }}" class="mobile-auth-btn">
+                            <i class="fas fa-calendar-plus"></i> Quản lý sự kiện
+                        </a>
+                        @endif
+                        @if(auth()->user()->isAdmin())
+                        <a href="{{ route('admin.dashboard') }}" class="mobile-auth-btn">
+                            <i class="fas fa-cogs"></i> Admin Panel
+                        </a>
+                        @endif
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="mobile-auth-btn logout">
+                                <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                            </button>
+                        </form>
+                    @endguest
+                </div>
             </div>
 
             <!-- Auth Buttons -->

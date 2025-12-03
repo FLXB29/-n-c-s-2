@@ -65,7 +65,7 @@
                                     @endphp
                                     @if ($event->ticketTypes->count() > 0)
                                         @if($totalRemaining > 0)
-                                            <p class="seats-left" style="color: #2ecc71; font-weight: bold; ">{{$totalRemaining}} vé</p>
+                                            <p class="seats-left" style="color: #27ca6bff !important; font-weight: bold; ">{{$totalRemaining}} vé</p>
                                         @else
                                             <p class="seats-left" style="color: #e74c3c; font-weight: bold;">hết vé</p>
                                         @endif

@@ -296,33 +296,204 @@ body {
     color: var(--primary-color);
 }
 
+/* Hide mobile auth links on desktop */
+.mobile-auth-links {
+    display: none;
+}
+
 /* --- MOBILE TOGGLE --- */
 .mobile-menu-toggle {
     display: none;
     flex-direction: column;
-    gap: 6px;
+    gap: 5px;
     cursor: pointer;
+    z-index: 1001;
+    padding: 8px;
+    background: transparent;
+    border: none;
 }
 
 .mobile-menu-toggle span {
-    width: 30px;
+    width: 26px;
     height: 3px;
     background: #333;
     border-radius: 3px;
+    transition: all 0.3s ease;
+    display: block;
+}
+
+.mobile-menu-toggle.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.mobile-menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.mobile-menu-toggle.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
 }
 
 /* --- RESPONSIVE --- */
 @media (max-width: 992px) {
-    .nav-search {
-        display: none; /* Ẩn search trên tablet/mobile cho gọn */
+    body {
+        padding-top: 70px;
     }
     
-    .nav-menu, .nav-auth {
-        display: none; /* Sẽ hiện khi click menu */
+    .navbar {
+        height: 70px;
+    }
+    
+    .nav-search {
+        display: none;
     }
     
     .mobile-menu-toggle {
+        display: flex !important;
+        order: 3;
+    }
+    
+    /* Mobile Menu Slide-in */
+    .nav-menu {
+        position: fixed;
+        top: 70px;
+        left: -100%;
+        width: 280px;
+        height: calc(100vh - 70px);
+        background: white;
+        box-shadow: 4px 0 25px rgba(0, 0, 0, 0.15);
+        padding: 20px;
+        transition: left 0.3s ease;
+        overflow-y: auto;
+        z-index: 999;
+        display: block !important;
+    }
+    
+    .nav-menu.active {
+        left: 0;
+    }
+    
+    .nav-menu ul {
+        flex-direction: column;
+        gap: 0;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .nav-menu .nav-link {
         display: flex;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        width: 100%;
+    }
+    
+    .nav-menu .nav-link:hover {
+        background: #f8f9fa;
+    }
+    
+    .nav-menu .dropdown-menu {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        box-shadow: none;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-top: 5px;
+        display: none;
+    }
+    
+    .nav-menu .dropdown.active .dropdown-menu {
+        display: block;
+    }
+    
+    .nav-auth {
+        display: none;
+    }
+    
+    /* Mobile Auth Links */
+    .mobile-auth-links {
+        display: block;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+    
+    .mobile-user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+    
+    .mobile-user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .mobile-user-info span {
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .mobile-auth-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 12px 15px;
+        border: none;
+        background: transparent;
+        color: #333;
+        text-decoration: none;
+        font-size: 15px;
+        border-radius: 8px;
+        margin-bottom: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .mobile-auth-btn:hover {
+        background: #f0f0f0;
+    }
+    
+    .mobile-auth-btn.primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .mobile-auth-btn.primary:hover {
+        opacity: 0.9;
+    }
+    
+    .mobile-auth-btn.logout {
+        color: #dc3545;
+    }
+    
+    .mobile-auth-btn.logout:hover {
+        background: #fee2e2;
+    }
+    
+    /* Overlay when menu is open */
+    .nav-overlay {
+        display: none;
+        position: fixed;
+        top: 70px;
+        left: 0;
+        width: 100%;
+        height: calc(100vh - 70px);
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 998;
+    }
+    
+    .nav-overlay.active {
+        display: block;
     }
 }
 

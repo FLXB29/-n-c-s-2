@@ -156,6 +156,8 @@
 .banner-dots {
     display: flex;
     gap: var(--spacing-xs);
+    position: relative;
+    z-index: 25;
 }
 
 .dot {
@@ -165,6 +167,13 @@
     border-radius: 50%;
     cursor: pointer;
     transition: var(--transition-base);
+    position: relative;
+    z-index: 25;
+}
+
+.dot:hover {
+    background: rgba(255, 255, 255, 0.7);
+    transform: scale(1.2);
 }
 
 .dot.active {

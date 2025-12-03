@@ -225,8 +225,8 @@
                         <h3>Tìm thấy <span id="resultCount">{{ $events->total() }}</span> sự kiện</h3>
                     </div>
                     <div class="view-options">
-                    <select class="form-control" 
-                                onchange="document.getElementById('hiddenSort').value = this.value; document.getElementById('filterForm').submit();">                            <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Mới nhất</option>
+                    <select class="form-control" id="sortSelect"
+                                onchange="document.getElementById('hiddenSort').value = this.value; filterEvents();">                            <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Mới nhất</option>
                             <option value="upcoming" {{ request('sort') == 'upcoming' ? 'selected' : '' }}>Sắp diễn ra</option>
                             <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Giá: Thấp đến cao</option>
                             <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Giá: Cao đến thấp</option>
@@ -239,53 +239,9 @@
                     </div>
                 </div>
 
-                @if($events->count() > 0)
-                    <div class="events-grid" id="eventsGrid">
-                        @foreach($events as $event)
-                        <div class="event-card">
-                            <div class="event-image">
-                                <a href="{{ route('events.show', $event->slug) }}">
-                                    <img src="{{ $event->featured_image }}" alt="{{ $event->title }}">
-                                </a>
-                                @if($event->is_featured)
-                                    <span class="event-badge hot">🔥 Hot</span>
-                                @else
-                                    <div class="event-badge">{{ $event->category->name }}</div>
-                                @endif
-                            </div>
-                            <div class="event-content">
-                                <div class="event-category">{{ $event->category->name }}</div>
-                                <h3 class="event-title">
-                                    <a href="{{ route('events.show', $event->slug) }}">{{ $event->title }}</a>
-                                </h3>
-                                <div class="event-info">
-                                    <span><i class="fas fa-calendar"></i> {{ \Carbon\Carbon::parse($event->start_datetime)->format('d/m/Y') }}</span>
-                                    <span><i class="fas fa-map-marker-alt"></i> {{ $event->venue_city }}</span>
-                                </div>
-                                <div class="event-footer">
-                                    <div class="event-price">
-                                        <span class="price-label">Từ</span>
-                                        <span class="price-value">
-                                            {{ $event->min_price == 0 ? 'Miễn phí' : number_format($event->min_price) . ' VNĐ' }}
-                                        </span>
-                                    </div>
-                                    <a href="{{ route('events.show', $event->slug) }}" class="btn btn-small btn-primary">Xem chi tiết</a>
-                                </div>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-
-                    <div class="pagination-wrapper">
-                        {{ $events->withQueryString()->links() }}
-                    </div>
-                @else
-                    <div class="no-results" style="text-align: center; padding: 50px;">
-                        <i class="fas fa-search" style="font-size: 48px; color: #ddd; margin-bottom: 20px;"></i>
-                        <h3>Không tìm thấy sự kiện nào</h3>
-                        <p>Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
-                    </div>
-                @endif
+                <div id="events-container">
+                    @include('events._list')
+                </div>
             </div>
         </div>
     </div>
@@ -294,6 +250,87 @@
 
 @push('scripts')
 <script>
+    // AJAX Filtering Logic
+    function filterEvents(url = null) {
+        const form = document.getElementById('filterForm');
+        const formData = new FormData(form);
+        const params = new URLSearchParams(formData);
+        
+        // Add sort parameter
+        const sortVal = document.getElementById('hiddenSort').value;
+        if(sortVal) params.set('sort', sortVal);
+
+        // If a URL is provided (pagination), use it but keep current filters
+        // Actually, pagination links already contain query params, but we might want to ensure current form state is respected if user changed filters but clicked page 2 of OLD filters.
+        // Better approach: When filtering, always go to page 1 (default). When clicking pagination, use that URL.
+        
+        let fetchUrl = "{{ route('events.index') }}?" + params.toString();
+        
+        if (url) {
+            fetchUrl = url;
+        }
+
+        // Update Browser URL
+        window.history.pushState({}, '', fetchUrl);
+
+        // Show loading state (optional)
+        document.getElementById('events-container').style.opacity = '0.5';
+
+        fetch(fetchUrl, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('events-container').innerHTML = data.html;
+            document.getElementById('resultCount').innerText = data.total;
+            document.getElementById('events-container').style.opacity = '1';
+            
+            // Re-apply view mode (grid/list)
+            const activeViewBtn = document.querySelector('.view-btn.active');
+            if(activeViewBtn) {
+                setView(activeViewBtn.dataset.view);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Attach Event Listeners to Inputs
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('filterForm');
+        
+        // Radio buttons and Checkboxes
+        const inputs = form.querySelectorAll('input[type="radio"], input[type="checkbox"]');
+        inputs.forEach(input => {
+            input.addEventListener('change', () => filterEvents());
+            // Remove old onchange
+            input.removeAttribute('onchange'); 
+        });
+
+        // Range Input
+        const range = document.getElementById('priceRange');
+        if(range) {
+            range.addEventListener('change', () => filterEvents());
+            range.removeAttribute('onchange');
+        }
+
+        // Pagination Clicks
+        document.getElementById('events-container').addEventListener('click', function(e) {
+            if (e.target.tagName === 'A' && e.target.closest('.pagination')) {
+                e.preventDefault();
+                const url = e.target.href;
+                filterEvents(url);
+            }
+        });
+        
+        // Prevent default form submit
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            filterEvents();
+        });
+    });
+
     function updatePriceLabel(value) {
         const formatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
         document.getElementById('priceMaxDisplay').innerText = formatted;
@@ -301,6 +338,8 @@
 
     function setView(viewType) {
         const grid = document.getElementById('eventsGrid');
+        if(!grid) return; // Might be no results
+
         const btns = document.querySelectorAll('.view-btn');
         btns.forEach(btn => btn.classList.remove('active'));
         const activeBtn = document.querySelector(`.view-btn[data-view="${viewType}"]`);

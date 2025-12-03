@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Event;
+use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -166,5 +168,62 @@ class AdminController extends Controller
         $user->save();
         
         return back()->with('success', $message);
+    }
+
+    // --- Quản lý Đơn hàng ---
+    public function orders(Request $request)
+    {
+        $query = Order::with(['user', 'event'])->latest();
+
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $orders = $query->paginate(10);
+        return view('admin.orders.index', compact('orders'));
+    }
+
+    public function approveOrder($id)
+    {
+        $order = Order::findOrFail($id);
+        
+        if ($order->status == 'confirmed') {
+             return back()->with('info', 'Đơn hàng đã được duyệt trước đó.');
+        }
+
+        DB::transaction(function () use ($order) {
+            // 1. Cập nhật trạng thái đơn hàng
+            $order->update(['status' => 'confirmed']);
+
+            // 2. Cập nhật trạng thái vé
+            $order->tickets()->update(['status' => 'active']);
+        });
+
+        return back()->with('success', 'Đã duyệt đơn hàng #' . $order->order_number);
+    }
+
+    public function cancelOrder($id)
+    {
+        $order = Order::findOrFail($id);
+        
+        if ($order->status == 'cancelled') {
+             return back()->with('info', 'Đơn hàng đã bị hủy trước đó.');
+        }
+
+        DB::transaction(function () use ($order) {
+            // 1. Cập nhật trạng thái đơn hàng
+            $order->update(['status' => 'cancelled']);
+
+            // 2. Cập nhật trạng thái vé
+            $order->tickets()->update(['status' => 'cancelled']);
+            
+            // 3. Hoàn lại số lượng vé đã bán
+            foreach ($order->tickets as $ticket) {
+                $ticket->ticketType->decrement('sold');
+                $ticket->event->decrement('tickets_sold');
+            }
+        });
+
+        return back()->with('success', 'Đã hủy đơn hàng #' . $order->order_number);
     }
 }

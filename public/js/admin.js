@@ -87,7 +87,7 @@ class AdminDashboard {
     toggleSidebar() {
         const sidebar = document.querySelector('.admin-sidebar');
         this.sidebarOpen = !this.sidebarOpen;
-        sidebar.classList.toggle('open', this.sidebarOpen);
+        sidebar.classList.toggle('active', this.sidebarOpen);
     }
 
     handleFilter(filterBtn) {

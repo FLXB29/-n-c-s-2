@@ -18,12 +18,13 @@ Route::get('/events/{event}/seats',[App\Http\Controllers\EventController::class,
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');//get là khi người dùng truy cập vào thì sẽ showform
+    Route::post('/login', [AuthController::class, 'login']);//post là khi người dùng điền xong form đăng nhập thì sẽ gửi lên cho sv
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
 });
 
+//yêu cầu phải đăng nhập thì mới có thể vào được các route này đó chính là vai trò của middleware có sẵn auth
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     
@@ -40,7 +41,7 @@ Route::middleware('auth')->group(function () {
     // Organizer Routes
     Route::middleware('role:organizer')->prefix('organizer')->name('organizer.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'organizer'])->name('dashboard');
-        Route::resource('events', EventController::class)->except(['index', 'show']);
+        Route::resource('events', EventController::class)->except(['index', 'show']);//hỗ trợ crud
         
         // Setup Tickets & Seats
         Route::get('/events/{event}/setup', [EventController::class, 'setup'])->name('events.setup');
@@ -67,6 +68,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/requests', [AdminController::class, 'organizerRequests'])->name('requests.index');
         Route::patch('/requests/{id}/approve', [AdminController::class, 'approveOrganizer'])->name('requests.approve');
         Route::patch('/requests/{id}/reject', [AdminController::class, 'rejectOrganizer'])->name('requests.reject');
+
+        // Order Management
+        Route::get('/orders', [AdminController::class, 'orders'])->name('orders.index');
+        Route::patch('/orders/{id}/approve', [AdminController::class, 'approveOrder'])->name('orders.approve');
+        Route::patch('/orders/{id}/cancel', [AdminController::class, 'cancelOrder'])->name('orders.cancel');
     });
     
     // Checkout Routes

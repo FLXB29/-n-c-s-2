@@ -687,3 +687,233 @@
     border-color: #ddd;
 }
 
+/* ===== RESPONSIVE STYLES ===== */
+@media (max-width: 992px) {
+    .detail-wrapper {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-lg);
+    }
+    
+    .booking-sidebar {
+        position: static;
+        order: -1;
+    }
+    
+    .event-cover {
+        height: 350px;
+    }
+    
+    .event-header .event-title {
+        font-size: 2rem;
+    }
+    
+    .event-meta {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .event-detail {
+        padding: var(--spacing-md) 0;
+    }
+    
+    .event-cover {
+        height: 280px;
+        border-radius: var(--radius-lg);
+    }
+    
+    .event-header {
+        padding: var(--spacing-md);
+    }
+    
+    .event-header .event-title {
+        font-size: 1.5rem;
+    }
+    
+    .event-meta {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-sm);
+    }
+    
+    .meta-item {
+        padding: var(--spacing-sm);
+    }
+    
+    .event-section {
+        padding: var(--spacing-md);
+    }
+    
+    .section-title {
+        font-size: 1.25rem;
+    }
+    
+    .organizer-card {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--spacing-sm);
+    }
+    
+    .organizer-card .btn {
+        width: 100%;
+    }
+    
+    .booking-card {
+        padding: var(--spacing-md);
+    }
+    
+    .price-value {
+        font-size: 1.75rem;
+    }
+    
+    .ticket-option {
+        padding: var(--spacing-sm);
+    }
+    
+    .ticket-details {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .quantity-control input {
+        width: 60px;
+    }
+    
+    .qty-btn {
+        width: 40px;
+        height: 40px;
+    }
+    
+    /* Modal Responsive */
+    .modal-large {
+        max-width: 100%;
+        margin: 0;
+        border-radius: 0;
+        max-height: 100vh;
+        height: 100vh;
+    }
+    
+    .seat-selection-wrapper {
+        gap: var(--spacing-md);
+    }
+    
+    .seats-container {
+        max-height: 280px;
+        padding: var(--spacing-sm);
+    }
+    
+    .seat {
+        width: 28px;
+        height: 28px;
+        font-size: 0.65rem;
+    }
+    
+    .row-label {
+        width: 25px;
+        font-size: 0.85rem;
+    }
+    
+    .seat-legend {
+        flex-wrap: wrap;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-sm);
+        font-size: 0.85rem;
+    }
+    
+    .legend-item {
+        gap: 6px;
+    }
+    
+    .seat-demo {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .stage {
+        padding: var(--spacing-sm);
+        font-size: 1rem;
+    }
+    
+    .share-buttons {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    /* Comments responsive */
+    .comment-item {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    
+    .comment-avatar img {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .event-cover {
+        height: 220px;
+    }
+    
+    .event-header .event-title {
+        font-size: 1.25rem;
+    }
+    
+    .event-category-tag {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.8rem;
+    }
+    
+    .meta-item i {
+        font-size: 1.2rem;
+    }
+    
+    .meta-item strong {
+        font-size: 0.8rem;
+    }
+    
+    .meta-item p {
+        font-size: 0.9rem;
+    }
+    
+    .price-value {
+        font-size: 1.5rem;
+    }
+    
+    .booking-features {
+        font-size: 0.85rem;
+    }
+    
+    .seat {
+        width: 24px;
+        height: 24px;
+        font-size: 0.6rem;
+    }
+    
+    .row-label {
+        width: 20px;
+        font-size: 0.75rem;
+    }
+    
+    .selected-seats-info {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+        text-align: center;
+        font-size: 0.95rem;
+    }
+    
+    .total-row {
+        font-size: 1rem;
+    }
+    
+    .total-row strong {
+        font-size: 1.25rem;
+    }
+    
+    /* Google map responsive */
+    .event-map iframe {
+        height: 250px !important;
+    }
+}
+
+

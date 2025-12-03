@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 
 class EventController extends Controller
 {
+    //request là lấy thông tin cụ thể là name và value từ form bằng phương thức GET,POST,...
     public function index(Request $request)
     {
         $query = Event::published()->with(['category', 'organizer']);
@@ -103,12 +104,21 @@ class EventController extends Controller
         // $sortDirection = $request->get('direction', 'asc');
         // $query->orderBy($sortBy, $sortDirection);
         
-        $events = $query->paginate(12);
-        $categories = Category::active()->ordered()->get();
+        $events = $query->paginate(1);
+        $categories = Category::active()->ordered()->withCount(['events' => function ($query) {
+            $query->where('status', 'published');
+        }])->get();
         
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('events._list', compact('events'))->render(),
+                'total' => $events->total()
+            ]);
+        }
+
         return view('events.index', compact('events', 'categories'));
     }
-    
+    //lấy thông tin động từ url chẳng hạn như evemts/{event} thì {event} chính là id ở đây
     public function show($id)
     {
         $event = Event::where('id', $id)->orWhere('slug', $id)->firstOrFail();
@@ -116,6 +126,7 @@ class EventController extends Controller
         // Increment view count
         $event->increment('view_count');
         
+        //ở đây các 'category' hay 'organizer' là các mối quan hệ được định sẵn trong Event.model rồi
         $event->load(['category', 'organizer', 'ticketTypes' => function ($query) {
             $query->where('is_active', true)->orderBy('sort_order');
         }]);
@@ -151,14 +162,14 @@ class EventController extends Controller
             'max_price' => 'required|numeric|gte:min_price',
         ]);
 
-        $data = $request->all();
+        $data = $request->all();// lấy hết name và value từ form nên để name trong form = name trong database luôn
         $data['slug'] = Str::slug($request->title) . '-' . Str::random(5);
         $data['organizer_id'] = Auth::id();
         // $data['status'] = 'published'; // CŨ: Tự động publish
         $data['status'] = 'pending'; // MỚI: Chờ admin duyệt
 
         if ($request->hasFile('featured_image')) {
-            $path = $request->file('featured_image')->store('events', 'public');
+            $path = $request->file('featured_image')->store('events', 'public');//tự lưu vào public/events và tự tạo tên file ngẫu nhiên
             $data['featured_image'] = 'storage/' . $path;
         }
 

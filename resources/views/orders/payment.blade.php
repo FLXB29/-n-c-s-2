@@ -42,7 +42,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <small class="text-muted d-block">Chủ tài khoản</small>
-                                    <strong>NGUYEN VAN A</strong>
+                                    <strong>Le Thanh Phuc</strong>
                                 </div>
                                 <div class="mb-0">
                                     <small class="text-muted d-block">Nội dung chuyển khoản</small>

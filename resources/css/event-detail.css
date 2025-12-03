@@ -114,7 +114,9 @@
 }
 
 .seats-left {
-    color: var(--accent-color) !important;
+        color: var(--accent-color);
+
+    /* color: var(--accent-color) !important; */
 }
 
 /* Event Sections */

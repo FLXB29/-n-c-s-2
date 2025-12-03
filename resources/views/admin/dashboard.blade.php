@@ -65,6 +65,12 @@
                         <span>Quản lý Users</span>
                     </a>
                 </li>
+                <li class="menu-item {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.orders.index') }}">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Quản lý Đơn hàng</span>
+                    </a>
+                </li>
             </ul>
         </div>
     </aside>

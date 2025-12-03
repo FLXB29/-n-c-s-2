@@ -31,7 +31,7 @@
         <button class="banner-prev"><i class="fas fa-chevron-left"></i></button>
         <div class="banner-dots">
             @foreach($featuredEvents->take(3) as $index => $event)
-            <span class="banner-dot {{ $index === 0 ? 'active' : '' }}" data-slide="{{ $index }}"></span>
+            <span class="dot {{ $index === 0 ? 'active' : '' }}" data-slide="{{ $index }}"></span>
             @endforeach
         </div>
         <button class="banner-next"><i class="fas fa-chevron-right"></i></button>
