@@ -15,28 +15,27 @@
                         <div class="card-body">
                             <h5 class="card-title">Để lại bình luận của bạn</h5>
                             
-                            @if($event->allow_comments)
-                                <form action="{{ route('comments.store', $event->id) }}" method="POST">
-                                    @csrf
-                                    
-                                    <div class="form-group mb-3">
-                                        <label for="content">Bình luận <span class="text-danger">*</span></label>
-                                        <textarea 
-                                            name="content" 
-                                            id="content" 
-                                            class="form-control @error('content') is-invalid @enderror"
-                                            rows="4"
-                                            placeholder="Chia sẻ ý kiến của bạn về sự kiện này..."
-                                            required
-                                        ></textarea>
-                                        @error('content')
-                                            <span class="invalid-feedback d-block">{{ $message }}</span>
-                                        @enderror
-                                    </div>
+                            <form action="{{ route('comments.store', $event->id) }}" method="POST">
+                                @csrf
+                                
+                                <div class="form-group mb-3">
+                                    <label for="content">Bình luận <span class="text-danger">*</span></label>
+                                    <textarea 
+                                        name="content" 
+                                        id="content" 
+                                        class="form-control @error('content') is-invalid @enderror"
+                                        rows="4"
+                                        placeholder="Chia sẻ ý kiến của bạn về sự kiện này..."
+                                        required
+                                    ></textarea>
+                                    @error('content')
+                                        <span class="invalid-feedback d-block">{{ $message }}</span>
+                                    @enderror
+                                </div>
 
-                                    <div class="form-group mb-3">
-                                        <label for="rating">Xếp hạng</label>
-                                        <div class="rating-input" id="ratingInput">
+                                <div class="form-group mb-3">
+                                    <label for="rating">Xếp hạng</label>
+                                    <div class="rating-input" id="ratingInput">
                                             <i class="fas fa-star" data-rating="1"></i>
                                             <i class="fas fa-star" data-rating="2"></i>
                                             <i class="fas fa-star" data-rating="3"></i>
@@ -50,11 +49,6 @@
                                         <i class="fas fa-paper-plane"></i> Gửi bình luận
                                     </button>
                                 </form>
-                            @else
-                                <div class="alert alert-info">
-                                    <i class="fas fa-info-circle"></i> Sự kiện này không cho phép bình luận
-                                </div>
-                            @endif
                         </div>
                     </div>
                 </div>
@@ -457,6 +451,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
                     'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
                 body: formData
             })

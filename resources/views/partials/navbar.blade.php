@@ -103,6 +103,10 @@
                         <i class="fas fa-user-plus"></i> Đăng ký
                     </a>
                 @else
+                    <a href="{{ route('chat.index') }}" class="btn btn-outline chat-btn">
+                        <i class="fas fa-comments"></i>
+                        <span class="chat-unread-badge" style="display: none;">0</span>
+                    </a>
                     <div class="user-dropdown">
                         <button class="user-toggle" id="userToggle">
                             <img src="{{ auth()->user()->avatar ? asset(auth()->user()->avatar) : asset('images/default-avatar.png') }}" 
@@ -113,6 +117,9 @@
                         <ul class="user-menu" id="userMenu">
                             <li><a href="{{ route('user.dashboard') }}">
                                 <i class="fas fa-tachometer-alt"></i> Dashboard
+                            </a></li>
+                            <li><a href="{{ route('chat.index') }}">
+                                <i class="fas fa-comments"></i> Chat hỗ trợ
                             </a></li>
                             @if(auth()->user()->isOrganizer())
                             <li><a href="{{ route('organizer.dashboard') }}">

@@ -369,6 +369,37 @@ function smoothScrollTo(elementId) {
     }
 }
 
+// ===== CHAT UNREAD COUNT =====
+function updateChatUnreadCount() {
+    // Only run if user is logged in
+    const chatBadge = document.querySelector('.chat-unread-badge');
+    if (!chatBadge) return;
+    
+    fetch('/chat/unread-count', {
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.count > 0) {
+            chatBadge.textContent = data.count;
+            chatBadge.style.display = 'block';
+        } else {
+            chatBadge.style.display = 'none';
+        }
+    })
+    .catch(error => {
+        console.error('Error fetching unread count:', error);
+    });
+}
+
+// Update unread count every 30 seconds
+if (document.querySelector('.chat-unread-badge')) {
+    updateChatUnreadCount();
+    setInterval(updateChatUnreadCount, 30000);
+}
+
 // ===== EXPORT FUNCTIONS (for use in other files) =====
 window.openModal = openModal;
 window.closeModal = closeModal;

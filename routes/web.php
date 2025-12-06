@@ -10,6 +10,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\SeatController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -107,6 +108,16 @@ Route::middleware('auth')->group(function () {
         Route::post('/events/{event}/checkout', [CheckoutController::class, 'process'])->name('events.checkout');
         Route::get('/orders/{order}/payment', [CheckoutController::class, 'showPayment'])->name('orders.payment');
         Route::post('/orders/{order}/confirm', [CheckoutController::class, 'confirmPayment'])->name('orders.confirm');
+    });
+    
+    // Chat Routes
+    Route::prefix('chat')->name('chat.')->group(function () {
+        Route::get('/', [ChatController::class, 'index'])->name('index');
+        Route::get('/messages/{userId}', [ChatController::class, 'getMessages'])->name('messages');
+        Route::post('/send', [ChatController::class, 'sendMessage'])->name('send');
+        Route::get('/unread-count', [ChatController::class, 'getUnreadCount'])->name('unread');
+        Route::patch('/messages/{messageId}/read', [ChatController::class, 'markAsRead'])->name('markRead');
+        Route::get('/conversations', [ChatController::class, 'getConversations'])->name('conversations');
     });
 });
 
