@@ -1,0 +1,10 @@
+* [33m33442c7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m Websocket for seat selection
+* [33m4d93c8e[m Stateless Google Login
+* [33mef46aec[m hidden change password for social user
+* [33m1888223[m add example
+* [33m0619060[m add login by email
+* [33me407814[m Admi
+* [33m03e0dd8[m Update crud events for organizer and crud users for admin, buy ticket for user (using qr code)
+* [33m0ec2c20[m Update login/sendOTP and seats for ticket
+* [33mcdddbe7[m Update category events
+* [33ma673045[m First laravel

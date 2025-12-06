@@ -9,6 +9,7 @@ use App\Http\Controllers\UserDashboardController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\SeatController;
+use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -24,6 +25,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/events/{event}/seats/release', [SeatController::class, 'release'])->name('api.seats.release');
     Route::post('/api/events/{event}/seats/hold-multiple', [SeatController::class, 'holdMultiple'])->name('api.seats.holdMultiple');
     Route::post('/api/events/{event}/seats/release-all', [SeatController::class, 'releaseAll'])->name('api.seats.releaseAll');
+});
+
+// Comment Routes (cần đăng nhập)
+Route::middleware('auth')->group(function () {
+    Route::post('/events/{event}/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::patch('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
 });
 
 // Authentication Routes

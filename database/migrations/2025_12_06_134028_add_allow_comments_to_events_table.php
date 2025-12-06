@@ -13,9 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('google_id')->nullable()->after('avatar');
-            $table->string('facebook_id')->nullable()->after('google_id');
+        Schema::table('events', function (Blueprint $table) {
+            if (!Schema::hasColumn('events', 'allow_comments')) {
+                $table->boolean('allow_comments')->default(true)->after('status');
+            }
         });
     }
 
@@ -26,8 +27,10 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['google_id', 'facebook_id']);
+        Schema::table('events', function (Blueprint $table) {
+            if (Schema::hasColumn('events', 'allow_comments')) {
+                $table->dropColumn('allow_comments');
+            }
         });
     }
 };

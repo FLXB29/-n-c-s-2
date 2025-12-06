@@ -246,8 +246,10 @@
             </div>
         </div>
     </div>
-@endsection
 
+    <!-- Comments Section - Hiển thị dưới chân sự kiện -->
+    @include('components.event-comments', ['comments' => $comments])
+@endsection
 
 {{-- 👇 CHỈ GIỮ LẠI DUY NHẤT KHỐI SCRIPT NÀY --}}
 @push('scripts')
