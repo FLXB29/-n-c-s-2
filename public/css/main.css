@@ -84,11 +84,17 @@ body {
     transition: all 0.3s ease;
 }
 
-.container {
+.navbar .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
     height: 100%;
+}
+
+.navbar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
 }
 
 .nav-wrapper {

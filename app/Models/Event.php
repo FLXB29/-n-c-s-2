@@ -60,6 +60,16 @@ class Event extends Model
         return $this->hasMany(Seat::class);
     }
 
+    public function comments()
+    {
+        return $this->hasMany(Comment::class)->where('parent_id', null);
+    }
+
+    public function allComments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
     // Scopes
     public function scopePublished($query)
     {

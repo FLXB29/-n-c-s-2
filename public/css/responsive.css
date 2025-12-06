@@ -42,7 +42,7 @@
 /* Mobile (max-width: 768px) */
 @media (max-width: 768px) {
     /* Container */
-    .container {
+    .navbar .container {
         padding: 0 var(--spacing-sm);
     }
     

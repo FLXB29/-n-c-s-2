@@ -131,13 +131,19 @@ class EventController extends Controller
             $query->where('is_active', true)->orderBy('sort_order');
         }]);
         
+        // Load comments with user info
+        $comments = $event->comments()
+            ->with('user', 'replies.user')
+            ->orderByDesc('created_at')
+            ->get();
+        
         $relatedEvents = Event::published()
             ->where('category_id', $event->category_id)
             ->where('id', '!=', $event->id)
             ->limit(4)
             ->get();
             
-        return view('events.show', compact('event', 'relatedEvents'));
+        return view('events.show', compact('event', 'relatedEvents', 'comments'));
     }
 
     public function create()
