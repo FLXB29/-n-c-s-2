@@ -213,6 +213,9 @@
                             <div class="seat-demo" style="background: #6c5ce7; border: none;"></div> Đang chọn
                         </div>
                         <div class="legend-item">
+                            <div class="seat-demo" style="background: #ffa502; border: none;"></div> Người khác đang giữ
+                        </div>
+                        <div class="legend-item">
                             <div class="seat-demo" style="background: #b2bec3; border: none;"></div> Đã bán
                         </div>
                     </div>
@@ -250,15 +253,40 @@
 
 {{-- 👇 CHỈ GIỮ LẠI DUY NHẤT KHỐI SCRIPT NÀY --}}
 @push('scripts')
+<!-- Pusher JS (từ CDN) -->
+<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+<!-- Laravel Echo -->
+<script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.15.3/dist/echo.iife.js"></script>
+
 <script>
     // 1. CẤU HÌNH CHO FILE JS BÊN NGOÀI
     window.eventConfig = {
         eventId: {{ $event->id }},
         apiSeatsUrl: "{{ route('events.seats', $event->id) }}",
-        ticketTypes: @json($event->ticketTypes)
+        ticketTypes: @json($event->ticketTypes),
+        currentUserId: {{ auth()->id() ?? 'null' }}
     };
 
-    // 2. HÀM CẬP NHẬT GIÁ TIỀN Ở FORM CHÍNH (BÊN NGOÀI MODAL)
+    // 2. CẤU HÌNH PUSHER/ECHO
+    window.PUSHER_APP_KEY = "{{ env('PUSHER_APP_KEY', 'eventhub-key') }}";
+    window.PUSHER_HOST = "{{ env('PUSHER_HOST', '127.0.0.1') }}";
+    window.PUSHER_PORT = {{ env('PUSHER_PORT', 6001) }};
+
+    // 3. KHỞI TẠO ECHO
+    window.Echo = new Echo({
+        broadcaster: 'pusher',
+        key: window.PUSHER_APP_KEY,
+        wsHost: window.PUSHER_HOST,
+        wsPort: window.PUSHER_PORT,
+        wssPort: window.PUSHER_PORT,
+        forceTLS: false,
+        encrypted: false,
+        disableStats: true,
+        enabledTransports: ['ws', 'wss'],
+        cluster: 'mt1',
+    });
+
+    // 4. HÀM CẬP NHẬT GIÁ TIỀN Ở FORM CHÍNH (BÊN NGOÀI MODAL)
     function updateTotal() {
         const quantityInput = document.getElementById('ticketQuantity');
         const quantity = parseInt(quantityInput.value) || 0;
@@ -310,6 +338,6 @@
     });
 </script>
 
-<!-- Nhúng file JS xử lý ghế -->
-<script src="{{ asset('js/seat-selection.js') }}"></script>
+<!-- Nhúng file JS xử lý ghế REALTIME -->
+<script src="{{ asset('js/seat-selection-realtime.js') }}"></script>
 @endpush
