@@ -17,9 +17,11 @@ class Comment extends Model
         'parent_id',
         'content',
         'rating',
+        'status'
     ];
 
     protected $casts = [
+        'rating' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -42,6 +44,22 @@ class Comment extends Model
 
     public function replies()
     {
-        return $this->hasMany(Comment::class, 'parent_id');
+        return $this->hasMany(Comment::class, 'parent_id')->approved();
+    }
+
+    // Scopes
+    public function scopeApproved($query)
+    {
+        return $query->where('status', 'approved');
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    public function scopeMainComments($query)
+    {
+        return $query->whereNull('parent_id');
     }
 }
