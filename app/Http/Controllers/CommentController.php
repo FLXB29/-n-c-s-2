@@ -6,6 +6,7 @@ use App\Models\Comment;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class CommentController extends Controller
 {
@@ -49,6 +50,11 @@ class CommentController extends Controller
         $comment->load('user');
 
         if ($request->expectsJson()) {
+            $avatarUrl = $comment->user->avatar;
+            if ($avatarUrl && !Str::startsWith($avatarUrl, 'http')) {
+            // Áp dụng hàm asset() của Laravel cho đường dẫn nội bộ
+            $avatarUrl = asset($avatarUrl); 
+            }
             return response()->json([
                 'success' => true,
                 'message' => 'Bình luận của bạn đã được thêm thành công!',
@@ -61,7 +67,7 @@ class CommentController extends Controller
                     'user' => [
                         'id' => $comment->user->id,
                         'full_name' => $comment->user->full_name,
-                        'avatar' => $comment->user->avatar,
+                        'avatar' => $avatarUrl,
                     ]
                 ]
             ], 201);
