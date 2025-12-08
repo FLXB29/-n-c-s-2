@@ -90,7 +90,7 @@
                         <h2 class="section-title">Địa điểm tổ chức</h2>
                         <div class="event-map">
                             <!-- Google Map Embed (Tạm thời hardcode, sau này có thể dùng toạ độ từ DB) -->
-                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3724.0967433487647!2d105.85311931533405!3d21.02373869316477!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135ab8629e5a635%3A0x7cbf2c42d4e8a428!2sOpera%20House!5e0!3m2!1sen!2s!4v1634567890123!5m2!1sen!2s" 
+                            <iframe src="https://maps.google.com/maps?q={{ urlencode($event->venue_name . ' ' . $event->venue_address . ' ' . $event->venue_city) }}&t=&z=15&ie=UTF8&iwloc=&output=embed"
                                     width="100%" 
                                     height="400" 
                                     style="border:0; border-radius: 0.75rem;" 

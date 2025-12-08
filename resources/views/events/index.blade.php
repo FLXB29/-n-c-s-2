@@ -196,23 +196,35 @@
                     
                     <!-- Price Filter -->
                     <div class="filter-group">
-                        <h4>Khoảng giá tối đa</h4>
-                        <div class="price-range">
-                            <input type="range" 
-                                   name="max_price" 
-                                   min="0" 
-                                   max="5000000" 
-                                   step="100000" 
-                                   value="{{ request('max_price', 5000000) }}" 
-                                   id="priceRange"
-                                   oninput="updatePriceLabel(this.value)"
-                                   onchange="this.form.submit()">
-                            
-                            <div class="price-values">
-                                <span>0 đ</span>
-                                <span id="priceMaxDisplay">{{ number_format(request('max_price', 5000000)) }} đ</span>
+                        <h4>Khoảng giá (VNĐ)</h4>
+                        <div class="price-range-inputs" style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                            <div class="input-wrapper" style="flex: 1;">
+                                <input type="number" 
+                                       name="min_price" 
+                                       id="minPriceInput"
+                                       class="form-control" 
+                                       placeholder="Từ" 
+                                       min="0"
+                                       value="{{ request('min_price') }}"
+                                       style="font-size: 13px; padding: 6px;">
+                            </div>
+                            <span style="color: #888;">-</span>
+                            <div class="input-wrapper" style="flex: 1;">
+                                <input type="number" 
+                                       name="max_price" 
+                                       id="maxPriceInput"
+                                       class="form-control" 
+                                       placeholder="Đến" 
+                                       min="0"
+                                       value="{{ request('max_price') }}"
+                                       style="font-size: 13px; padding: 6px;">
                             </div>
                         </div>
+                        
+                        <!-- Nút áp dụng riêng cho giá để tránh reload liên tục khi gõ -->
+                        <button type="button" class="btn btn-outline-primary btn-sm w-100" onclick="filterEvents()">
+                            Áp dụng giá
+                        </button>
                     </div>
                 </form>
             </aside>
@@ -309,11 +321,22 @@
         });
 
         // Range Input
-        const range = document.getElementById('priceRange');
-        if(range) {
-            range.addEventListener('change', () => filterEvents());
-            range.removeAttribute('onchange');
-        }
+        // const range = document.getElementById('priceRange');
+        // if(range) {
+        //     range.addEventListener('change', () => filterEvents());
+        //     range.removeAttribute('onchange');
+        // }
+
+        const priceInputs = form.querySelectorAll('input[type="number"]');
+        priceInputs.forEach(input => {
+            input.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    filterEvents();
+                }
+            });
+        });
+
 
         // Pagination Clicks
         document.getElementById('events-container').addEventListener('click', function(e) {
