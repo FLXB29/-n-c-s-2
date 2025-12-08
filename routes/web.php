@@ -8,15 +8,16 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserDashboardController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CheckoutController;
-use App\Http\Controllers\SeatController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\SeatController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
 Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
-Route::get('/events/{event}/seats', [App\Http\Controllers\EventController::class, 'getSeats'])->name('events.seats');
+Route::get('/events/{event}/seats',[App\Http\Controllers\EventController::class,'getSeats'])->name('events.seats');
 
 // Realtime Seats API (public để lấy danh sách, nhưng hold/release cần auth)
 Route::get('/api/events/{event}/seats', [SeatController::class, 'index'])->name('api.seats.index');
@@ -36,15 +37,19 @@ Route::middleware('auth')->group(function () {
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login'); //get là khi người dùng truy cập vào thì sẽ showform
-    Route::post('/login', [AuthController::class, 'login']); //post là khi người dùng điền xong form đăng nhập thì sẽ gửi lên cho sv
+    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');//get là khi người dùng truy cập vào thì sẽ showform
+    Route::post('/login', [AuthController::class, 'login']);//post là khi người dùng điền xong form đăng nhập thì sẽ gửi lên cho sv
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
 
+    // === ROUTE MỚI CHO OTP ===
+    Route::get('/register/verify', [AuthController::class, 'showVerifyForm'])->name('register.verify');
+    Route::post('/register/verify', [AuthController::class, 'verifyEmail']);
+    
     // Social Login - Google
     Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
     Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
-
+    
     // Social Login - Facebook
     Route::get('/auth/facebook', [AuthController::class, 'redirectToFacebook'])->name('auth.facebook');
     Route::get('/auth/facebook/callback', [AuthController::class, 'handleFacebookCallback']);
@@ -53,7 +58,7 @@ Route::middleware('guest')->group(function () {
 //yêu cầu phải đăng nhập thì mới có thể vào được các route này đó chính là vai trò của middleware có sẵn auth
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
+    
     // User Dashboard Routes
     Route::prefix('user')->name('user.')->group(function () {
         Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
@@ -63,33 +68,33 @@ Route::middleware('auth')->group(function () {
         Route::post('/send-otp', [UserDashboardController::class, 'sendOtp'])->name('sendOtp');
         Route::post('/request-organizer', [UserDashboardController::class, 'requestOrganizer'])->name('requestOrganizer');
     });
-
+    
     // Organizer Routes
     Route::middleware('role:organizer')->prefix('organizer')->name('organizer.')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'organizer'])->name('dashboard');
-        Route::resource('events', EventController::class)->except(['index', 'show']); //hỗ trợ crud
-
+        Route::resource('events', EventController::class)->except(['index', 'show']);//hỗ trợ crud
+        
         // Setup Tickets & Seats
         Route::get('/events/{event}/setup', [EventController::class, 'setup'])->name('events.setup');
         Route::post('/events/{event}/setup', [EventController::class, 'storeSetup'])->name('events.storeSetup');
     });
-
+    
     // Admin Routes
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
-
+        
         // User Management
         Route::get('/users', [AdminController::class, 'users'])->name('users.index');
         Route::patch('/users/{id}/role', [AdminController::class, 'toggleRole'])->name('toggleRole');
         Route::patch('/users/{id}/status', [AdminController::class, 'toggleStatus'])->name('toggleStatus');
-
+        
         // Event Management
         Route::get('/events', [AdminController::class, 'events'])->name('events.index');
         Route::patch('/events/{id}/approve', [AdminController::class, 'approveEvent'])->name('events.approve');
         Route::patch('/events/{id}/reject', [AdminController::class, 'rejectEvent'])->name('events.reject');
         Route::patch('/events/{id}/suspend', [AdminController::class, 'suspendEvent'])->name('events.suspend');
         Route::patch('/events/{id}/restore', [AdminController::class, 'restoreEvent'])->name('events.restore');
-
+        
         // Organizer Requests
         Route::get('/requests', [AdminController::class, 'organizerRequests'])->name('requests.index');
         Route::patch('/requests/{id}/approve', [AdminController::class, 'approveOrganizer'])->name('requests.approve');
@@ -100,7 +105,7 @@ Route::middleware('auth')->group(function () {
         Route::patch('/orders/{id}/approve', [AdminController::class, 'approveOrder'])->name('orders.approve');
         Route::patch('/orders/{id}/cancel', [AdminController::class, 'cancelOrder'])->name('orders.cancel');
     });
-
+    
     // Checkout Routes
     Route::middleware(['auth'])->group(function () {
         Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('user.dashboard');
@@ -108,9 +113,19 @@ Route::middleware('auth')->group(function () {
         Route::get('/orders/{order}/payment', [CheckoutController::class, 'showPayment'])->name('orders.payment');
         Route::post('/orders/{order}/confirm', [CheckoutController::class, 'confirmPayment'])->name('orders.confirm');
     });
+    
+    // Chat Routes
+    Route::prefix('chat')->name('chat.')->group(function () {
+        Route::get('/', [ChatController::class, 'index'])->name('index');
+        Route::get('/messages/{userId}', [ChatController::class, 'getMessages'])->name('messages');
+        Route::post('/send', [ChatController::class, 'sendMessage'])->name('send');
+        Route::get('/unread-count', [ChatController::class, 'getUnreadCount'])->name('unread');
+        Route::patch('/messages/{messageId}/read', [ChatController::class, 'markAsRead'])->name('markRead');
+        Route::get('/conversations', [ChatController::class, 'getConversations'])->name('conversations');
+    });
 });
 
-Route::get('/debug-db', function () {
+Route::get('/debug-db', function() {
     $columns = \Illuminate\Support\Facades\DB::select('DESCRIBE orders');
     dd($columns);
 });

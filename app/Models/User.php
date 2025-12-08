@@ -82,4 +82,12 @@ class User extends Authenticatable
     {
         return !empty($this->google_id) || !empty($this->facebook_id);
     }
+    
+    /**
+     * Get name attribute (alias for full_name)
+     */
+    public function getNameAttribute()
+    {
+        return $this->attributes['full_name'] ?? null;
+    }
 }

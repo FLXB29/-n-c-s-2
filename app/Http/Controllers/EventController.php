@@ -104,7 +104,7 @@ class EventController extends Controller
         // $sortDirection = $request->get('direction', 'asc');
         // $query->orderBy($sortBy, $sortDirection);
         
-        $events = $query->paginate(1);
+        $events = $query->paginate(6);
         $categories = Category::active()->ordered()->withCount(['events' => function ($query) {
             $query->where('status', 'published');
         }])->get();

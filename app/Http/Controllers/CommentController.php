@@ -18,11 +18,6 @@ class CommentController extends Controller
             return redirect()->route('login')->with('error', 'Vui lòng đăng nhập để comment');
         }
 
-        // Kiểm tra sự kiện có cho phép comment không
-        if (!$event->allow_comments) {
-            return back()->with('error', 'Sự kiện này không cho phép bình luận');
-        }
-
         // Validate
         $validated = $request->validate([
             'content' => 'required|string|min:3|max:500',

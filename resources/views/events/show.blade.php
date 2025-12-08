@@ -51,7 +51,7 @@
                                 <i class="fas fa-users"></i>
                                 <div>
                                     <strong>Sức chứa</strong>
-                                    <p>800 chỗ</p> <!-- Có thể thay bằng $event->capacity nếu có -->
+                                    <p>{{$event->total_tickets }} chỗ</p> <!-- Có thể thay bằng $event->capacity nếu có -->
                                 </div>
                             </div>
                             <div class="meta-item">
@@ -108,14 +108,41 @@
                         <h2 class="section-title">Thông tin nhà tổ chức</h2>
                         <div class="organizer-card">
                             <div class="organizer-avatar">
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode($event->organizer->name ?? 'Organizer') }}&size=80&background=667eea&color=fff" alt="Organizer">
+                                @php
+                                    $organizerAvatar = $event->organizer->avatar ?? null;
+                                    if ($organizerAvatar && $organizerAvatar !== 'null') {
+                                        if (Str::startsWith($organizerAvatar, ['http://', 'https://'])) {
+                                            $avatarUrl = $organizerAvatar;
+                                        } elseif (Str::startsWith($organizerAvatar, 'storage/')) {
+                                            $avatarUrl = '/' . $organizerAvatar;
+                                        } else {
+                                            $avatarUrl = $organizerAvatar;
+                                        }
+                                    } else {
+                                        $avatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($event->organizer->full_name ?? $event->organizer->name ?? 'Organizer') . '&size=80&background=667eea&color=fff';
+                                    }
+                                @endphp
+                                <img src="{{ $avatarUrl }}" alt="Organizer">
                             </div>
                             <div class="organizer-info">
-                                <h4>{{ $event->organizer->name ?? 'Ban Tổ Chức' }}</h4>
+                                <h4>{{ $event->organizer->full_name ?? $event->organizer->name ?? 'Ban Tổ Chức' }}</h4>
                                 <p>⭐ 4.8/5 (Đánh giá)</p>
                                 <p>📧 Email: {{ $event->organizer->email ?? 'contact@eventhub.vn' }}</p>
                             </div>
-                            <a href="#" class="btn btn-outline">Xem trang</a>
+                            <div style="display: flex; gap: 10px;">
+                                @auth
+                                    @if(auth()->user()->id !== $event->organizer_id)
+                                        <a href="{{ route('chat.index', ['user_id' => $event->organizer_id]) }}" class="btn btn-primary" style="background: #667eea;">
+                                            <i class="fas fa-comment-dots"></i> Chat ngay
+                                        </a>
+                                    @endif
+                                @else
+                                    <a href="{{ route('login') }}" class="btn btn-primary" style="background: #667eea;">
+                                        <i class="fas fa-comment-dots"></i> Chat ngay
+                                    </a>
+                                @endauth
+                                <a href="#" class="btn btn-outline">Xem trang</a>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -19,7 +19,7 @@ class OTPMail extends Mailable
 
     public function build()
     {
-        return $this->subject('Mã xác thực đổi mật khẩu - EventHub')
+        return $this->subject('Mã xác thực - EventHub')
                     ->html("
                         <h1>Mã xác thực của bạn</h1>
                         <p>Mã OTP để đổi mật khẩu của bạn là: <strong style='font-size: 24px; color: #4F46E5'>{$this->otp}</strong></p>

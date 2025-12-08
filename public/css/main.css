@@ -220,6 +220,34 @@ body {
     align-items: center;
 }
 
+/* Chat Button Styles */
+.chat-btn {
+    position: relative;
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+}
+
+.chat-unread-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ef4444;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
 .btn {
     padding: 10px 24px;
     border-radius: 50px;

@@ -50,6 +50,7 @@
             @foreach($featuredEvents as $event)
             <div class="event-card">
                 <div class="event-image">
+                    <a href="{{route ('events.show', $event->slug)}}">
                     <img src="{{ Str::startsWith($event->featured_image, 'http') ? $event->featured_image : asset($event->featured_image) }}" alt="{{ $event->title }}">
                     <div class="event-badge">{{ $event->category->name }}</div>
                     @if($event->is_featured)
@@ -57,6 +58,7 @@
                         <i class="fas fa-star"></i>
                     </div>
                     @endif
+                    </a>
                 </div>
                 <div class="event-content">
                     <h3>{{ $event->title }}</h3>
