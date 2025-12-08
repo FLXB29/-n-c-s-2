@@ -161,14 +161,81 @@
                     <!-- Location Filter -->
                     <div class="filter-group">
                         <h4>Địa điểm</h4>
-                        <div class="filter-options">
-                            @php $cities = ['Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng', 'Online']; @endphp
-                            @foreach($cities as $city)
-                            <label class="filter-option">
-                                <input type="radio" name="city" value="{{ $city }}" {{ request('city') == $city ? 'checked' : '' }} onchange="this.form.submit()">
-                                <span>{{ $city }}</span>
-                            </label>
-                            @endforeach
+                        <div class="location-search-container">
+                            <input type="text" 
+                                   id="locationInput" 
+                                   name="city" 
+                                   class="form-control" 
+                                   list="vietnam-provinces" 
+                                   placeholder="Nhập hoặc chọn tỉnh/thành..."
+                                   value="{{ request('city') }}"
+                                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            <datalist id="vietnam-provinces">
+                                <option value="Hà Nội">
+                                <option value="Hồ Chí Minh">
+                                <option value="Đà Nẵng">
+                                <option value="Hải Phòng">
+                                <option value="Cần Thơ">
+                                <option value="An Giang">
+                                <option value="Bà Rịa - Vũng Tàu">
+                                <option value="Bắc Giang">
+                                <option value="Bắc Kạn">
+                                <option value="Bạc Liêu">
+                                <option value="Bắc Ninh">
+                                <option value="Bến Tre">
+                                <option value="Bình Định">
+                                <option value="Bình Dương">
+                                <option value="Bình Phước">
+                                <option value="Bình Thuận">
+                                <option value="Cà Mau">
+                                <option value="Cao Bằng">
+                                <option value="Đắk Lắk">
+                                <option value="Đắk Nông">
+                                <option value="Điện Biên">
+                                <option value="Đồng Nai">
+                                <option value="Đồng Tháp">
+                                <option value="Gia Lai">
+                                <option value="Hà Giang">
+                                <option value="Hà Nam">
+                                <option value="Hà Tĩnh">
+                                <option value="Hải Dương">
+                                <option value="Hậu Giang">
+                                <option value="Hòa Bình">
+                                <option value="Hưng Yên">
+                                <option value="Khánh Hòa">
+                                <option value="Kiên Giang">
+                                <option value="Kon Tum">
+                                <option value="Lai Châu">
+                                <option value="Lâm Đồng">
+                                <option value="Lạng Sơn">
+                                <option value="Lào Cai">
+                                <option value="Long An">
+                                <option value="Nam Định">
+                                <option value="Nghệ An">
+                                <option value="Ninh Bình">
+                                <option value="Ninh Thuận">
+                                <option value="Phú Thọ">
+                                <option value="Phú Yên">
+                                <option value="Quảng Bình">
+                                <option value="Quảng Nam">
+                                <option value="Quảng Ngãi">
+                                <option value="Quảng Ninh">
+                                <option value="Quảng Trị">
+                                <option value="Sóc Trăng">
+                                <option value="Sơn La">
+                                <option value="Tây Ninh">
+                                <option value="Thái Bình">
+                                <option value="Thái Nguyên">
+                                <option value="Thanh Hóa">
+                                <option value="Thừa Thiên Huế">
+                                <option value="Tiền Giang">
+                                <option value="Trà Vinh">
+                                <option value="Tuyên Quang">
+                                <option value="Vĩnh Long">
+                                <option value="Vĩnh Phúc">
+                                <option value="Yên Bái">
+                                <option value="Online">
+                            </datalist>
                         </div>
                     </div>
                     
@@ -319,6 +386,12 @@
             // Remove old onchange
             input.removeAttribute('onchange'); 
         });
+
+        // Location Input
+        const locationInput = document.getElementById('locationInput');
+        if(locationInput) {
+            locationInput.addEventListener('change', () => filterEvents());
+        }
 
         // Range Input
         // const range = document.getElementById('priceRange');
