@@ -42,6 +42,12 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
 
+    // Forgot password (OTP to email, then auto-login)
+    Route::get('/forgot-password', [AuthController::class, 'showForgotForm'])->name('password.request');
+    Route::post('/forgot-password', [AuthController::class, 'sendResetOtp'])->name('password.email');
+    Route::get('/forgot-password/verify', [AuthController::class, 'showVerifyResetForm'])->name('password.verify');
+    Route::post('/forgot-password/verify', [AuthController::class, 'verifyResetOtp'])->name('password.verify.submit');
+
     // === ROUTE MỚI CHO OTP ===
     Route::get('/register/verify', [AuthController::class, 'showVerifyForm'])->name('register.verify');
     Route::post('/register/verify', [AuthController::class, 'verifyEmail']);

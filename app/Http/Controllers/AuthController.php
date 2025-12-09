@@ -299,4 +299,64 @@ public function verifyEmail(Request $request)
 
         return $message ? $redirect->with('success', $message) : $redirect;
     }
+
+    // ============================================
+    // FORGOT PASSWORD (OTP TO EMAIL, AUTO-LOGIN WHEN VERIFIED)
+    // ============================================
+    public function showForgotForm()
+    {
+        return view('auth.forgot-password');
+    }
+
+    public function sendResetOtp(Request $request)
+    {
+        $data = $request->validate(['email' => 'required|email']);
+        $user = User::where('email', $data['email'])->first();
+        if (!$user) {
+            return back()->withErrors(['email' => 'Email không tồn tại trong hệ thống.']);
+        }
+
+        $otp = rand(100000, 999999);
+        Cache::put('reset_otp_' . $user->email, $otp, 300);
+        Session::put('reset_email', $user->email);
+
+        try {
+            Mail::to($user->email)->send(new OTPMail($otp));
+        } catch (\Exception $e) {
+            Log::error('Send reset OTP error: ' . $e->getMessage());
+            return back()->withErrors(['email' => 'Không thể gửi mã. Vui lòng thử lại.']);
+        }
+
+        return redirect()->route('password.verify')->with('success', 'Đã gửi mã xác thực tới email.');
+    }
+
+    public function showVerifyResetForm()
+    {
+        $email = Session::get('reset_email');
+        if (!$email) return redirect()->route('password.request');
+        return view('auth.verify-reset', compact('email'));
+    }
+
+    public function verifyResetOtp(Request $request)
+    {
+        $request->validate(['otp' => 'required|numeric|digits:6']);
+        $email = Session::get('reset_email');
+        if (!$email) return redirect()->route('password.request');
+
+        $cachedOtp = Cache::get('reset_otp_' . $email);
+        if (!$cachedOtp || $cachedOtp != $request->otp) {
+            return back()->withErrors(['otp' => 'Mã OTP không chính xác hoặc đã hết hạn.']);
+        }
+
+        $user = User::where('email', $email)->first();
+        if (!$user) return redirect()->route('password.request')->withErrors(['email' => 'Email không tồn tại.']);
+
+        // OTP đúng: đăng nhập luôn
+        Auth::login($user, true);
+
+        Cache::forget('reset_otp_' . $email);
+        Session::forget('reset_email');
+
+        return $this->redirectBasedOnRole($user, 'Xác thực thành công, bạn đã được đăng nhập.');
+    }
 }

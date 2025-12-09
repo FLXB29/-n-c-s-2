@@ -45,7 +45,7 @@
                     <input type="checkbox" name="remember">
                     <span>Ghi nhớ đăng nhập</span>
                 </label>
-                <a href="#" class="link">Quên mật khẩu?</a>
+                <a href="{{ route('password.request') }}" class="link">Quên mật khẩu?</a>
             </div>
 
             <button type="submit" class="btn-primary btn-large btn-block">
