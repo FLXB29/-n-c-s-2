@@ -133,10 +133,16 @@
                             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                                 <div>
                                     <h3 style="font-size: 18px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">
-                                        {{ $order->event->title ?? 'Sự kiện không tồn tại' }}
+                                        @if($order->event)
+                                            <a href="{{ route('events.show', $order->event->id) }}" style="color: rgb(83, 83, 216); text-decoration: none;">
+                                                {{ $order->event->title }}
+                                            </a>
+                                        @else
+                                            Sự kiện không tồn tại
+                                        @endif
                                     </h3>
                                     <p style="color: #64748b; margin-bottom: 5px;">
-                                        <i class="fas fa-calendar"></i> {{ $order->event->start_time ? \Carbon\Carbon::parse($order->event->start_time)->format('d/m/Y H:i') : 'N/A' }}
+                                        <i class="fas fa-calendar"></i> {{ $order->event && $order->event->start_datetime ? $order->event->start_datetime->format('d/m/Y H:i') : 'N/A' }}
                                     </p>
                                     <p style="color: #64748b;">
                                         <i class="fas fa-map-marker-alt"></i> {{ $order->event->venue_name ?? 'N/A' }}
@@ -150,6 +156,9 @@
                                     @else
                                         <span class="badge bg-success" style="padding: 5px 10px; border-radius: 20px; font-size: 12px;">{{ strtoupper($order->status) }}</span>
                                         <p style="font-weight: bold; color: #4f46e5; margin-top: 10px;">{{ number_format($order->final_amount) }} VNĐ</p>
+                                        <p style="color: #64748b; font-size: 13px; margin: 4px 0 0;">
+                                            <i class="fas fa-clock"></i> Thanh toán lúc: {{ optional($order->updated_at)->format('d/m/Y H:i') ?? 'N/A' }}
+                                        </p>
                                     @endif
                                 </div>
                             </div>
@@ -162,6 +171,10 @@
                                             <span>
                                                 <i class="fas fa-ticket-alt"></i> {{ $ticket->ticketType->name ?? 'Vé' }}
                                                 <small class="text-muted">({{ $ticket->ticket_code }})</small>
+                                                @php $seat = $ticket->seat ?? null; @endphp
+                                                @if($seat)
+                                                    <span style="color: #475569;"> — Ghế: {{ $seat->section ?? 'Khu' }} -Hàng {{ $seat->row_number ?? 'Hàng ?' }}{{ $seat->seat_number ? ' - Số ' . $seat->seat_number : '' }}</span>
+                                                @endif
                                             </span>
                                         </li>
                                     @endforeach

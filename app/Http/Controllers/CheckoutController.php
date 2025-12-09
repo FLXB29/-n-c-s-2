@@ -67,6 +67,7 @@ class CheckoutController extends Controller
                     'ticket_code' => 'TKT-' . strtoupper(Str::random(12)),
                     'event_id' => $event->id,
                     'ticket_type_id' => $ticketType->id,
+                    'seat_id' => $selectedSeatIds[$i] ?? null,
                     'user_id' => $user->id,
                     'order_id' => $order->id,
                     'price_paid' => $ticketType->price,
@@ -78,7 +79,7 @@ class CheckoutController extends Controller
                     $seatId = $selectedSeatIds[$i];
                     $seat = Seat::find($seatId);
                     if ($seat && $seat->status == 'available') {
-                        $seat->update(['status' => 'reserved']); // Reserve seat instead of sold
+                        $seat->update(['status' => Seat::STATUS_HELD]); // Hold until payment
                     }
                 }
             }

@@ -39,7 +39,7 @@ class AuthController extends Controller
             'terms.accepted' => 'Bạn phải đồng ý với điều khoản.',
         ]);
 
-        $registerData =[
+        $registerData = [
             'full_name' => $request->fullName,
             'email' => $request->email,
             'phone' => $request->phone,
@@ -48,10 +48,10 @@ class AuthController extends Controller
             'status' => 'active'
         ];
 
-        Session::put('register_data',$registerData);
+        Session::put('register_data', $registerData);
 
-        $otp = rand(100000,999999);
-        Cache::put('verify_email_otp_'.$request->email,$otp,300);
+        $otp = rand(100000, 999999);
+        Cache::put('verify_email_otp_' . $request->email, $otp, 300);
 
         // $user = User::create([
         //     'full_name' => $request->fullName,
@@ -67,66 +67,66 @@ class AuthController extends Controller
         // return $this->redirectBasedOnRole($user, 'Đăng ký thành công!');
 
         try {
-        // Truyền OTP và Tiêu đề tùy chỉnh cho việc Đăng ký
-        Mail::to($request->email)->send(new OTPMail($otp));
-    } catch (\Exception $e) {
-        // Xử lý nếu gửi mail lỗi (tùy chọn)
-        return back()->withErrors(['email' => 'Không thể gửi email xác thực. Vui lòng thử lại.']);
-    }
+            // Truyền OTP và Tiêu đề tùy chỉnh cho việc Đăng ký
+            Mail::to($request->email)->send(new OTPMail($otp));
+        } catch (\Exception $e) {
+            // Xử lý nếu gửi mail lỗi (tùy chọn)
+            return back()->withErrors(['email' => 'Không thể gửi email xác thực. Vui lòng thử lại.']);
+        }
 
-    // 5. Chuyển hướng
-    return redirect()->route('register.verify');
+        // 5. Chuyển hướng
+        return redirect()->route('register.verify');
     }
 
     // Hàm hiển thị form nhập OTP
-public function showVerifyForm()
-{
-    // Nếu không có dữ liệu đăng ký trong session, đá về trang đăng ký
-    if (!Session::has('register_data')) {
-        return redirect()->route('register');
+    public function showVerifyForm()
+    {
+        // Nếu không có dữ liệu đăng ký trong session, đá về trang đăng ký
+        if (!Session::has('register_data')) {
+            return redirect()->route('register');
+        }
+
+        $email = Session::get('register_data')['email'];
+        return view('auth.verify-email', compact('email'));
     }
 
-    $email = Session::get('register_data')['email'];
-    return view('auth.verify-email', compact('email'));
-}
+    // Hàm xử lý xác thực OTP và tạo User
+    public function verifyEmail(Request $request)
+    {
+        $request->validate([
+            'otp' => 'required|numeric|digits:6',
+        ]);
 
-// Hàm xử lý xác thực OTP và tạo User
-public function verifyEmail(Request $request)
-{
-    $request->validate([
-        'otp' => 'required|numeric|digits:6',
-    ]);
+        $data = Session::get('register_data');
+        if (!$data) return redirect()->route('register');
 
-    $data = Session::get('register_data');
-    if (!$data) return redirect()->route('register');
+        // Lấy OTP từ Cache
+        $cachedOtp = Cache::get('verify_email_otp_' . $data['email']);
 
-    // Lấy OTP từ Cache
-    $cachedOtp = Cache::get('verify_email_otp_' . $data['email']);
+        if (!$cachedOtp || $cachedOtp != $request->otp) {
+            return back()->withErrors(['otp' => 'Mã OTP không chính xác hoặc đã hết hạn.']);
+        }
 
-    if (!$cachedOtp || $cachedOtp != $request->otp) {
-        return back()->withErrors(['otp' => 'Mã OTP không chính xác hoặc đã hết hạn.']);
+        // === TẠO USER CHÍNH THỨC ===
+        $user = User::create([
+            'full_name' => $data['full_name'],
+            'email'     => $data['email'],
+            'phone'     => $data['phone'],
+            'password_hash' => $data['password_hash'], // Lưu ý: password đã hash ở bước 1
+            'role'      => 'user',
+            'status'    => 'active',
+            'email_verified_at' => now(), // Đánh dấu đã xác thực email
+        ]);
+
+        // Đăng nhập luôn
+        Auth::login($user);
+
+        // Xóa session và cache
+        Session::forget('register_data');
+        Cache::forget('verify_email_otp_' . $data['email']);
+
+        return $this->redirectBasedOnRole($user, 'Đăng ký và xác thực thành công!');
     }
-
-    // === TẠO USER CHÍNH THỨC ===
-    $user = User::create([
-        'full_name' => $data['full_name'],
-        'email'     => $data['email'],
-        'phone'     => $data['phone'],
-        'password_hash' => $data['password_hash'], // Lưu ý: password đã hash ở bước 1
-        'role'      => 'user',
-        'status'    => 'active',
-        'email_verified_at' => now(), // Đánh dấu đã xác thực email
-    ]);
-
-    // Đăng nhập luôn
-    Auth::login($user);
-
-    // Xóa session và cache
-    Session::forget('register_data');
-    Cache::forget('verify_email_otp_' . $data['email']);
-
-    return $this->redirectBasedOnRole($user, 'Đăng ký và xác thực thành công!');
-}
 
     // ============================================
     // ĐĂNG NHẬP THÔNG THƯỜNG

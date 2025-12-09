@@ -88,6 +88,17 @@ class SepayWebhookController extends Controller
 
         if (method_exists($order, 'tickets')) {
             $order->tickets()->update(['status' => 'active']);
+
+            // Chốt ghế: set seat -> sold nếu có
+            foreach ($order->tickets as $ticket) {
+                if ($ticket->seat) {
+                    $ticket->seat->update([
+                        'status' => \App\Models\Seat::STATUS_SOLD,
+                        'reserved_until' => null,
+                        'held_by_user_id' => null,
+                    ]);
+                }
+            }
         }
 
         Log::info("Order {$order->order_code} paid successfully.");
