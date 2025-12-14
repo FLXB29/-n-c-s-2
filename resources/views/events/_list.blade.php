@@ -15,7 +15,7 @@
             <div class="event-content">
                 <div class="event-category">{{ $event->category->name }}</div>
                 <h3 class="event-title">
-                    <a href="{{ route('events.show', $event->slug) }}">{{ $event->title }}</a>
+                    <a href="{{ route('events.show', $event->slug) }}">{{ $event->title }}</a>  
                 </h3>
                 <div class="event-info">
                     <span><i class="fas fa-calendar"></i> {{ \Carbon\Carbon::parse($event->start_datetime)->format('d/m/Y') }}</span>

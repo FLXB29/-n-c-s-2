@@ -16,9 +16,6 @@ use Illuminate\Support\Facades\Cache;
 
 class AuthController extends Controller
 {
-    // ============================================
-    // ĐĂNG KÝ THÔNG THƯỜNG
-    // ============================================
 
     public function showRegisterForm()
     {
@@ -67,21 +64,16 @@ class AuthController extends Controller
         // return $this->redirectBasedOnRole($user, 'Đăng ký thành công!');
 
         try {
-        // Truyền OTP và Tiêu đề tùy chỉnh cho việc Đăng ký
         Mail::to($request->email)->send(new OTPMail($otp));
     } catch (\Exception $e) {
-        // Xử lý nếu gửi mail lỗi (tùy chọn)
         return back()->withErrors(['email' => 'Không thể gửi email xác thực. Vui lòng thử lại.']);
     }
 
-    // 5. Chuyển hướng
     return redirect()->route('register.verify');
     }
 
-    // Hàm hiển thị form nhập OTP
 public function showVerifyForm()
 {
-    // Nếu không có dữ liệu đăng ký trong session, đá về trang đăng ký
     if (!Session::has('register_data')) {
         return redirect()->route('register');
     }
@@ -90,7 +82,6 @@ public function showVerifyForm()
     return view('auth.verify-email', compact('email'));
 }
 
-// Hàm xử lý xác thực OTP và tạo User
 public function verifyEmail(Request $request)
 {
     $request->validate([
@@ -100,38 +91,31 @@ public function verifyEmail(Request $request)
     $data = Session::get('register_data');
     if (!$data) return redirect()->route('register');
 
-    // Lấy OTP từ Cache
     $cachedOtp = Cache::get('verify_email_otp_' . $data['email']);
 
     if (!$cachedOtp || $cachedOtp != $request->otp) {
         return back()->withErrors(['otp' => 'Mã OTP không chính xác hoặc đã hết hạn.']);
     }
 
-    // === TẠO USER CHÍNH THỨC ===
     $user = User::create([
         'full_name' => $data['full_name'],
         'email'     => $data['email'],
         'phone'     => $data['phone'],
-        'password_hash' => $data['password_hash'], // Lưu ý: password đã hash ở bước 1
+        'password_hash' => $data['password_hash'],
         'role'      => 'user',
         'status'    => 'active',
-        'email_verified_at' => now(), // Đánh dấu đã xác thực email
+        'email_verified_at' => now(), 
     ]);
 
-    // Đăng nhập luôn
     Auth::login($user);
 
-    // Xóa session và cache
     Session::forget('register_data');
     Cache::forget('verify_email_otp_' . $data['email']);
 
     return $this->redirectBasedOnRole($user, 'Đăng ký và xác thực thành công!');
 }
 
-    // ============================================
-    // ĐĂNG NHẬP THÔNG THƯỜNG
-    // ============================================
-
+  
     public function showLoginForm()
     {
         return view('auth.login');
@@ -151,7 +135,6 @@ public function verifyEmail(Request $request)
 
             $user = Auth::user();
 
-            // Kiểm tra tài khoản có bị khóa không
             if ($user->status !== 'active') {
                 Auth::logout();
                 return back()->withErrors([
@@ -167,10 +150,6 @@ public function verifyEmail(Request $request)
         ])->onlyInput('email');
     }
 
-    // ============================================
-    // ĐĂNG NHẬP BẰNG GOOGLE
-    // ============================================
-
     public function redirectToGoogle()
     {
         return Socialite::driver('google')->redirect();
@@ -179,12 +158,10 @@ public function verifyEmail(Request $request)
     public function handleGoogleCallback()
     {
         try {
-            // Sử dụng stateless() để tránh lỗi InvalidStateException
             $googleUser = Socialite::driver('google')->stateless()->user();
 
             return $this->handleSocialLogin($googleUser, 'google');
         } catch (\Exception $e) {
-            // Log lỗi để debug
             Log::error('Google login error: ' . $e->getMessage());
 
             return redirect()->route('login')
@@ -192,13 +169,9 @@ public function verifyEmail(Request $request)
         }
     }
 
-    // ============================================
-    // ĐĂNG NHẬP BẰNG FACEBOOK
-    // ============================================
-
+   
     public function redirectToFacebook()
     {
-        // Chỉ request scope public_profile (không cần email vì app chưa được review)
         return Socialite::driver('facebook')
             ->scopes(['public_profile'])
             ->redirect();
@@ -207,7 +180,6 @@ public function verifyEmail(Request $request)
     public function handleFacebookCallback()
     {
         try {
-            // Sử dụng stateless() để tránh lỗi InvalidStateException
             $facebookUser = Socialite::driver('facebook')->stateless()->user();
 
             return $this->handleSocialLogin($facebookUser, 'facebook');
@@ -218,41 +190,33 @@ public function verifyEmail(Request $request)
         }
     }
 
-    // ============================================
-    // XỬ LÝ SOCIAL LOGIN CHUNG
-    // ============================================
 
     protected function handleSocialLogin($socialUser, $provider)
     {
         $email = $socialUser->getEmail();
         $providerId = $socialUser->getId();
 
-        // Nếu không có email (Facebook không cấp), tạo email giả từ provider ID
         if (!$email) {
             $email = $provider . '_' . $providerId . '@social.local';
         }
 
-        // Bước 1: Tìm user theo provider ID trước
         $user = User::where($provider . '_id', $providerId)->first();
 
-        // Bước 2: Nếu không tìm thấy, tìm theo email
         if (!$user) {
             $user = User::where('email', $email)->first();
         }
 
         if ($user) {
-            // User đã tồn tại - cập nhật thông tin social
             $user->update([
                 $provider . '_id' => $providerId,
                 'avatar' => $user->avatar ?? $socialUser->getAvatar(),
             ]);
         } else {
-            // Tạo user mới
             $user = User::create([
                 'full_name' => $socialUser->getName(),
                 'email' => $email,
                 'phone' => null,
-                'password_hash' => Hash::make(Str::random(24)), // Random password
+                'password_hash' => Hash::make(Str::random(24)),
                 $provider . '_id' => $providerId,
                 'avatar' => $socialUser->getAvatar(),
                 'role' => 'user',
@@ -260,21 +224,15 @@ public function verifyEmail(Request $request)
             ]);
         }
 
-        // Kiểm tra tài khoản có bị khóa không
         if ($user->status !== 'active') {
             return redirect()->route('login')
                 ->with('error', 'Tài khoản của bạn đã bị khóa.');
         }
 
-        // Đăng nhập user
         Auth::login($user, true);
 
         return $this->redirectBasedOnRole($user, 'Đăng nhập thành công!');
     }
-
-    // ============================================
-    // ĐĂNG XUẤT
-    // ============================================
 
     public function logout(Request $request)
     {
@@ -285,9 +243,6 @@ public function verifyEmail(Request $request)
         return redirect('/login')->with('success', 'Đăng xuất thành công!');
     }
 
-    // ============================================
-    // HELPER: REDIRECT THEO ROLE
-    // ============================================
 
     protected function redirectBasedOnRole($user, $message = null)
     {

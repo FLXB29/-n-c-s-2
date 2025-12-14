@@ -11,8 +11,6 @@ class HomeController extends Controller
     public function index()
     {
         $featuredEvents = Event::published()
-            // ->featured()
-            // ->upcoming() // Tạm thời bỏ filter upcoming để hiển thị hết các event test
             ->orderBy('start_datetime','asc')
             ->with(['category', 'organizer'])
             ->limit(6)
