@@ -1,6 +1,4 @@
 <?php
-// routes/web.php
-
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\AuthController;
@@ -15,13 +13,11 @@ use App\Http\Controllers\AdminStatisticsController;
 use App\Http\Controllers\CheckInController;
 use Illuminate\Support\Facades\Route;
 
-// Public Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
 Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
 Route::get('/events/{event}/seats', [App\Http\Controllers\EventController::class, 'getSeats'])->name('events.seats');
 
-// Realtime Seats API (public để lấy danh sách, nhưng hold/release cần auth)
 Route::get('/api/events/{event}/seats', [SeatController::class, 'index'])->name('api.seats.index');
 
 Route::middleware('auth')->group(function () {
@@ -31,14 +27,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/api/events/{event}/seats/release-all', [SeatController::class, 'releaseAll'])->name('api.seats.releaseAll');
 });
 
-// Comment Routes (cần đăng nhập)
 Route::middleware('auth')->group(function () {
     Route::post('/events/{event}/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::patch('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
 });
 
-// Authentication Routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login'); //get là khi người dùng truy cập vào thì sẽ showform
     Route::post('/login', [AuthController::class, 'login']); //post là khi người dùng điền xong form đăng nhập thì sẽ gửi lên cho sv
@@ -64,7 +58,6 @@ Route::middleware('guest')->group(function () {
     Route::get('/auth/facebook/callback', [AuthController::class, 'handleFacebookCallback']);
 });
 
-//yêu cầu phải đăng nhập thì mới có thể vào được các route này đó chính là vai trò của middleware có sẵn auth
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -109,7 +102,6 @@ Route::middleware('auth')->group(function () {
         Route::patch('/requests/{id}/approve', [AdminController::class, 'approveOrganizer'])->name('requests.approve');
         Route::patch('/requests/{id}/reject', [AdminController::class, 'rejectOrganizer'])->name('requests.reject');
 
-        // Order Management
         Route::get('/orders', [AdminController::class, 'orders'])->name('orders.index');
         Route::patch('/orders/{id}/approve', [AdminController::class, 'approveOrder'])->name('orders.approve');
         Route::patch('/orders/{id}/cancel', [AdminController::class, 'cancelOrder'])->name('orders.cancel');
