@@ -58,6 +58,7 @@ class CommentController extends Controller
                     'content' => $comment->content,
                     'rating' => $comment->rating,
                     'parent_id' => $comment->parent_id,
+                    'event_id' => $comment->event_id,
                     'created_at' => $comment->created_at->diffForHumans(),
                     'user' => [
                         'id' => $comment->user->id,

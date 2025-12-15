@@ -63,172 +63,7 @@
             @if($comments->count() > 0)
                 <div class="comments-list">
                     @foreach($comments as $comment)
-                        <div class="comment-item card mb-3" data-comment-id="{{ $comment->id }}">
-                            <div class="card-body">
-                                <!-- Comment Header -->
-                                <div class="comment-header d-flex justify-content-between align-items-start">
-                                    <div class="comment-author">
-                                        <div class="author-info d-flex align-items-center">
-                                            @if($comment->user->avatar)
-                                                <img 
-                                                    src="{{ Str::startsWith($comment->user->avatar, 'http') ? $comment->user->avatar : asset($comment->user->avatar) }}" 
-                                                    alt="{{ $comment->user->full_name }}"
-                                                    class="avatar-sm rounded-circle me-2"
-                                                >
-                                            @else
-                                                <div class="avatar-sm rounded-circle me-2 bg-secondary d-flex align-items-center justify-content-center">
-                                                    <i class="fas fa-user text-white"></i>
-                                                </div>
-                                            @endif
-                                            <div>
-                                                <strong class="author-name">{{ $comment->user->full_name }}</strong>
-                                                <small class="text-muted d-block">{{ $comment->created_at->diffForHumans() }}</small>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Actions -->
-                                    <div class="comment-actions">
-                                        @auth
-                                            @if(Auth::id() === $comment->user_id || Auth::user()->role === 'admin')
-                                                <div class="btn-group btn-group-sm" role="group">
-                                                    @if(Auth::id() === $comment->user_id)
-                                                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#editCommentModal{{ $comment->id }}">
-                                                            <i class="fas fa-edit"></i> Sửa
-                                                        </button>
-                                                    @endif
-
-                                                    <button type="button" class="btn btn-outline-primary btn-reply-comment" data-comment-id="{{ $comment->id }}">
-                                                        <i class="fas fa-reply"></i> Trả lời
-                                                    </button>
-
-                                                    @if(Auth::id() === $comment->user_id || Auth::user()->role === 'admin')
-                                                        <button type="button" class="btn btn-outline-danger btn-delete-comment" data-comment-id="{{ $comment->id }}">
-                                                            <i class="fas fa-trash"></i> Xóa
-                                                        </button>
-                                                    @endif
-                                                </div>
-                                            @else
-                                                <button type="button" class="btn btn-outline-primary btn-sm btn-reply-comment" data-comment-id="{{ $comment->id }}">
-                                                    <i class="fas fa-reply"></i> Trả lời
-                                                </button>
-                                            @endif
-                                        @endauth
-                                    </div>
-                                </div>
-
-                                <!-- Rating -->
-                                @if($comment->rating)
-                                    <div class="comment-rating my-2">
-                                        <div class="stars">
-                                            @for($i = 1; $i <= 5; $i++)
-                                                <i class="fas fa-star {{ $i <= $comment->rating ? 'text-warning' : 'text-muted' }}"></i>
-                                            @endfor
-                                        </div>
-                                    </div>
-                                @endif
-
-                                <!-- Comment Content -->
-                                <p class="comment-content mt-3 mb-0">{{ nl2br(e($comment->content)) }}</p>
-
-                                <!-- Reply Form -->
-                                @auth
-                                    <div id="replyForm{{ $comment->id }}" class="reply-form-wrapper mt-3" style="display: none;">
-                                        <form class="reply-form" action="{{ route('comments.store', $event->id) }}" method="POST">
-                                            @csrf
-                                            <input type="hidden" name="parent_id" value="{{ $comment->id }}">
-                                            <input type="hidden" name="event_id" value="{{ $event->id }}">
-                                            <div class="input-group">
-                                                <input type="text" name="content" class="form-control" placeholder="Viết trả lời..." required>
-                                                <button class="btn btn-primary" type="submit">Gửi</button>
-                                                <button class="btn btn-secondary" type="button" onclick="document.getElementById('replyForm{{ $comment->id }}').style.display='none'">Hủy</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                @endauth
-
-                                <!-- Replies -->
-                                @if($comment->replies->count() > 0)
-                                    <div class="replies-list ms-4 mt-3">
-                                        @foreach($comment->replies as $reply)
-                                            <div class="reply-item card mb-2" data-comment-id="{{ $reply->id }}">
-                                                <div class="card-body p-2">
-                                                    <div class="d-flex justify-content-between align-items-start">
-                                                        <div class="author-info d-flex align-items-center">
-                                                            @if($reply->user->avatar)
-                                                                <img src="{{ Str::startsWith($reply->user->avatar, 'http') ? $reply->user->avatar : asset($reply->user->avatar) }}" alt="{{ $reply->user->full_name }}" class="avatar-sm rounded-circle me-2">
-                                                            @else
-                                                                <div class="avatar-sm rounded-circle me-2 bg-secondary d-flex align-items-center justify-content-center">
-                                                                    <i class="fas fa-user text-white"></i>
-                                                                </div>
-                                                            @endif
-                                                            <div>
-                                                                <strong>{{ $reply->user->full_name }}</strong>
-                                                                <small class="text-muted d-block">{{ $reply->created_at->diffForHumans() }}</small>
-                                                            </div>
-                                                        </div>
-                                                        @auth
-                                                            @if(Auth::id() === $reply->user_id || Auth::user()->role === 'admin')
-                                                                <button type="button" class="btn btn-outline-danger btn-sm btn-delete-comment" data-comment-id="{{ $reply->id }}">
-                                                                    <i class="fas fa-trash"></i>
-                                                                </button>
-                                                            @endif
-                                                        @endauth
-                                                    </div>
-                                                    <p class="comment-content mt-2 mb-0">{{ nl2br(e($reply->content)) }}</p>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-
-                        <!-- Edit Modal -->
-                        @if(Auth::check() && Auth::id() === $comment->user_id)
-                            <div class="modal fade" id="editCommentModal{{ $comment->id }}" tabindex="-1">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">Chỉnh sửa bình luận</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                        </div>
-                                        <form class="edit-comment-form" data-comment-id="{{ $comment->id }}">
-                                            @csrf
-                                            @method('PATCH')
-                                            <div class="modal-body">
-                                                <div class="form-group mb-3">
-                                                    <label for="edit-content-{{ $comment->id }}">Bình luận</label>
-                                                    <textarea 
-                                                        name="content" 
-                                                        id="edit-content-{{ $comment->id }}" 
-                                                        class="form-control"
-                                                        rows="4"
-                                                        required
-                                                    >{{ $comment->content }}</textarea>
-                                                </div>
-
-                                                <div class="form-group mb-3">
-                                                    <label for="edit-rating-{{ $comment->id }}">Xếp hạng</label>
-                                                    <div class="rating-input edit-rating" data-comment-id="{{ $comment->id }}">
-                                                        <i class="fas fa-star" data-rating="1"></i>
-                                                        <i class="fas fa-star" data-rating="2"></i>
-                                                        <i class="fas fa-star" data-rating="3"></i>
-                                                        <i class="fas fa-star" data-rating="4"></i>
-                                                        <i class="fas fa-star" data-rating="5"></i>
-                                                    </div>
-                                                    <input type="hidden" name="rating" id="edit-rating-{{ $comment->id }}" value="{{ $comment->rating ?? 0 }}">
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                                <button type="submit" class="btn btn-primary">Cập nhật</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
+                        <x-comment-item :comment="$comment" :event="$event" :depth="0" />
                     @endforeach
                 </div>
             @else
@@ -292,6 +127,11 @@
 .comment-item {
     border: none;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.comment-item:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
 .comment-content {
@@ -304,9 +144,28 @@
     margin-right: 3px;
 }
 
-.replies-list {
-    border-left: 2px solid #ddd;
-    padding-left: 15px;
+/* Nested replies styling */
+.nested-replies {
+    margin-top: 10px;
+    border-left: 3px solid #667eea;
+    padding-left: 5px;
+}
+
+.nested-replies .comment-item {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    background: linear-gradient(to right, #f8f9ff, #ffffff);
+}
+
+.nested-replies .nested-replies {
+    border-left-color: #a8b5ff;
+}
+
+.nested-replies .nested-replies .nested-replies {
+    border-left-color: #c8d0ff;
+}
+
+.nested-replies .nested-replies .nested-replies .nested-replies {
+    border-left-color: #e0e4ff;
 }
 
 .reply-item {
@@ -318,6 +177,13 @@
     background: #f5f5f5;
     padding: 15px;
     border-radius: 4px;
+}
+
+/* Responsive cho mobile */
+@media (max-width: 768px) {
+    .nested-replies .comment-item {
+        margin-left: 10px !important;
+    }
 }
 </style>
 
@@ -484,15 +350,37 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Reply Comment
+    // Reply Comment - Toggle form
     document.addEventListener('click', function(e) {
         if (e.target.closest('.btn-reply-comment')) {
             e.preventDefault();
             const btn = e.target.closest('.btn-reply-comment');
             const commentId = btn.dataset.commentId;
             const replyForm = document.querySelector(`#replyForm${commentId}`);
+            
+            // Ẩn tất cả các reply form khác
+            document.querySelectorAll('.reply-form-wrapper').forEach(form => {
+                if (form.id !== `replyForm${commentId}`) {
+                    form.style.display = 'none';
+                }
+            });
+            
             if (replyForm) {
                 replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+                if (replyForm.style.display === 'block') {
+                    replyForm.querySelector('input[name="content"]').focus();
+                }
+            }
+        }
+        
+        // Cancel reply button
+        if (e.target.closest('.btn-cancel-reply')) {
+            const btn = e.target.closest('.btn-cancel-reply');
+            const commentId = btn.dataset.commentId;
+            const replyForm = document.querySelector(`#replyForm${commentId}`);
+            if (replyForm) {
+                replyForm.style.display = 'none';
+                replyForm.querySelector('form').reset();
             }
         }
     });
@@ -621,38 +509,63 @@ function addReplyToComment(reply, parentId = null) {
     const parentComment = document.querySelector(`[data-comment-id="${parentCommentId}"]`);
     if (!parentComment) return;
     
-    let repliesList = parentComment.querySelector('.replies-list');
-    if (!repliesList) {
-        repliesList = document.createElement('div');
-        repliesList.className = 'replies-list ms-4 mt-3';
-        parentComment.querySelector('.card-body').appendChild(repliesList);
+    // Tìm hoặc tạo nested-replies container
+    let nestedReplies = parentComment.querySelector(':scope > .nested-replies');
+    if (!nestedReplies) {
+        nestedReplies = document.createElement('div');
+        nestedReplies.className = 'nested-replies';
+        parentComment.appendChild(nestedReplies);
     }
     
     const replyHTML = `
-        <div class="reply-item card mb-2" data-comment-id="${reply.id}">
+        <div class="comment-item card mb-3 reply-item" data-comment-id="${reply.id}" style="margin-left: 20px;">
             <div class="card-body p-2">
-                <div class="d-flex justify-content-between align-items-start">
+                <div class="comment-header d-flex justify-content-between align-items-start">
                     <div class="author-info d-flex align-items-center">
                         ${reply.user.avatar ? 
-                            `<img src="${reply.user.avatar}" alt="${reply.user.full_name}" class="avatar-sm rounded-circle me-2">` :
-                            `<div class="avatar-sm rounded-circle me-2 bg-secondary d-flex align-items-center justify-content-center">
-                                <i class="fas fa-user text-white"></i>
+                            `<img src="${reply.user.avatar}" alt="${reply.user.full_name}" class="avatar-sm rounded-circle me-2" style="width: 32px; height: 32px;">` :
+                            `<div class="avatar-sm rounded-circle me-2 bg-secondary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                <i class="fas fa-user text-white" style="font-size: 12px;"></i>
                             </div>`
                         }
                         <div>
-                            <strong>${reply.user.full_name}</strong>
+                            <strong style="font-size: 0.9em;">${reply.user.full_name}</strong>
                             <small class="text-muted d-block">${reply.created_at}</small>
                         </div>
                     </div>
-                    <button type="button" class="btn btn-outline-danger btn-sm btn-delete-comment" data-comment-id="${reply.id}">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-sm btn-reply-comment" data-comment-id="${reply.id}">
+                            <i class="fas fa-reply"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm btn-delete-comment" data-comment-id="${reply.id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
                 </div>
-                <p class="comment-content mt-2 mb-0">${reply.content}</p>
+                <p class="comment-content mt-2 mb-0" style="font-size: 0.95em;">${reply.content}</p>
+                
+                <!-- Reply Form cho nested reply -->
+                <div id="replyForm${reply.id}" class="reply-form-wrapper mt-3" style="display: none;">
+                    <form class="reply-form" action="/events/${reply.event_id}/comments" method="POST">
+                        <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').content}">
+                        <input type="hidden" name="parent_id" value="${reply.id}">
+                        <input type="hidden" name="event_id" value="${reply.event_id}">
+                        <div class="input-group input-group-sm">
+                            <input type="text" name="content" class="form-control" 
+                                   placeholder="Viết trả lời cho ${reply.user.full_name}..." required>
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                            <button class="btn btn-secondary btn-cancel-reply" type="button" data-comment-id="${reply.id}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     `;
     
-    repliesList.insertAdjacentHTML('beforeend', replyHTML);
+    nestedReplies.insertAdjacentHTML('beforeend', replyHTML);
 }
 </script>

@@ -39,12 +39,22 @@ class Comment extends Model
 
     public function parent()
     {
-        return $this->belongsTo(Comment::class, 'parent_id');
+        return $this->belongsTo(Comment::class, 'parent_id')->with('user');
     }
 
     public function replies()
     {
-        return $this->hasMany(Comment::class, 'parent_id')->approved();
+        return $this->hasMany(Comment::class, 'parent_id')->approved()->with('replies', 'user');
+    }
+
+    // Đếm tổng số replies (bao gồm cả nested)
+    public function getAllRepliesCountAttribute()
+    {
+        $count = $this->replies->count();
+        foreach ($this->replies as $reply) {
+            $count += $reply->all_replies_count;
+        }
+        return $count;
     }
 
     // Scopes

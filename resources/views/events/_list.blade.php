@@ -21,6 +21,9 @@
                     <span><i class="fas fa-calendar"></i> {{ \Carbon\Carbon::parse($event->start_datetime)->format('d/m/Y') }}</span>
                     <span><i class="fas fa-map-marker-alt"></i> {{ $event->venue_city }}</span>
                 </div>
+                {{-- <div>
+                    <span>Còn lại {{$event->total_tickets - $event->tickets_sold}}</span>
+                </div> --}}
                 <div class="event-footer">
                     <div class="event-price">
                         <span class="price-label">Từ</span>
