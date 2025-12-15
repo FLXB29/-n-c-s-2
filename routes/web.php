@@ -151,9 +151,7 @@ Route::get('/debug-db', function () {
     dd($columns);
 });
 
-// AI Chatbot Routes
+// AI Chatbot API (dùng cho widget ở trang home)
 Route::prefix('chatbot')->name('chatbot.')->group(function () {
-    Route::get('/', [ChatbotController::class, 'index'])->name('index');
     Route::post('/send', [ChatbotController::class, 'sendMessage'])->name('send');
-    Route::get('/suggestions', [ChatbotController::class, 'getSuggestions'])->name('suggestions');
 });
