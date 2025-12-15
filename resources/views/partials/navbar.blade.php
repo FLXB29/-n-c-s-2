@@ -34,6 +34,9 @@
                     <li><a href="{{ route('events.index') }}" class="nav-link">
                         <i class="fas fa-calendar"></i> Sự kiện
                     </a></li>
+                    <li><a href="{{ route('chatbot.index') }}" class="nav-link">
+                        <i class="fas fa-robot"></i> Trợ Lý AI
+                    </a></li>
                     <li class="dropdown">
                         <a href="#" class="nav-link dropdown-toggle">
                             <i class="fas fa-th-large"></i> Danh mục

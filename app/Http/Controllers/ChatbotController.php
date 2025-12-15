@@ -90,11 +90,10 @@ class ChatbotController extends Controller
      */
     private function getEventsContext()
     {
-        $events = Event::where('status', 'approved')
-            ->where('start_datetime', '>', now())
+        $events = Event::where('status', 'published')
             ->with(['category', 'ticketTypes'])
             ->orderBy('start_datetime', 'asc')
-            ->take(20)
+            ->take(3)
             ->get();
 
         $context = "Danh sách sự kiện hiện có:\n\n";
