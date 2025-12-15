@@ -18,9 +18,9 @@
 </head>
 <body>
     @include('partials.navbar')
-
+    @include('admin.partials.sidebar')
     <!-- Sidebar -->
-    <aside class="admin-sidebar" id="sidebar">
+    {{-- <aside class="admin-sidebar" id="sidebar">
         <div class="sidebar-content">
             <ul class="sidebar-menu">
                 <li class="menu-item">
@@ -55,7 +55,7 @@
                 </li>
             </ul>
         </div>
-    </aside>
+    </aside> --}}
 
     <main class="admin-main">
         <section class="dashboard-section active">

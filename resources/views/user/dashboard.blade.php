@@ -123,8 +123,31 @@
         <section id="tickets-section" class="dashboard-section" style="display: none;">
             <div class="section-header" style="margin-bottom: 30px;">
                 <h1 style="font-size: 24px; color: #1e293b; margin-bottom: 10px;">Vé của tôi</h1>
-                <p style="color: #64748b;">Danh sách các vé bạn đã mua.</p>
+                <p style="color: #64748b;">Danh sách các vé bạn đã mua. Nhấn vào vé để xem mã QR check-in.</p>
             </div>
+
+            <!-- Tickets Stats -->
+            @if(isset($orders) && $orders->count() > 0)
+            <div class="tickets-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                @php
+                    $totalTickets = $orders->sum(fn($o) => $o->tickets->count());
+                    $activeTickets = $orders->sum(fn($o) => $o->tickets->where('status', 'active')->count());
+                    $usedTickets = $orders->sum(fn($o) => $o->tickets->where('status', 'used')->count());
+                @endphp
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 20px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 700;">{{ $totalTickets }}</div>
+                    <div style="font-size: 13px; opacity: 0.9;">Tổng số vé</div>
+                </div>
+                <div style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; padding: 15px 20px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 700;">{{ $activeTickets }}</div>
+                    <div style="font-size: 13px; opacity: 0.9;">Chưa sử dụng</div>
+                </div>
+                <div style="background: linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%); color: white; padding: 15px 20px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 24px; font-weight: 700;">{{ $usedTickets }}</div>
+                    <div style="font-size: 13px; opacity: 0.9;">Đã check-in</div>
+                </div>
+            </div>
+            @endif
 
             <div class="tickets-list">
                 @if(isset($orders) && $orders->count() > 0)
@@ -133,10 +156,16 @@
                             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                                 <div>
                                     <h3 style="font-size: 18px; font-weight: 600; color: #1e293b; margin-bottom: 5px;">
-                                        {{ $order->event->title ?? 'Sự kiện không tồn tại' }}
+                                        @if($order->event)
+                                            <a href="{{ route('events.show', $order->event->id) }}" style="color: rgb(83, 83, 216); text-decoration: none;">
+                                                {{ $order->event->title }}
+                                            </a>
+                                        @else
+                                            Sự kiện không tồn tại
+                                        @endif
                                     </h3>
                                     <p style="color: #64748b; margin-bottom: 5px;">
-                                        <i class="fas fa-calendar"></i> {{ $order->event->start_time ? \Carbon\Carbon::parse($order->event->start_time)->format('d/m/Y H:i') : 'N/A' }}
+                                        <i class="fas fa-calendar"></i> {{ $order->event && $order->event->start_datetime ? $order->event->start_datetime->format('d/m/Y H:i') : 'N/A' }}
                                     </p>
                                     <p style="color: #64748b;">
                                         <i class="fas fa-map-marker-alt"></i> {{ $order->event->venue_name ?? 'N/A' }}
@@ -150,22 +179,100 @@
                                     @else
                                         <span class="badge bg-success" style="padding: 5px 10px; border-radius: 20px; font-size: 12px;">{{ strtoupper($order->status) }}</span>
                                         <p style="font-weight: bold; color: #4f46e5; margin-top: 10px;">{{ number_format($order->final_amount) }} VNĐ</p>
+                                        <p style="color: #64748b; font-size: 13px; margin: 4px 0 0;">
+                                            <i class="fas fa-clock"></i> Thanh toán lúc: {{ optional($order->updated_at)->format('d/m/Y H:i') ?? 'N/A' }}
+                                        </p>
                                     @endif
                                 </div>
                             </div>
                             <hr style="border-top: 1px solid #e2e8f0; margin: 15px 0;">
+                            
+                            <!-- Ticket Items with QR -->
                             <div class="ticket-items">
-                                <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 10px;">Chi tiết vé:</h4>
-                                <ul style="list-style: none; padding: 0;">
+                                <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 15px;">
+                                    <i class="fas fa-ticket-alt"></i> Chi tiết vé ({{ $order->tickets->count() }} vé):
+                                </h4>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
                                     @foreach($order->tickets as $ticket)
-                                        <li style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 14px;">
-                                            <span>
-                                                <i class="fas fa-ticket-alt"></i> {{ $ticket->ticketType->name ?? 'Vé' }}
-                                                <small class="text-muted">({{ $ticket->ticket_code }})</small>
-                                            </span>
-                                        </li>
+                                        <div class="single-ticket" 
+                                             style="background: {{ $ticket->status == 'used' ? '#f1f5f9' : '#f8fafc' }}; 
+                                                    border: 2px solid {{ $ticket->status == 'used' ? '#cbd5e1' : '#e2e8f0' }}; 
+                                                    border-radius: 10px; 
+                                                    padding: 15px; 
+                                                    cursor: pointer;
+                                                    transition: all 0.3s ease;
+                                                    {{ $ticket->status == 'used' ? 'opacity: 0.7;' : '' }}"
+                                             onclick="showTicketQR({{ json_encode([
+                                                 'ticket_code' => $ticket->ticket_code,
+                                                 'event_name' => $order->event->title ?? 'N/A',
+                                                 'ticket_type' => $ticket->ticketType->name ?? 'Vé thường',
+                                                 'seat' => $ticket->seat ? ($ticket->seat->section . ' - Hàng ' . $ticket->seat->row_number . ' - Số ' . $ticket->seat->seat_number) : 'Không chọn ghế',
+                                                 'status' => $ticket->status,
+                                                 'price_paid' => number_format($ticket->price_paid, 0, ',', '.') . ' đ',
+                                                 'event_date' => $order->event && $order->event->start_datetime ? $order->event->start_datetime->format('d/m/Y H:i') : 'N/A',
+                                                 'venue' => $order->event->venue_name ?? 'N/A',
+                                                 'check_in_time' => $ticket->check_in_time ? $ticket->check_in_time->format('d/m/Y H:i:s') : null,
+                                             ]) }})"
+                                             onmouseover="this.style.borderColor='#6c5ce7'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(108,92,231,0.2)';"
+                                             onmouseout="this.style.borderColor='{{ $ticket->status == 'used' ? '#cbd5e1' : '#e2e8f0' }}'; this.style.transform='none'; this.style.boxShadow='none';">
+                                            
+                                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                                                <div>
+                                                    <span style="font-family: monospace; font-size: 12px; color: #6c5ce7; font-weight: 600;">
+                                                        {{ $ticket->ticket_code }}
+                                                    </span>
+                                                    <div style="font-weight: 600; color: #1e293b; margin-top: 5px;">
+                                                        {{ $ticket->ticketType->name ?? 'Vé thường' }}
+                                                    </div>
+                                                </div>
+                                                <span style="padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 600;
+                                                    {{ $ticket->status == 'active' ? 'background: #d1fae5; color: #065f46;' : '' }}
+                                                    {{ $ticket->status == 'used' ? 'background: #fef3c7; color: #92400e;' : '' }}
+                                                    {{ $ticket->status == 'cancelled' ? 'background: #fee2e2; color: #991b1b;' : '' }}">
+                                                    @if($ticket->status == 'active')
+                                                        <i class="fas fa-check-circle"></i> Chưa sử dụng
+                                                    @elseif($ticket->status == 'used')
+                                                        <i class="fas fa-check-double"></i> Đã check-in
+                                                    @else
+                                                        {{ ucfirst($ticket->status) }}
+                                                    @endif
+                                                </span>
+                                            </div>
+                                            
+                                            @if($ticket->seat)
+                                                <div style="font-size: 13px; color: #64748b; margin-bottom: 8px;">
+                                                    <i class="fas fa-chair"></i> 
+                                                    {{ $ticket->seat->section ?? 'Khu' }} - Hàng {{ $ticket->seat->row_number ?? '?' }} - Số {{ $ticket->seat->seat_number ?? '?' }}
+                                                </div>
+                                            @endif
+                                            
+                                            <div style="font-size: 13px; color: #64748b; margin-bottom: 10px;">
+                                                <i class="fas fa-money-bill"></i> {{ number_format($ticket->price_paid, 0, ',', '.') }} đ
+                                            </div>
+                                            
+                                            @if($ticket->check_in_time)
+                                                <div style="font-size: 12px; color: #059669; background: #d1fae5; padding: 5px 10px; border-radius: 6px; text-align: center;">
+                                                    <i class="fas fa-clock"></i> Check-in: {{ $ticket->check_in_time->format('d/m/Y H:i') }}
+                                                </div>
+                                            @else
+                                                <button style="width: 100%; padding: 8px; background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;"
+                                                        onclick="event.stopPropagation(); showTicketQR({{ json_encode([
+                                                            'ticket_code' => $ticket->ticket_code,
+                                                            'event_name' => $order->event->title ?? 'N/A',
+                                                            'ticket_type' => $ticket->ticketType->name ?? 'Vé thường',
+                                                            'seat' => $ticket->seat ? ($ticket->seat->section . ' - Hàng ' . $ticket->seat->row_number . ' - Số ' . $ticket->seat->seat_number) : 'Không chọn ghế',
+                                                            'status' => $ticket->status,
+                                                            'price_paid' => number_format($ticket->price_paid, 0, ',', '.') . ' đ',
+                                                            'event_date' => $order->event && $order->event->start_datetime ? $order->event->start_datetime->format('d/m/Y H:i') : 'N/A',
+                                                            'venue' => $order->event->venue_name ?? 'N/A',
+                                                            'check_in_time' => null,
+                                                        ]) }})">
+                                                    <i class="fas fa-qrcode"></i> Xem mã QR
+                                                </button>
+                                            @endif
+                                        </div>
                                     @endforeach
-                                </ul>
+                                </div>
                             </div>
                         </div>
                     @endforeach
@@ -523,6 +630,22 @@
 @endpush
 
 <script>
+    // Check on page load if we need to show a specific section
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check localStorage for section to show
+        const savedSection = localStorage.getItem('dashboardSection');
+        if (savedSection) {
+            showSection(savedSection);
+            localStorage.removeItem('dashboardSection');
+        }
+        
+        // Check URL hash
+        const hash = window.location.hash.replace('#', '');
+        if (hash && ['overview', 'profile', 'tickets', 'password'].includes(hash)) {
+            showSection(hash);
+        }
+    });
+
     function showSection(sectionName) {
         // Hide all sections
         const sections = document.querySelectorAll('.dashboard-section');
@@ -626,5 +749,329 @@
             btn.innerText = originalText;
         });
     });
+
+    // QR Modal close handlers sẽ được setup riêng
 </script>
+
+<!-- QRCode.js library - dùng qrcodejs -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+// QR Code generation function
+function generateQR(container, text) {
+    console.log('generateQR called with:', text);
+    console.log('QRCode available:', typeof QRCode);
+    
+    // Clear previous QR
+    container.innerHTML = '';
+    
+    if (typeof QRCode !== 'undefined') {
+        try {
+            new QRCode(container, {
+                text: text,
+                width: 200,
+                height: 200,
+                colorDark: '#1a1a2e',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            console.log('QR generated successfully');
+        } catch (error) {
+            console.error('QR Error:', error);
+            showFallbackQR(container, text);
+        }
+    } else {
+        console.error('QRCode library not loaded');
+        showFallbackQR(container, text);
+    }
+}
+
+function showFallbackQR(container, text) {
+    container.innerHTML = `
+        <div style="width: 200px; height: 200px; background: #f8f9fa; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 8px;">
+            <div style="color: #6c5ce7; font-weight: bold; font-size: 12px;">Mã vé:</div>
+            <div style="color: #1a1a2e; font-family: monospace; font-size: 11px; word-break: break-all; padding: 10px; text-align: center;">${text}</div>
+        </div>
+    `;
+}
+
+// QR Code Functions
+function showTicketQR(ticketData) {
+    console.log('showTicketQR called:', ticketData);
+    
+    const modal = document.getElementById('qrModal');
+    const qrContainer = document.getElementById('qrCodeDiv');
+    const infoContainer = document.getElementById('ticketInfoModal');
+    const checkInStatus = document.getElementById('checkInStatus');
+
+    if (!modal || !qrContainer) {
+        console.error('Modal or qrContainer not found');
+        return;
+    }
+
+    // Show modal first
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+    // Generate QR code after a short delay to ensure modal is visible
+    setTimeout(function() {
+        generateQR(qrContainer, ticketData.ticket_code);
+    }, 150);
+
+    // Fill ticket info
+    infoContainer.innerHTML = `
+        <p><span>Mã vé:</span> <span style="font-family: monospace; color: #6c5ce7;">${ticketData.ticket_code}</span></p>
+        <p><span>Sự kiện:</span> <span>${ticketData.event_name}</span></p>
+        <p><span>Loại vé:</span> <span>${ticketData.ticket_type}</span></p>
+        <p><span>Ghế:</span> <span>${ticketData.seat}</span></p>
+        <p><span>Ngày diễn ra:</span> <span>${ticketData.event_date}</span></p>
+        <p><span>Địa điểm:</span> <span>${ticketData.venue}</span></p>
+        <p><span>Giá vé:</span> <span style="color: #e74c3c; font-weight: 600;">${ticketData.price_paid}</span></p>
+    `;
+
+    // Check-in status
+    if (ticketData.check_in_time) {
+        checkInStatus.className = 'qr-check-in-status checked-in';
+        checkInStatus.innerHTML = `<i class="fas fa-check-circle"></i> Đã check-in lúc: ${ticketData.check_in_time}`;
+    } else {
+        checkInStatus.className = 'qr-check-in-status not-checked';
+        checkInStatus.innerHTML = `<i class="fas fa-info-circle"></i> Chưa check-in - Đưa mã QR này cho nhân viên quét`;
+    }
+}
+
+function closeQRModal() {
+    const modal = document.getElementById('qrModal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+        // Clear QR code when closing
+        const qrContainer = document.getElementById('qrCodeDiv');
+        if (qrContainer) qrContainer.innerHTML = '';
+    }
+}
+
+// Close modal when clicking outside
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('qrModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeQRModal();
+            }
+        });
+    }
+});
+
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeQRModal();
+    }
+});
+</script>
+
+<!-- QR Modal -->
+<div class="qr-modal" id="qrModal">
+    <div class="qr-modal-content">
+        <div class="qr-modal-header">
+            <h3><i class="fas fa-qrcode"></i> Mã QR Vé</h3>
+            <button class="qr-modal-close" onclick="closeQRModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="qr-modal-body">
+            <div class="qr-code-container">
+                <div id="qrCodeDiv"></div>
+            </div>
+            
+            <div class="ticket-info-modal" id="ticketInfoModal">
+                <!-- Filled by JavaScript -->
+            </div>
+
+            <div class="qr-check-in-status" id="checkInStatus">
+                <!-- Filled by JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* QR Modal Styles */
+.qr-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 99999;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+}
+
+.qr-modal.active {
+    display: flex;
+}
+
+.qr-modal-content {
+    background: white;
+    border-radius: 20px;
+    max-width: 400px;
+    width: 100%;
+    overflow: hidden;
+    animation: qrModalSlideIn 0.3s ease;
+}
+
+@keyframes qrModalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.qr-modal-header {
+    background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+    color: white;
+    padding: 1.25rem 1.5rem;
+    text-align: center;
+    position: relative;
+}
+
+.qr-modal-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.qr-modal-close {
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+}
+
+.qr-modal-close:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+.qr-modal-body {
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.qr-code-container {
+    background: white;
+    padding: 1rem;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+    border: 3px solid #f1f5f9;
+    min-height: 220px;
+}
+
+.qr-code-container img {
+    display: block;
+}
+
+.qr-code-container canvas {
+    display: block;
+}
+
+.ticket-info-modal {
+    text-align: left;
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.ticket-info-modal p {
+    margin: 0.5rem 0;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.ticket-info-modal p:last-child {
+    border-bottom: none;
+}
+
+.ticket-info-modal p span:first-child {
+    color: #666;
+}
+
+.ticket-info-modal p span:last-child {
+    font-weight: 600;
+    color: #1a1a2e;
+    text-align: right;
+    max-width: 60%;
+}
+
+.qr-check-in-status {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.qr-check-in-status.checked-in {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.qr-check-in-status.not-checked {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+@media (max-width: 480px) {
+    .qr-modal-content {
+        margin: 1rem;
+        max-width: calc(100% - 2rem);
+    }
+    
+    .qr-modal-body {
+        padding: 1rem;
+    }
+    
+    .qr-code-container {
+        padding: 0.75rem;
+    }
+    
+    .ticket-info-modal p {
+        font-size: 0.8rem;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .ticket-info-modal p span:last-child {
+        max-width: 100%;
+        text-align: left;
+    }
+}
+</style>
 @endsection

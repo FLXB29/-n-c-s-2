@@ -24,7 +24,7 @@ class CheckoutController extends Controller
 
         $user = Auth::user();
         $ticketType = TicketType::findOrFail($request->ticket_type_id);
-        
+
         // Check availability
         if ($ticketType->remaining < $request->quantity) {
             return back()->with('error', 'Số lượng vé còn lại không đủ.');
@@ -32,7 +32,7 @@ class CheckoutController extends Controller
 
         // Calculate total
         $totalAmount = $ticketType->price * $request->quantity;
-        
+
         // Parse selected seats
         $selectedSeatIds = [];
         if ($request->filled('selected_seats')) {
@@ -67,6 +67,7 @@ class CheckoutController extends Controller
                     'ticket_code' => 'TKT-' . strtoupper(Str::random(12)),
                     'event_id' => $event->id,
                     'ticket_type_id' => $ticketType->id,
+                    'seat_id' => $selectedSeatIds[$i] ?? null,
                     'user_id' => $user->id,
                     'order_id' => $order->id,
                     'price_paid' => $ticketType->price,
@@ -78,7 +79,7 @@ class CheckoutController extends Controller
                     $seatId = $selectedSeatIds[$i];
                     $seat = Seat::find($seatId);
                     if ($seat && $seat->status == 'available') {
-                        $seat->update(['status' => 'reserved']); // Reserve seat instead of sold
+                        $seat->update(['status' => Seat::STATUS_HELD]); // Hold until payment
                     }
                 }
             }
@@ -92,7 +93,6 @@ class CheckoutController extends Controller
             DB::commit();
 
             return redirect()->route('orders.payment', $order->id);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Có lỗi xảy ra khi xử lý đơn hàng: ' . $e->getMessage());
@@ -112,11 +112,11 @@ class CheckoutController extends Controller
         if ($order->user_id != Auth::id()) {
             abort(403);
         }
-        
+
         // In a real app, we wouldn't auto-confirm here without verification.
         // But for this flow: User clicks "I have paid" -> We mark as "processing" or keep "pending" and notify admin.
         // Let's just redirect to dashboard with a message.
-        
+
         return redirect()->route('user.dashboard')->with('success', 'Đã ghi nhận thông tin thanh toán. Vui lòng chờ xác nhận từ Ban tổ chức.');
     }
 }

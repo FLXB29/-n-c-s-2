@@ -36,7 +36,7 @@ class AuthController extends Controller
             'terms.accepted' => 'Bạn phải đồng ý với điều khoản.',
         ]);
 
-        $registerData =[
+        $registerData = [
             'full_name' => $request->fullName,
             'email' => $request->email,
             'phone' => $request->phone,
@@ -45,10 +45,10 @@ class AuthController extends Controller
             'status' => 'active'
         ];
 
-        Session::put('register_data',$registerData);
+        Session::put('register_data', $registerData);
 
-        $otp = rand(100000,999999);
-        Cache::put('verify_email_otp_'.$request->email,$otp,300);
+        $otp = rand(100000, 999999);
+        Cache::put('verify_email_otp_' . $request->email, $otp, 300);
 
         // $user = User::create([
         //     'full_name' => $request->fullName,
@@ -64,58 +64,71 @@ class AuthController extends Controller
         // return $this->redirectBasedOnRole($user, 'Đăng ký thành công!');
 
         try {
-        Mail::to($request->email)->send(new OTPMail($otp));
-    } catch (\Exception $e) {
-        return back()->withErrors(['email' => 'Không thể gửi email xác thực. Vui lòng thử lại.']);
+            // Truyền OTP và Tiêu đề tùy chỉnh cho việc Đăng ký
+            Mail::to($request->email)->send(new OTPMail($otp));
+        } catch (\Exception $e) {
+            // Xử lý nếu gửi mail lỗi (tùy chọn)
+            return back()->withErrors(['email' => 'Không thể gửi email xác thực. Vui lòng thử lại.']);
+        }
+
+        // 5. Chuyển hướng
+        return redirect()->route('register.verify');
     }
 
-    return redirect()->route('register.verify');
+    // Hàm hiển thị form nhập OTP
+    public function showVerifyForm()
+    {
+        // Nếu không có dữ liệu đăng ký trong session, đá về trang đăng ký
+        if (!Session::has('register_data')) {
+            return redirect()->route('register');
+        }
+
+        $email = Session::get('register_data')['email'];
+        return view('auth.verify-email', compact('email'));
     }
 
-public function showVerifyForm()
-{
-    if (!Session::has('register_data')) {
-        return redirect()->route('register');
+    // Hàm xử lý xác thực OTP và tạo User
+    public function verifyEmail(Request $request)
+    {
+        $request->validate([
+            'otp' => 'required|numeric|digits:6',
+        ]);
+
+        $data = Session::get('register_data');
+        if (!$data) return redirect()->route('register');
+
+        // Lấy OTP từ Cache
+        $cachedOtp = Cache::get('verify_email_otp_' . $data['email']);
+
+        if (!$cachedOtp || $cachedOtp != $request->otp) {
+            return back()->withErrors(['otp' => 'Mã OTP không chính xác hoặc đã hết hạn.']);
+        }
+
+        // === TẠO USER CHÍNH THỨC ===
+        $user = User::create([
+            'full_name' => $data['full_name'],
+            'email'     => $data['email'],
+            'phone'     => $data['phone'],
+            'password_hash' => $data['password_hash'], // Lưu ý: password đã hash ở bước 1
+            'role'      => 'user',
+            'status'    => 'active',
+            'email_verified_at' => now(), // Đánh dấu đã xác thực email
+        ]);
+
+        // Đăng nhập luôn
+        Auth::login($user);
+
+        // Xóa session và cache
+        Session::forget('register_data');
+        Cache::forget('verify_email_otp_' . $data['email']);
+
+        return $this->redirectBasedOnRole($user, 'Đăng ký và xác thực thành công!');
     }
 
-    $email = Session::get('register_data')['email'];
-    return view('auth.verify-email', compact('email'));
-}
+    // ============================================
+    // ĐĂNG NHẬP THÔNG THƯỜNG
+    // ============================================
 
-public function verifyEmail(Request $request)
-{
-    $request->validate([
-        'otp' => 'required|numeric|digits:6',
-    ]);
-
-    $data = Session::get('register_data');
-    if (!$data) return redirect()->route('register');
-
-    $cachedOtp = Cache::get('verify_email_otp_' . $data['email']);
-
-    if (!$cachedOtp || $cachedOtp != $request->otp) {
-        return back()->withErrors(['otp' => 'Mã OTP không chính xác hoặc đã hết hạn.']);
-    }
-
-    $user = User::create([
-        'full_name' => $data['full_name'],
-        'email'     => $data['email'],
-        'phone'     => $data['phone'],
-        'password_hash' => $data['password_hash'],
-        'role'      => 'user',
-        'status'    => 'active',
-        'email_verified_at' => now(), 
-    ]);
-
-    Auth::login($user);
-
-    Session::forget('register_data');
-    Cache::forget('verify_email_otp_' . $data['email']);
-
-    return $this->redirectBasedOnRole($user, 'Đăng ký và xác thực thành công!');
-}
-
-  
     public function showLoginForm()
     {
         return view('auth.login');
@@ -253,5 +266,65 @@ public function verifyEmail(Request $request)
         };
 
         return $message ? $redirect->with('success', $message) : $redirect;
+    }
+
+    // ============================================
+    // FORGOT PASSWORD (OTP TO EMAIL, AUTO-LOGIN WHEN VERIFIED)
+    // ============================================
+    public function showForgotForm()
+    {
+        return view('auth.forgot-password');
+    }
+
+    public function sendResetOtp(Request $request)
+    {
+        $data = $request->validate(['email' => 'required|email']);
+        $user = User::where('email', $data['email'])->first();
+        if (!$user) {
+            return back()->withErrors(['email' => 'Email không tồn tại trong hệ thống.']);
+        }
+
+        $otp = rand(100000, 999999);
+        Cache::put('reset_otp_' . $user->email, $otp, 300);
+        Session::put('reset_email', $user->email);
+
+        try {
+            Mail::to($user->email)->send(new OTPMail($otp));
+        } catch (\Exception $e) {
+            Log::error('Send reset OTP error: ' . $e->getMessage());
+            return back()->withErrors(['email' => 'Không thể gửi mã. Vui lòng thử lại.']);
+        }
+
+        return redirect()->route('password.verify')->with('success', 'Đã gửi mã xác thực tới email.');
+    }
+
+    public function showVerifyResetForm()
+    {
+        $email = Session::get('reset_email');
+        if (!$email) return redirect()->route('password.request');
+        return view('auth.verify-reset', compact('email'));
+    }
+
+    public function verifyResetOtp(Request $request)
+    {
+        $request->validate(['otp' => 'required|numeric|digits:6']);
+        $email = Session::get('reset_email');
+        if (!$email) return redirect()->route('password.request');
+
+        $cachedOtp = Cache::get('reset_otp_' . $email);
+        if (!$cachedOtp || $cachedOtp != $request->otp) {
+            return back()->withErrors(['otp' => 'Mã OTP không chính xác hoặc đã hết hạn.']);
+        }
+
+        $user = User::where('email', $email)->first();
+        if (!$user) return redirect()->route('password.request')->withErrors(['email' => 'Email không tồn tại.']);
+
+        // OTP đúng: đăng nhập luôn
+        Auth::login($user, true);
+
+        Cache::forget('reset_otp_' . $email);
+        Session::forget('reset_email');
+
+        return $this->redirectBasedOnRole($user, 'Xác thực thành công, bạn đã được đăng nhập.');
     }
 }

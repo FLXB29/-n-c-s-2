@@ -13,6 +13,7 @@ class Ticket extends Model
         'ticket_code',    // Mã vé (Unique string, dùng để quét QR)
         'event_id',
         'ticket_type_id',
+        'seat_id',        // Ghế đã chọn (nếu có)
         'user_id',        // Người mua
         'order_id',       // Thuộc đơn hàng nào (nếu có model Order)
         'price_paid',     // Giá tiền thực tế đã trả (phòng khi giá vé thay đổi sau này)
@@ -35,8 +36,18 @@ class Ticket extends Model
         return $this->belongsTo(TicketType::class);
     }
 
+    public function seat()
+    {
+        return $this->belongsTo(Seat::class);
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
     }
 }

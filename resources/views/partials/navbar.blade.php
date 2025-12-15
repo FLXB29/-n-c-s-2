@@ -85,6 +85,9 @@
                         <a href="{{ route('admin.dashboard') }}" class="mobile-auth-btn">
                             <i class="fas fa-cogs"></i> Admin Panel
                         </a>
+                        <a href="{{ route('admin.check-in.index') }}" class="mobile-auth-btn">
+                            <i class="fas fa-qrcode"></i> Quét QR Check-in
+                        </a>
                         @endif
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
@@ -121,6 +124,9 @@
                             <li><a href="{{ route('user.dashboard') }}">
                                 <i class="fas fa-tachometer-alt"></i> Dashboard
                             </a></li>
+                            <li><a href="{{ route('user.dashboard') }}#tickets" onclick="localStorage.setItem('dashboardSection', 'tickets')">
+                                <i class="fas fa-ticket-alt"></i> Vé của tôi
+                            </a></li>
                             <li><a href="{{ route('chat.index') }}">
                                 <i class="fas fa-comments"></i> Chat hỗ trợ
                             </a></li>
@@ -132,6 +138,9 @@
                             @if(auth()->user()->isAdmin())
                             <li><a href="{{ route('admin.dashboard') }}">
                                 <i class="fas fa-cogs"></i> Admin Panel
+                            </a></li>
+                            <li><a href="{{ route('admin.check-in.index') }}">
+                                <i class="fas fa-qrcode"></i> Quét QR Check-in
                             </a></li>
                             @endif
                             <li><hr class="dropdown-divider"></li>

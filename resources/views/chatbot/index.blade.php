@@ -256,6 +256,73 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #764ba2;
         }
+
+        /* Markdown formatting styles */
+        .message-content strong,
+        .message-content b {
+            font-weight: 600;
+        }
+
+        .message-content ul,
+        .message-content ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .message-content li {
+            margin-bottom: 5px;
+            line-height: 1.6;
+        }
+
+        .message-content p {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        .message-content p:first-child {
+            margin-top: 0;
+        }
+
+        .message-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .message-content h1,
+        .message-content h2,
+        .message-content h3,
+        .message-content h4 {
+            font-size: 1em;
+            font-weight: 600;
+            margin: 10px 0 5px 0;
+        }
+
+        .message-content code {
+            background: rgba(0,0,0,0.1);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .message.user .message-content code {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .message-content a {
+            color: #667eea;
+            text-decoration: underline;
+        }
+
+        .message.user .message-content a {
+            color: #fff;
+        }
+
+        .message-content blockquote {
+            border-left: 3px solid #667eea;
+            padding-left: 10px;
+            margin: 10px 0;
+            color: #666;
+        }
     </style>
 </head>
 <body>
@@ -317,11 +384,25 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
         $(document).ready(function() {
             const messagesContainer = $('#chatMessages');
             const messageInput = $('#messageInput');
             const sendButton = $('#sendButton');
+
+            // Cấu hình marked để parse markdown
+            marked.setOptions({
+                breaks: true,      // Cho phép xuống dòng với single line break
+                gfm: true,         // GitHub Flavored Markdown
+                headerIds: false,  // Tắt tự động tạo id cho headers
+                mangle: false      // Không mã hóa email addresses
+            });
+
+            // Hàm parse markdown sang HTML
+            function parseMarkdown(text) {
+                return marked.parse(text);
+            }
 
             // Scroll to bottom
             function scrollToBottom() {
@@ -330,11 +411,14 @@
 
             // Add message to chat
             function addMessage(message, isUser = false) {
+                // Parse markdown cho tin nhắn từ bot, giữ nguyên text cho user
+                const displayMessage = isUser ? $('<div>').text(message).html() : parseMarkdown(message);
+                
                 const messageHtml = `
                     <div class="message ${isUser ? 'user' : 'bot'}">
                         ${!isUser ? '<div class="message-avatar"><i class="fas fa-robot"></i></div>' : ''}
                         <div class="message-content">
-                            <p>${message}</p>
+                            ${isUser ? '<p>' + displayMessage + '</p>' : displayMessage}
                         </div>
                         ${isUser ? '<div class="message-avatar"><i class="fas fa-user"></i></div>' : ''}
                     </div>

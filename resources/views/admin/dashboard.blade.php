@@ -30,15 +30,21 @@
 <body>
     <!-- Use Main Website Navbar -->
     @include('partials.navbar')
-
+    @include('admin.partials.sidebar')
     <!-- Sidebar -->
-    <aside class="admin-sidebar" id="sidebar">
+    {{-- <aside class="admin-sidebar" id="sidebar">
         <div class="sidebar-content">
             <ul class="sidebar-menu">
                 <li class="menu-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                     <a href="{{ route('admin.dashboard') }}">
                         <i class="fas fa-tachometer-alt"></i>
                         <span>Tổng quan</span>
+                    </a>
+                </li>
+                <li class="menu-item {{ request()->routeIs('admin.statistics') ? 'active' : '' }}">
+                    <a href="{{ route('admin.statistics') }}">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Thống kê</span>
                     </a>
                 </li>
                 <li class="menu-item {{ request()->routeIs('admin.events.*') ? 'active' : '' }}">
@@ -73,7 +79,7 @@
                 </li>
             </ul>
         </div>
-    </aside>
+    </aside> --}}
 
     <!-- Main Content -->
     <main class="admin-main">
