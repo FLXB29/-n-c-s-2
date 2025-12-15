@@ -16,14 +16,17 @@ class UserDashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $orders = $user->orders()->with('event')->latest()->get();
+        $orders = $user->orders()
+            ->with(['event', 'tickets.ticketType', 'tickets.seat'])
+            ->latest()
+            ->get();
         return view('user.dashboard', compact('user', 'orders'));
     }
 
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
-        
+
         $request->validate([
             'full_name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
@@ -64,16 +67,16 @@ class UserDashboardController extends Controller
         return back()->with('success', 'Cập nhật ảnh đại diện thành công!');
     }
 
-     public function sendOtp()
+    public function sendOtp()
     {
         $user = Auth::user();
-        
+
         // Tạo mã ngẫu nhiên 6 số
         $otp = rand(100000, 999999);
-        
+
         // Lưu vào Cache trong 5 phút (300 giây) với key là "otp_ID_USER"
         Cache::put('otp_' . $user->id, $otp, 300);
-        
+
         // Gửi mail
         try {
             Mail::to($user->email)->send(new OTPMail($otp));
@@ -98,7 +101,7 @@ class UserDashboardController extends Controller
         if (!Hash::check($request->current_password, $user->password_hash)) {
             return back()->withErrors(['current_password' => 'Mật khẩu hiện tại không đúng']);
         }
-        
+
         // Lấy OTP từ Cache
         $cachedOtp = Cache::get('otp_' . $user->id);
 
@@ -121,7 +124,7 @@ class UserDashboardController extends Controller
     public function requestOrganizer()
     {
         $user = Auth::user();
-        
+
         if ($user->role === 'organizer') {
             return back()->with('info', 'Bạn đã là Organizer rồi.');
         }

@@ -23,7 +23,7 @@ class SepayWebhookController extends Controller
 
         // 2. Kiểm tra Header Authorization / X-Sepay-Token
         $header = $request->header('Authorization') ?? $request->header('X-SEPAY-TOKEN');
-        
+
         if (!$header) return false;
 
         // "Tuyệt chiêu": Chỉ cần trong header có chứa đúng mã bí mật là cho qua
@@ -35,7 +35,7 @@ class SepayWebhookController extends Controller
     {
         // --- LOG DATA ĐỂ DEBUG ---
         Log::info('--- SEPAY WEBHOOK START ---');
-        
+
         // 1. Check Token
         if (!$this->validateToken($request)) {
             Log::error('Auth Failed. Header: ' . $request->header('Authorization'));
@@ -49,7 +49,7 @@ class SepayWebhookController extends Controller
 
         // 2. Tìm mã đơn hàng thông minh
         $orderPrefix = env('SEPAY_ORDER_PREFIX', 'ORD'); // VD: ORD
-        
+
         // Lấy mã thô từ tin nhắn (VD: ORDONGYHBXQ61)
         $rawOrderCode = $this->extractOrderCode($content, $orderPrefix);
 
@@ -126,7 +126,8 @@ class SepayWebhookController extends Controller
     }
 
     // Hàm hỗ trợ thêm dấu gạch ngang nếu mã tìm được bị dính liền
-    private function normalizeOrderCode($code, $prefix) {
+    private function normalizeOrderCode($code, $prefix)
+    {
         // Nếu code là ORD123 -> Trả về ORD-123 để khớp với DB
         if (strpos($code, '-') === false && strpos($code, '_') === false) {
             // Chèn dấu - sau prefix

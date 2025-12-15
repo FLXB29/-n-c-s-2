@@ -11,6 +11,8 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\SeatController;
+use App\Http\Controllers\AdminStatisticsController;
+use App\Http\Controllers\CheckInController;
 use Illuminate\Support\Facades\Route;
 
 // Public Routes
@@ -21,6 +23,7 @@ Route::get('/events/{event}/seats', [App\Http\Controllers\EventController::class
 
 // Realtime Seats API (public để lấy danh sách, nhưng hold/release cần auth)
 Route::get('/api/events/{event}/seats', [SeatController::class, 'index'])->name('api.seats.index');
+
 Route::middleware('auth')->group(function () {
     Route::post('/api/events/{event}/seats/hold', [SeatController::class, 'hold'])->name('api.seats.hold');
     Route::post('/api/events/{event}/seats/release', [SeatController::class, 'release'])->name('api.seats.release');
@@ -110,6 +113,25 @@ Route::middleware('auth')->group(function () {
         Route::get('/orders', [AdminController::class, 'orders'])->name('orders.index');
         Route::patch('/orders/{id}/approve', [AdminController::class, 'approveOrder'])->name('orders.approve');
         Route::patch('/orders/{id}/cancel', [AdminController::class, 'cancelOrder'])->name('orders.cancel');
+
+        // Statistics & Export
+        Route::get('/statistics', [AdminStatisticsController::class, 'index'])->name('statistics');
+        Route::get('/statistics/events', [AdminStatisticsController::class, 'eventStats'])->name('statistics.events');
+        Route::get('/statistics/events/{event}', [AdminStatisticsController::class, 'eventDetail'])->name('statistics.event.detail');
+        Route::get('/statistics/users', [AdminStatisticsController::class, 'userStats'])->name('statistics.users');
+        Route::get('/statistics/users/{user}', [AdminStatisticsController::class, 'userDetail'])->name('statistics.user.detail');
+        Route::get('/export/orders', [AdminStatisticsController::class, 'exportOrders'])->name('export.orders');
+        Route::get('/export/users', [AdminStatisticsController::class, 'exportUsers'])->name('export.users');
+        Route::get('/export/events', [AdminStatisticsController::class, 'exportEvents'])->name('export.events');
+        Route::get('/export/revenue', [AdminStatisticsController::class, 'exportRevenue'])->name('export.revenue');
+        Route::get('/export/event/{event}', [AdminStatisticsController::class, 'exportEventDetail'])->name('export.event.detail');
+        Route::get('/export/user/{user}', [AdminStatisticsController::class, 'exportUserDetail'])->name('export.user.detail');
+
+        // Check-in QR Scanner
+        Route::get('/check-in', [CheckInController::class, 'index'])->name('check-in.index');
+        Route::post('/check-in/scan', [CheckInController::class, 'scan'])->name('check-in.scan');
+        Route::post('/check-in/confirm', [CheckInController::class, 'confirmCheckIn'])->name('check-in.confirm');
+        Route::get('/check-in/event/{event}/stats', [CheckInController::class, 'getCheckedInList'])->name('check-in.stats');
     });
 
     // Checkout Routes

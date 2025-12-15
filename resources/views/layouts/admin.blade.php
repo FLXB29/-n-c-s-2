@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Admin Dashboard') - EventHub</title>
     <link rel="stylesheet" href="{{ asset('css/main.css') }}">
     <link rel="stylesheet" href="{{ asset('css/components.css') }}">
@@ -24,6 +25,7 @@
             }
         }
     </style>
+    @stack('styles')
 </head>
 <body>
     @include('partials.navbar')
@@ -35,8 +37,8 @@
     
     <!-- Sidebar Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleAdminSidebar()"></div>
-
-    <aside class="admin-sidebar" id="sidebar">
+    @include('admin.partials.sidebar')
+    {{-- <aside class="admin-sidebar" id="sidebar">
         <div class="sidebar-content">
             <ul class="sidebar-menu">
                 <li class="menu-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
@@ -71,7 +73,7 @@
                 </li>
             </ul>
         </div>
-    </aside>
+    </aside> --}}
 
     <main class="admin-main">
         @if(session('success'))
@@ -98,5 +100,6 @@
             document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
         }
     </script>
+    @stack('scripts')
 </body>
 </html>
