@@ -9,6 +9,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\SeatController;
+use App\Http\Controllers\ChatbotController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -108,4 +109,11 @@ Route::middleware('auth')->group(function () {
 Route::get('/debug-db', function() {
     $columns = \Illuminate\Support\Facades\DB::select('DESCRIBE orders');
     dd($columns);
+});
+
+// AI Chatbot Routes
+Route::prefix('chatbot')->name('chatbot.')->group(function () {
+    Route::get('/', [ChatbotController::class, 'index'])->name('index');
+    Route::post('/send', [ChatbotController::class, 'sendMessage'])->name('send');
+    Route::get('/suggestions', [ChatbotController::class, 'getSuggestions'])->name('suggestions');
 });
