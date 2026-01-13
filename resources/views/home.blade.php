@@ -318,9 +318,50 @@
 }
 
 .chatbot-message-content p {
-    margin: 0;
+    margin: 0 0 8px 0;
     font-size: 14px;
     line-height: 1.5;
+}
+
+.chatbot-message-content p:last-child {
+    margin-bottom: 0;
+}
+
+.chatbot-message-content strong {
+    font-weight: 600;
+}
+
+.chatbot-message-content em {
+    font-style: italic;
+}
+
+.chatbot-message-content ul,
+.chatbot-message-content ol {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+.chatbot-message-content li {
+    margin: 4px 0;
+}
+
+.chatbot-message-content h1,
+.chatbot-message-content h2,
+.chatbot-message-content h3 {
+    font-size: 1em;
+    font-weight: 600;
+    margin: 8px 0 4px 0;
+}
+
+.chatbot-message-content code {
+    background: rgba(0,0,0,0.08);
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+.chatbot-message.user .chatbot-message-content code {
+    background: rgba(255,255,255,0.2);
 }
 
 .chatbot-quick-actions {
@@ -428,6 +469,7 @@
 }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const chatbotToggle = document.getElementById('chatbotToggle');
@@ -448,8 +490,28 @@ document.addEventListener('DOMContentLoaded', function() {
         chatbotWindow.classList.remove('active');
     });
 
+    // Hàm parse markdown sang HTML
+    function parseMarkdown(text) {
+        if (typeof marked !== 'undefined') {
+            try {
+                marked.setOptions({ breaks: true, gfm: true });
+                return marked.parse ? marked.parse(text) : marked(text);
+            } catch (e) {
+                console.error('Lỗi parse markdown:', e);
+            }
+        }
+        
+        // Fallback: parse markdown thủ công
+        return text
+            .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.+?)\*/g, '<em>$1</em>')
+            .replace(/\n/g, '<br>');
+    }
+
     // Add message to chat
     function addMessage(message, isUser = false) {
+        const displayMessage = isUser ? message : parseMarkdown(message);
         const messageDiv = document.createElement('div');
         messageDiv.className = `chatbot-message ${isUser ? 'user' : 'bot'}`;
         messageDiv.innerHTML = `
@@ -457,7 +519,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <i class="fas fa-${isUser ? 'user' : 'robot'}"></i>
             </div>
             <div class="chatbot-message-content">
-                <p>${message}</p>
+                ${isUser ? '<p>' + message + '</p>' : displayMessage}
             </div>
         `;
         chatbotMessages.appendChild(messageDiv);

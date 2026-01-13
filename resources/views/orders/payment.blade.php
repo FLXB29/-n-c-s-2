@@ -147,6 +147,6 @@ function pollOrderStatus() {
         .catch(err => console.error('Status check error', err));
 }
 
-setInterval(pollOrderStatus, 4000);
+setInterval(pollOrderStatus, 4000);// cứ 4 giây hỏi một lần
 </script>
 @endsection

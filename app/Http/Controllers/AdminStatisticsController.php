@@ -17,7 +17,7 @@ class AdminStatisticsController extends Controller
     public function index(Request $request)
     {
         // Date range filter
-        $startDate = $request->input('start_date') ? Carbon::parse($request->start_date)->startOfDay() : now()->subDays(30)->startOfDay();
+        $startDate = $request->input('start_date') ? Carbon::parse($request->start_date)->startOfDay() : now()->subDays(60)->startOfDay();
         $endDate = $request->input('end_date') ? Carbon::parse($request->end_date)->endOfDay() : now()->endOfDay();
 
         // Overview stats

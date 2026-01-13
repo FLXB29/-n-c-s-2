@@ -118,9 +118,9 @@
                                 </td>
                                 <td>
                                     @if($user->role == 'admin')
-                                        <span class="badge bg-danger">Admin</span>
+                                        <span class="badge bg-danger" style="color: red">Admin</span>
                                     @elseif($user->role == 'organizer')
-                                        <span class="badge bg-info text-dark">Organizer</span>
+                                        <span class="badge bg-info text-dark" style="color: yellow">Organizer</span>
                                     @else
                                         <span class="badge bg-secondary">User</span>
                                     @endif

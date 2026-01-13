@@ -57,7 +57,7 @@ class ChatbotController extends Controller
                 ],
                 'generationConfig' => [
                     'temperature' => 0.7,
-                    'maxOutputTokens' => 800,
+                    'maxOutputTokens' => 2000,
                 ],
             ]);
 
@@ -101,7 +101,7 @@ class ChatbotController extends Controller
 
         foreach ($events as $event) {
             $context .= "- Tên: {$event->title}\n";
-            $context .= "  ID: {$event->id}\n";
+            // $context .= "  ID: {$event->id}\n";
             $context .= "  Mô tả: " . strip_tags($event->description) . "\n";
             $context .= "  Danh mục: " . ($event->category->name ?? 'Chưa phân loại') . "\n";
             $context .= "  Thời gian: " . $event->start_datetime->format('d/m/Y H:i') . "\n";
@@ -129,7 +129,7 @@ class ChatbotController extends Controller
 Bạn là trợ lý AI thông minh của hệ thống đặt vé sự kiện. Nhiệm vụ của bạn là:
 1. Trả lời các câu hỏi về sự kiện một cách chính xác dựa trên dữ liệu được cung cấp
 2. Gợi ý sự kiện phù hợp với nhu cầu của người dùng
-3. Cung cấp thông tin về giá vé, thời gian, địa điểm
+3.  Bắt buộc cung cấp thông tin về giá vé, thời gian, địa điểm
 4. Hướng dẫn người dùng cách đặt vé
 5. Trả lời bằng tiếng Việt một cách thân thiện và chuyên nghiệp
 
